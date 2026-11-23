@@ -1,0 +1,122 @@
+# plcmonitor configuration (last saved from the dashboard).
+# The original hand-written file, with comments, is in config.yaml.bak.
+
+protocol: s7
+plc:
+    address: 192.168.1.1
+    rack: 0
+    slot: 1
+    connection_type: pg
+    timeout: 5s
+modbus:
+    mode: tcp
+    address: ""
+    serial_port: ""
+    baud: 9600
+    data_bits: 8
+    parity: "N"
+    stop_bits: 1
+    unit_id: 1
+    word_order: big
+    max_gap: 0
+    timeout: 2s
+opcua:
+    endpoint: opc.tcp://192.168.137.161:4840
+    security: none
+    policy: Aes256_Sha256_RsaPss
+    timeout: 5s
+poll_interval: 1s
+reconnect_delay: 2s
+reconnect_max: 30s
+simulate: false
+simulator:
+    drop_every: 45s
+    down_for: 6s
+web:
+    listen: :8080
+    read_only: false
+    allow_remote_write: false
+    theme: hmi-gray
+history:
+    disabled: false
+    path: history
+    interval: 1s
+    heartbeat: 1m0s
+    keep_days: 30
+export:
+    csv:
+        enabled: true
+        path: changes.csv
+    mqtt:
+        enabled: false
+        broker: tcp://localhost:1883
+        client_id: s7monitor
+        username: ""
+        password: ""
+        topic_prefix: s7monitor
+        qos: 0
+        retain: true
+        payload: json
+    influxdb:
+        enabled: false
+        version: 2
+        url: http://localhost:8086
+        database: ""
+        retention_policy: ""
+        username: ""
+        password: ""
+        org: my-org
+        bucket: plc
+        token: ""
+        measurement: s7
+        flush_interval: 5s
+    victoriametrics:
+        enabled: false
+        url: ""
+        measurement: s7
+        flush_seconds: 5
+    questdb:
+        enabled: false
+        url: ""
+        measurement: s7_values
+        flush_seconds: 5
+    timescaledb:
+        enabled: false
+        dsn: ""
+        table: s7_values
+        create_table: false
+        flush_seconds: 5
+    clickhouse:
+        enabled: false
+        url: ""
+        database: default
+        table: s7_values
+        create_table: false
+        flush_seconds: 5
+    amqp:
+        enabled: false
+        url: ""
+        exchange: amq.topic
+        routing_prefix: s7monitor
+        payload: json
+        persistent: false
+    coap:
+        enabled: false
+        url: ""
+        method: post
+        confirmable: false
+        payload: json
+    prometheus:
+        enabled: false
+        listen: :9273
+    grpc:
+        enabled: false
+        listen: :50051
+    opcua_server:
+        enabled: false
+        listen: :4840
+layout:
+    chart_place: window
+dcp:
+    source: local
+tags: []

@@ -1,0 +1,87 @@
+# s7monitor configuration. Durations use Go syntax: 500ms, 1s, 2m.
+# Network and tag settings can also be kept in separate files with the
+# File menu (New / Open / Save / Save as); this file then remembers which.
+
+protocol: s7                # s7 or modbus
+
+plc:                        # used when protocol is s7
+  address: 192.168.0.1      # PLC IP or host; ":102" is added if no port is given
+  # Rack/slot of the CPU:
+  #   S7-1200 / S7-1500: rack 0, slot 1 (some 1500 setups use slot 0)
+  #   S7-300:            rack 0, slot 2
+  #   S7-400:            rack 0, slot = the CPU's slot in the rack (often 2 or 3)
+  rack: 0
+  slot: 1
+  connection_type: pg       # pg, op or basic
+  timeout: 5s               # connect and per-request timeout
+
+modbus:                     # used when protocol is modbus
+  mode: tcp                 # tcp = TCP/IP, rtu = RS485/RS232 COM port, rtuovertcp = RS485 via Ethernet gateway
+  address: 192.168.0.10     # tcp, rtuovertcp: host or host:port (port 502 if omitted)
+  serial_port: COM3         # rtu
+  baud: 9600                # rtu
+  data_bits: 8              # rtu
+  parity: N                 # rtu: N, E or O
+  stop_bits: 1              # rtu
+  unit_id: 1                # default slave / unit address (a tag can set its own with unit:)
+  word_order: big           # 32/64-bit values: big = high word first, little = low word first
+  max_gap: 0                # unused registers/coils that may be read to merge requests
+  timeout: 2s
+
+poll_interval: 1s
+reconnect_delay: 2s         # first retry delay; doubles on each failure ...
+reconnect_max: 30s          # ... up to this
+
+# simulate: true runs against the built-in fake PLC (same as the -simulate flag).
+simulate: false
+simulator:
+  drop_every: 45s           # simulate a link drop this often (0 = never)
+  down_for: 6s              # how long each simulated drop lasts
+
+web:
+  listen: ":8080"           # dashboard address; "" disables it
+  read_only: false          # true = no network/tag editing from the dashboard
+
+export:
+  csv:
+    enabled: true
+    path: changes.csv       # appended; header written when the file is new
+  mqtt:
+    enabled: false
+    broker: tcp://localhost:1883
+    client_id: s7monitor
+    username: ""
+    password: ""
+    topic_prefix: s7monitor # publishes s7monitor/<tag> and s7monitor/status
+    qos: 0
+    retain: true
+  influxdb:
+    enabled: false
+    url: http://localhost:8086
+    org: my-org
+    bucket: plc
+    token: ""               # InfluxDB 1.8: "user:password"
+    measurement: s7
+    flush_interval: 5s
+
+# Tags. area: DB, I (inputs), Q (outputs), M (markers).
+# type: BOOL, BYTE/USINT, SINT, WORD/UINT, INT, DWORD/UDINT, DINT, REAL, LREAL.
+# offset is the byte offset; bit (0-7) is only used for BOOL.
+# For DB tags on S7-1200/1500 the DB must have "Optimized block access" OFF.
+# deadband (optional): numeric change smaller than this is not logged.
+tags:
+  - { name: Motor1_Running,  area: DB, db: 1, offset: 0,  bit: 0, type: BOOL,  description: Motor 1 running feedback }
+  - { name: Motor1_Fault,    area: DB, db: 1, offset: 0,  bit: 1, type: BOOL }
+  - { name: Motor1_Speed,    area: DB, db: 1, offset: 2,  type: INT,  description: rpm }
+  - { name: Tank_Level,      area: DB, db: 1, offset: 4,  type: REAL, deadband: 0.5, description: "%" }
+  - { name: Batch_Counter,   area: DB, db: 1, offset: 8,  type: DINT }
+  - { name: Status_Word,     area: DB, db: 1, offset: 12, type: WORD }
+  - { name: Flow_Total,      area: DB, db: 2, offset: 0,  type: LREAL, deadband: 1 }
+  - { name: Start_Button,    area: I,  offset: 0, bit: 0, type: BOOL }
+  - { name: Stop_Button,     area: I,  offset: 0, bit: 1, type: BOOL }
+  - { name: Analog_In_1,     area: I,  offset: 64, type: INT, deadband: 20, description: raw 0..27648 }
+  - { name: Pump_Contactor,  area: Q,  offset: 0, bit: 0, type: BOOL }
+  - { name: Valve_Position,  area: Q,  offset: 2, type: BYTE }
+  - { name: Auto_Mode,       area: M,  offset: 10, bit: 0, type: BOOL }
+  - { name: Cycle_Time_ms,   area: M,  offset: 20, type: DINT }
+  - { name: Setpoint,        area: M,  offset: 30, type: REAL, deadband: 0.5 }

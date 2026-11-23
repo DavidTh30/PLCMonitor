@@ -1,0 +1,1727 @@
+2026/11/21 17:28:31.830631 PLC Monitor 1.3.0-dev starting
+2026/11/21 17:28:31.830631 export enabled: csv
+2026/11/21 17:28:31.830631 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/21 17:28:31.890545 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/21 17:28:31.890545 polling 4 block(s) every 1s
+2026/11/21 17:28:31.935600 CHANGE EStop_OK             I0.0           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE AC_Supply_Ok         I0.1           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DC_Supply_Ok         I0.2           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE PB_Reset             I0.3           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Fluff01Mi n          I0.4           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Fluff01Max           I0.5           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Shutter01IsClose     I0.6           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Shutter02IsOpen      I0.7           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE AnySafetyDoor        I1.0           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Fluff01Block         I1.1           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE HerboldRequest       I8.0           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Blower01Ready        I8.1           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Blower01Running      I8.2           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Blower01DriveFault   I8.3           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Blower01CBTrip       I8.4           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE DischargeScrew01Ready I8.5           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DischargeScrew01Running I8.6           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DischargeScrew01DrvFault I8.7           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DischargeScrew01CBTrip I9.0           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Paddle01CBTrip       I9.1           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Paddle02CBTrip       I9.2           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Paddle03CBTrip       I9.3           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE FlapToDushIsClose    I9.4           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE FlapToDushIsOpen     I9.5           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DischaScwCoolFanCBTrip I9.6           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE SpareI9.7            I9.7           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ0.0            Q0.0           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ0.1            Q0.1           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ0.2            Q0.2           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ0.3            Q0.3           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE ValvaClean           Q0.4           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE ShutterClose         Q0.5           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE ShutterOpen          Q0.6           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE FlapToDustWork       Q0.7           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ1.0            Q1.0           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ1.1            Q1.1           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE ACSupplyOn           Q12.0          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DischargeScrew01CoolOn Q12.1          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ12.2           Q12.2          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ12.3           Q12.3          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Paddle01Run          Q12.4          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Paddle02Run          Q12.5          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Paddle03Run          Q12.6          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE TowerLightHorn       Q12.7          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DCSupplyOn           Q13.0          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE SpareQ13.1           Q13.1          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Blower01DriveRun     Q13.2          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Blower01DriveStop    Q13.3          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Blower01DriveReset   Q13.4          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DischargeScrew01DriveRun Q13.5          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DischargeScrew01DriveStop Q13.6          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DischargeScrew01DriveReset Q13.7          - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE AnalogToBlower       QW64           - -> 100
+2026/11/21 17:28:31.935600 CHANGE AnalogToscrew        QW66           - -> 100
+2026/11/21 17:28:31.935600 CHANGE Clock_Byte           MB0            - -> 253
+2026/11/21 17:28:31.935600 CHANGE Clock_10Hz           M0.0           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Clock_5Hz            M0.1           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE Clock_2.5Hz          M0.2           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Clock_2Hz            M0.3           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Clock_1.25Hz         M0.4           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Clock_1Hz            M0.5           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Clock_0.625Hz        M0.6           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE Clock_0.5Hz          M0.7           - -> TRUE
+2026/11/21 17:28:31.935600 CHANGE System_Byte          MB1            - -> 4
+2026/11/21 17:28:31.935600 CHANGE FirstScan            M1.0           - -> FALSE
+2026/11/21 17:28:31.935600 CHANGE DiagStatusUpdate     M1.1           - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE AlwaysTRUE           M1.2           - -> TRUE
+2026/11/21 17:28:31.936107 CHANGE AlwaysFALSE          M1.3           - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE PB_AutoStop          M20.0          - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE PB_AutoStart         M20.1          - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE Lamp_AutoRun         M20.2          - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE Lamp_EStop           M20.3          - -> TRUE
+2026/11/21 17:28:31.936107 CHANGE Silo_Level_AI        MW21           - -> 0
+2026/11/21 17:28:31.936107 CHANGE LampFill_Request     M23.0          - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE FillOnLevel          MW24           - -> 0
+2026/11/21 17:28:31.936107 CHANGE 200Ms                M200.0         - -> TRUE
+2026/11/21 17:28:31.936107 CHANGE 200MsTrig            M200.1         - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE 200MsBuffer          M200.2         - -> TRUE
+2026/11/21 17:28:31.936107 CHANGE 500Ms                M200.3         - -> TRUE
+2026/11/21 17:28:31.936107 CHANGE 500MsTrig            M200.4         - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE 500MsBuffer          M200.5         - -> TRUE
+2026/11/21 17:28:31.936107 CHANGE ResetTrig            M200.6         - -> FALSE
+2026/11/21 17:28:31.936107 CHANGE ResetBuffer          M200.7         - -> FALSE
+2026/11/21 17:28:32.922216 CHANGE Clock_Byte           MB0            253 -> 105
+2026/11/21 17:28:32.931876 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/21 17:28:32.931876 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/21 17:28:32.931876 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/21 17:28:32.931876 CHANGE 200MsTrig            M200.1         FALSE -> TRUE
+2026/11/21 17:28:33.931057 CHANGE Clock_Byte           MB0            105 -> 173
+2026/11/21 17:28:33.931057 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/21 17:28:33.931057 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/21 17:28:33.931057 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/21 17:28:34.930119 CHANGE Clock_Byte           MB0            173 -> 121
+2026/11/21 17:28:34.930908 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/21 17:28:34.930908 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/21 17:28:34.930908 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/21 17:28:34.930908 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/21 17:28:35.922195 CHANGE Clock_Byte           MB0            121 -> 189
+2026/11/21 17:28:35.922195 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/21 17:28:35.922195 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/21 17:28:35.922195 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/21 17:28:35.922195 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/21 17:28:35.922195 CHANGE 200MsTrig            M200.1         TRUE -> FALSE
+2026/11/21 17:28:35.922195 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/21 17:28:36.926909 CHANGE Clock_Byte           MB0            189 -> 41
+2026/11/21 17:28:36.926909 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/21 17:28:36.926909 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/21 17:28:36.926909 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/21 17:28:37.931547 CHANGE Clock_Byte           MB0            41 -> 237
+2026/11/21 17:28:37.931547 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/21 17:28:37.931547 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/21 17:28:37.931547 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/21 17:28:37.931547 CHANGE 200Ms                M200.0         FALSE -> TRUE
+2026/11/21 17:28:37.931547 CHANGE 200MsTrig            M200.1         FALSE -> TRUE
+2026/11/21 17:28:37.931547 CHANGE 200MsBuffer          M200.2         FALSE -> TRUE
+2026/11/21 17:28:38.926370 CHANGE Clock_Byte           MB0            237 -> 57
+2026/11/21 17:28:38.926370 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/21 17:28:38.926370 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/21 17:28:38.926370 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/21 17:28:38.926370 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/21 17:28:38.926370 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/21 17:28:38.926370 CHANGE 200MsTrig            M200.1         TRUE -> FALSE
+2026/11/21 17:28:38.926370 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/21 17:28:39.929351 CHANGE Clock_Byte           MB0            57 -> 253
+2026/11/21 17:28:39.929351 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/21 17:28:39.929351 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/21 17:28:39.929351 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/21 17:28:39.929351 CHANGE 200Ms                M200.0         FALSE -> TRUE
+2026/11/21 17:28:39.929351 CHANGE 200MsTrig            M200.1         FALSE -> TRUE
+2026/11/21 17:28:39.929351 CHANGE 200MsBuffer          M200.2         FALSE -> TRUE
+2026/11/21 17:28:40.931491 CHANGE Clock_Byte           MB0            253 -> 105
+2026/11/21 17:28:40.931491 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/21 17:28:40.931491 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/21 17:28:40.931491 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/21 17:28:40.931491 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/21 17:28:40.931491 CHANGE 200MsTrig            M200.1         TRUE -> FALSE
+2026/11/21 17:28:40.931491 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/21 17:28:41.930439 CHANGE Clock_Byte           MB0            105 -> 173
+2026/11/21 17:28:41.930439 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/21 17:28:41.930439 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/21 17:28:41.930439 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/21 17:28:42.012037 shutting down
+2026/11/21 17:28:44.556287 PLC Monitor 1.3.0-dev starting
+2026/11/21 17:28:44.559901 export enabled: csv
+2026/11/21 17:28:44.564000 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/21 17:28:44.622179 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/21 17:28:44.622179 polling 4 block(s) every 1s
+2026/11/21 17:28:44.663863 CHANGE EStop_OK             I0.0           - -> FALSE
+2026/11/21 17:28:44.663863 CHANGE AC_Supply_Ok         I0.1           - -> FALSE
+2026/11/21 17:28:44.663863 CHANGE DC_Supply_Ok         I0.2           - -> FALSE
+2026/11/21 17:28:44.663863 CHANGE PB_Reset             I0.3           - -> FALSE
+2026/11/21 17:28:44.663863 CHANGE Fluff01Mi n          I0.4           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Fluff01Max           I0.5           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Shutter01IsClose     I0.6           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Shutter02IsOpen      I0.7           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE AnySafetyDoor        I1.0           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Fluff01Block         I1.1           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE HerboldRequest       I8.0           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Blower01Ready        I8.1           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Blower01Running      I8.2           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Blower01DriveFault   I8.3           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Blower01CBTrip       I8.4           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE DischargeScrew01Ready I8.5           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DischargeScrew01Running I8.6           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DischargeScrew01DrvFault I8.7           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DischargeScrew01CBTrip I9.0           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE Paddle01CBTrip       I9.1           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE Paddle02CBTrip       I9.2           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE Paddle03CBTrip       I9.3           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE FlapToDushIsClose    I9.4           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE FlapToDushIsOpen     I9.5           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DischaScwCoolFanCBTrip I9.6           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE SpareI9.7            I9.7           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ0.0            Q0.0           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ0.1            Q0.1           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ0.2            Q0.2           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ0.3            Q0.3           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE ValvaClean           Q0.4           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE ShutterClose         Q0.5           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE ShutterOpen          Q0.6           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE FlapToDustWork       Q0.7           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ1.0            Q1.0           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ1.1            Q1.1           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE ACSupplyOn           Q12.0          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DischargeScrew01CoolOn Q12.1          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ12.2           Q12.2          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ12.3           Q12.3          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Paddle01Run          Q12.4          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Paddle02Run          Q12.5          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Paddle03Run          Q12.6          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE TowerLightHorn       Q12.7          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DCSupplyOn           Q13.0          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE SpareQ13.1           Q13.1          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Blower01DriveRun     Q13.2          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Blower01DriveStop    Q13.3          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Blower01DriveReset   Q13.4          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DischargeScrew01DriveRun Q13.5          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DischargeScrew01DriveStop Q13.6          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DischargeScrew01DriveReset Q13.7          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE AnalogToBlower       QW64           - -> 100
+2026/11/21 17:28:44.664436 CHANGE AnalogToscrew        QW66           - -> 100
+2026/11/21 17:28:44.664436 CHANGE Clock_Byte           MB0            - -> 116
+2026/11/21 17:28:44.664436 CHANGE Clock_10Hz           M0.0           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Clock_5Hz            M0.1           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Clock_2.5Hz          M0.2           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE Clock_2Hz            M0.3           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Clock_1.25Hz         M0.4           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE Clock_1Hz            M0.5           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE Clock_0.625Hz        M0.6           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE Clock_0.5Hz          M0.7           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE System_Byte          MB1            - -> 4
+2026/11/21 17:28:44.664436 CHANGE FirstScan            M1.0           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE DiagStatusUpdate     M1.1           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE AlwaysTRUE           M1.2           - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE AlwaysFALSE          M1.3           - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE PB_AutoStop          M20.0          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE PB_AutoStart         M20.1          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Lamp_AutoRun         M20.2          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE Lamp_EStop           M20.3          - -> TRUE
+2026/11/21 17:28:44.664436 CHANGE Silo_Level_AI        MW21           - -> 0
+2026/11/21 17:28:44.664436 CHANGE LampFill_Request     M23.0          - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE FillOnLevel          MW24           - -> 0
+2026/11/21 17:28:44.664436 CHANGE 200Ms                M200.0         - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE 200MsTrig            M200.1         - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE 200MsBuffer          M200.2         - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE 500Ms                M200.3         - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE 500MsTrig            M200.4         - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE 500MsBuffer          M200.5         - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE ResetTrig            M200.6         - -> FALSE
+2026/11/21 17:28:44.664436 CHANGE ResetBuffer          M200.7         - -> FALSE
+2026/11/21 17:28:45.661255 CHANGE Clock_Byte           MB0            116 -> 224
+2026/11/21 17:28:45.661255 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/21 17:28:45.661255 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/21 17:28:45.661255 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/21 17:28:46.662505 CHANGE Clock_Byte           MB0            224 -> 36
+2026/11/21 17:28:46.662505 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/21 17:28:46.662505 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/21 17:28:46.662505 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/21 17:28:46.952053 shutting down
+2026/11/22 07:32:24.333935 PLC Monitor 1.3.0 starting
+2026/11/22 07:32:24.360421 export enabled: csv
+2026/11/22 07:32:24.385734 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/22 07:32:29.386285 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/22 07:32:36.387256 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/22 07:32:45.388185 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/22 07:32:48.124243 shutting down
+2026/11/22 18:05:13.334160 PLC Monitor 1.3.0 starting
+2026/11/22 18:05:13.335239 export enabled: csv
+2026/11/22 18:05:13.341487 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/22 18:05:18.342407 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/22 18:05:21.428890 new tags configuration
+2026/11/22 18:05:25.343586 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/22 18:05:30.343738 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/22 18:05:43.344050 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 16s)
+2026/11/22 18:05:54.419523 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/22 18:06:15.954940 shutting down
+2026/11/22 18:46:29.434363 PLC Monitor 1.3.0 starting
+2026/11/22 18:46:29.436481 export enabled: csv
+2026/11/22 18:46:29.439221 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/22 18:46:29.497256 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/22 18:46:29.497256 polling 4 block(s) every 1s
+2026/11/22 18:46:29.541286 CHANGE EStop_OK             I0.0           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE AC_Supply_Ok         I0.1           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DC_Supply_Ok         I0.2           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE PB_Reset             I0.3           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Fluff01Mi n          I0.4           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Fluff01Max           I0.5           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Shutter01IsClose     I0.6           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Shutter02IsOpen      I0.7           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE AnySafetyDoor        I1.0           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Fluff01Block         I1.1           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE HerboldRequest       I8.0           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Blower01Ready        I8.1           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Blower01Running      I8.2           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Blower01DriveFault   I8.3           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Blower01CBTrip       I8.4           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE DischargeScrew01Ready I8.5           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DischargeScrew01Running I8.6           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DischargeScrew01DrvFault I8.7           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DischargeScrew01CBTrip I9.0           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE Paddle01CBTrip       I9.1           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE Paddle02CBTrip       I9.2           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE Paddle03CBTrip       I9.3           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE FlapToDushIsClose    I9.4           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE FlapToDushIsOpen     I9.5           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DischaScwCoolFanCBTrip I9.6           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE SpareI9.7            I9.7           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ0.0            Q0.0           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ0.1            Q0.1           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ0.2            Q0.2           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ0.3            Q0.3           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE ValvaClean           Q0.4           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE ShutterClose         Q0.5           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE ShutterOpen          Q0.6           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE FlapToDustWork       Q0.7           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ1.0            Q1.0           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ1.1            Q1.1           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE ACSupplyOn           Q12.0          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DischargeScrew01CoolOn Q12.1          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ12.2           Q12.2          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ12.3           Q12.3          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Paddle01Run          Q12.4          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Paddle02Run          Q12.5          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Paddle03Run          Q12.6          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE TowerLightHorn       Q12.7          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DCSupplyOn           Q13.0          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE SpareQ13.1           Q13.1          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Blower01DriveRun     Q13.2          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Blower01DriveStop    Q13.3          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Blower01DriveReset   Q13.4          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DischargeScrew01DriveRun Q13.5          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DischargeScrew01DriveStop Q13.6          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DischargeScrew01DriveReset Q13.7          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE AnalogToBlower       QW64           - -> 100
+2026/11/22 18:46:29.541286 CHANGE AnalogToscrew        QW66           - -> 100
+2026/11/22 18:46:29.541286 CHANGE Clock_Byte           MB0            - -> 51
+2026/11/22 18:46:29.541286 CHANGE Clock_10Hz           M0.0           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE Clock_5Hz            M0.1           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE Clock_2.5Hz          M0.2           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Clock_2Hz            M0.3           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Clock_1.25Hz         M0.4           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE Clock_1Hz            M0.5           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE Clock_0.625Hz        M0.6           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Clock_0.5Hz          M0.7           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE System_Byte          MB1            - -> 4
+2026/11/22 18:46:29.541286 CHANGE FirstScan            M1.0           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE DiagStatusUpdate     M1.1           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE AlwaysTRUE           M1.2           - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE AlwaysFALSE          M1.3           - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE PB_AutoStop          M20.0          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE PB_AutoStart         M20.1          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Lamp_AutoRun         M20.2          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE Lamp_EStop           M20.3          - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE Silo_Level_AI        MW21           - -> 0
+2026/11/22 18:46:29.541286 CHANGE LampFill_Request     M23.0          - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE FillOnLevel          MW24           - -> 0
+2026/11/22 18:46:29.541286 CHANGE 200Ms                M200.0         - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE 200MsTrig            M200.1         - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE 200MsBuffer          M200.2         - -> TRUE
+2026/11/22 18:46:29.541286 CHANGE 500Ms                M200.3         - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE 500MsTrig            M200.4         - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE 500MsBuffer          M200.5         - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE ResetTrig            M200.6         - -> FALSE
+2026/11/22 18:46:29.541286 CHANGE ResetBuffer          M200.7         - -> FALSE
+2026/11/22 18:46:30.538644 CHANGE Clock_Byte           MB0            51 -> 247
+2026/11/22 18:46:30.538644 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:46:30.538644 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:46:30.538644 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:46:31.538937 CHANGE Clock_Byte           MB0            247 -> 99
+2026/11/22 18:46:31.538937 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:46:31.539915 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:46:31.539915 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:46:32.536621 CHANGE Clock_Byte           MB0            99 -> 167
+2026/11/22 18:46:32.536621 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:46:32.536621 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:46:32.536621 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:46:33.537207 CHANGE Clock_Byte           MB0            167 -> 115
+2026/11/22 18:46:33.537796 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:46:33.537796 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:46:33.537796 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:46:33.537796 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:46:34.537732 CHANGE Clock_Byte           MB0            115 -> 183
+2026/11/22 18:46:34.537732 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:46:34.537732 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:46:34.537732 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:46:35.537377 CHANGE Clock_Byte           MB0            183 -> 35
+2026/11/22 18:46:35.537377 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:46:35.537377 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:46:35.537377 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:46:36.537504 CHANGE Clock_Byte           MB0            35 -> 231
+2026/11/22 18:46:36.537504 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:46:36.537504 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:46:36.537504 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:46:37.537014 CHANGE Clock_Byte           MB0            231 -> 51
+2026/11/22 18:46:37.537014 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:46:37.537014 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:46:37.537014 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:46:37.537014 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:46:38.016712 shutting down
+2026/11/22 18:46:51.640027 PLC Monitor 1.3.1-dev starting
+2026/11/22 18:46:51.641704 export enabled: csv
+2026/11/22 18:46:51.643781 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/22 18:46:51.698737 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/22 18:46:51.698737 polling 4 block(s) every 1s
+2026/11/22 18:46:51.740601 CHANGE EStop_OK             I0.0           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE AC_Supply_Ok         I0.1           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DC_Supply_Ok         I0.2           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE PB_Reset             I0.3           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Fluff01Mi n          I0.4           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Fluff01Max           I0.5           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Shutter01IsClose     I0.6           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Shutter02IsOpen      I0.7           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE AnySafetyDoor        I1.0           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Fluff01Block         I1.1           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE HerboldRequest       I8.0           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Blower01Ready        I8.1           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Blower01Running      I8.2           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Blower01DriveFault   I8.3           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Blower01CBTrip       I8.4           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE DischargeScrew01Ready I8.5           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DischargeScrew01Running I8.6           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DischargeScrew01DrvFault I8.7           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DischargeScrew01CBTrip I9.0           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Paddle01CBTrip       I9.1           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Paddle02CBTrip       I9.2           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Paddle03CBTrip       I9.3           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE FlapToDushIsClose    I9.4           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE FlapToDushIsOpen     I9.5           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DischaScwCoolFanCBTrip I9.6           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE SpareI9.7            I9.7           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ0.0            Q0.0           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ0.1            Q0.1           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ0.2            Q0.2           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ0.3            Q0.3           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE ValvaClean           Q0.4           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE ShutterClose         Q0.5           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE ShutterOpen          Q0.6           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE FlapToDustWork       Q0.7           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ1.0            Q1.0           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ1.1            Q1.1           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE ACSupplyOn           Q12.0          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DischargeScrew01CoolOn Q12.1          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ12.2           Q12.2          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ12.3           Q12.3          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Paddle01Run          Q12.4          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Paddle02Run          Q12.5          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Paddle03Run          Q12.6          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE TowerLightHorn       Q12.7          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DCSupplyOn           Q13.0          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE SpareQ13.1           Q13.1          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Blower01DriveRun     Q13.2          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Blower01DriveStop    Q13.3          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Blower01DriveReset   Q13.4          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DischargeScrew01DriveRun Q13.5          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DischargeScrew01DriveStop Q13.6          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DischargeScrew01DriveReset Q13.7          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE AnalogToBlower       QW64           - -> 100
+2026/11/22 18:46:51.740601 CHANGE AnalogToscrew        QW66           - -> 100
+2026/11/22 18:46:51.740601 CHANGE Clock_Byte           MB0            - -> 47
+2026/11/22 18:46:51.740601 CHANGE Clock_10Hz           M0.0           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Clock_5Hz            M0.1           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Clock_2.5Hz          M0.2           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Clock_2Hz            M0.3           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Clock_1.25Hz         M0.4           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Clock_1Hz            M0.5           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Clock_0.625Hz        M0.6           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Clock_0.5Hz          M0.7           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE System_Byte          MB1            - -> 4
+2026/11/22 18:46:51.740601 CHANGE FirstScan            M1.0           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE DiagStatusUpdate     M1.1           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE AlwaysTRUE           M1.2           - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE AlwaysFALSE          M1.3           - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE PB_AutoStop          M20.0          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE PB_AutoStart         M20.1          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Lamp_AutoRun         M20.2          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE Lamp_EStop           M20.3          - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE Silo_Level_AI        MW21           - -> 0
+2026/11/22 18:46:51.740601 CHANGE LampFill_Request     M23.0          - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE FillOnLevel          MW24           - -> 0
+2026/11/22 18:46:51.740601 CHANGE 200Ms                M200.0         - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE 200MsTrig            M200.1         - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE 200MsBuffer          M200.2         - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE 500Ms                M200.3         - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE 500MsTrig            M200.4         - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE 500MsBuffer          M200.5         - -> TRUE
+2026/11/22 18:46:51.740601 CHANGE ResetTrig            M200.6         - -> FALSE
+2026/11/22 18:46:51.740601 CHANGE ResetBuffer          M200.7         - -> FALSE
+2026/11/22 18:46:52.737985 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:46:52.738511 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:46:52.738511 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:46:52.738511 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:46:52.738511 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:46:53.739650 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:46:53.739650 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:46:53.739650 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:46:53.739650 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:46:54.739483 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:46:54.739483 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:46:54.739483 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:46:54.739483 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:46:55.740309 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:46:55.740309 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:46:55.740309 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:46:55.740309 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:46:56.738482 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:46:56.738482 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:46:56.738482 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:46:56.738482 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:46:56.738482 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:46:57.738532 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:46:57.738532 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:46:57.738532 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:46:57.738532 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:46:58.739745 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:46:58.739745 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:46:58.739745 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:46:58.739745 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:46:59.740975 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:46:59.740975 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:46:59.740975 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:46:59.740975 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:00.738862 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:47:00.738862 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:00.738862 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:00.738862 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:00.738862 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:01.739697 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:47:01.739697 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:01.739697 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:01.739697 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:02.740018 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:47:02.740018 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:02.740018 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:02.740018 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:03.739166 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:47:03.739166 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:03.739166 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:03.739166 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:04.738125 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:47:04.738125 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:04.738125 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:04.738125 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:04.738125 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:05.738344 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:47:05.738344 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:05.738344 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:05.738344 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:06.739779 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:47:06.739779 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:06.739779 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:06.739779 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:07.737776 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:47:07.737776 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:07.737776 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:07.737776 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:08.738664 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:47:08.738664 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:08.738664 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:08.738664 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:08.738664 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:09.740345 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:47:09.740345 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:09.740345 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:09.740345 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:10.738277 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:47:10.738277 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:10.738277 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:10.738277 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:11.736105 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:47:11.736105 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:11.736105 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:11.736105 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:12.739341 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:47:12.739341 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:12.739341 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:12.739341 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:12.739341 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:13.739241 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:47:13.739241 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:13.739241 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:13.739241 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:14.740523 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:47:14.740523 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:14.740523 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:14.740523 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:15.740471 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:47:15.740471 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:15.740471 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:15.740471 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:16.740780 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:47:16.740780 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:16.740780 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:16.740780 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:16.740780 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:17.738606 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:47:17.738606 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:17.738606 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:17.738606 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:18.738712 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:47:18.738712 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:18.739721 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:18.739721 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:19.739846 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:47:19.739846 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:19.739846 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:19.739846 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:20.737535 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:47:20.737535 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:20.737535 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:20.737535 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:20.737535 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:21.738757 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:47:21.738757 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:21.738757 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:21.738757 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:22.738403 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:47:22.738783 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:22.738783 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:22.738783 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:23.737956 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:47:23.737956 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:23.737956 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:23.737956 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:24.740887 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:47:24.740887 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:24.740887 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:24.740887 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:24.740887 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:25.739093 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:47:25.739093 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:25.739093 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:25.739093 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:26.739292 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:47:26.739292 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:26.739292 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:26.739292 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:27.740211 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:47:27.740211 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:27.740211 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:27.740211 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:28.737332 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:47:28.738062 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:28.738062 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:28.738062 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:28.738062 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:29.741355 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:47:29.741355 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:29.741355 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:29.741937 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:30.736894 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:47:30.736894 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:30.736894 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:30.736894 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:31.739992 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:47:31.739992 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:31.739992 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:31.739992 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:32.738172 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:47:32.738172 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:32.738172 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:32.738172 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:32.738172 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:33.738054 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:47:33.738054 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:33.738054 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:33.738054 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:34.738209 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:47:34.738209 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:34.738209 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:34.738209 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:35.739163 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:47:35.739163 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:35.739163 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:35.739163 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:36.739714 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:47:36.740566 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:36.740566 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:36.740566 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:36.740566 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:37.740196 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:47:37.740196 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:37.740196 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:37.740196 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:38.740340 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:47:38.740340 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:38.740340 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:38.740340 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:39.738455 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:47:39.738455 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:39.738455 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:39.738455 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:40.739430 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:47:40.739430 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:40.739430 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:40.739430 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:40.739430 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:41.737548 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:47:41.737548 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:41.737548 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:41.737548 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:42.737566 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:47:42.737566 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:42.737566 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:42.737566 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:43.735853 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:47:43.735853 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:43.735853 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:43.735853 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:44.736993 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:47:44.736993 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:44.736993 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:44.736993 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:44.736993 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:45.737922 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:47:45.738528 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:45.738528 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:45.738528 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:46.737694 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:47:46.737694 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:46.737694 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:46.737694 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:47.735564 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:47:47.735564 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:47.735564 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:47.735564 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:48.736835 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:47:48.736835 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:48.736835 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:48.736835 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:48.736835 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:49.736970 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:47:49.736970 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:49.736970 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:49.736970 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:50.738071 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:47:50.738071 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:50.738071 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:50.738071 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:51.736075 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:47:51.736075 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:51.736075 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:51.736075 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:52.739039 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:47:52.739039 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:52.739039 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:52.739039 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:52.739039 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:53.737232 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:47:53.737232 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:53.737232 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:53.737232 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:54.737744 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:47:54.738174 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:54.738174 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:54.738174 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:55.736294 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:47:55.736294 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:55.736294 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:55.736294 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:56.736050 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:47:56.736050 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:56.736050 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:47:56.736523 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:56.736523 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:57.736161 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:47:57.736161 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:57.736161 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:47:57.736161 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:47:58.737137 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:47:58.737137 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:47:58.737137 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:47:58.737137 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:47:59.740456 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:47:59.740456 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:47:59.740456 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:47:59.740456 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:00.738413 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:48:00.738804 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:00.738804 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:48:00.738804 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:00.738804 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:01.738807 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:48:01.738807 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:01.738807 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:01.738807 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:02.736883 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:48:02.736883 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:02.736883 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:48:02.736883 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:03.737864 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:48:03.737864 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:03.737864 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:03.737864 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:04.738596 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:48:04.738596 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:04.738596 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:48:04.738596 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:04.738596 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:05.736634 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:48:05.736634 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:05.736634 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:05.736634 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:06.736680 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:48:06.736680 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:06.736680 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:48:06.736680 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:07.737764 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:48:07.737764 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:07.737764 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:07.737764 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:08.736028 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:48:08.736028 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:08.736028 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:48:08.736028 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:08.736028 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:09.738807 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:48:09.739339 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:09.739339 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:09.739339 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:10.740093 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:48:10.740093 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:10.740093 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:48:10.740093 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:11.736084 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:48:11.736084 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:11.736084 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:11.736084 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:12.736209 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:48:12.736209 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:12.736209 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:48:12.736209 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:12.736209 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:13.738995 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:48:13.738995 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:13.738995 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:13.738995 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:14.738057 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:48:14.738057 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:14.738057 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:48:14.738057 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:15.736214 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:48:15.736214 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:15.736214 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:15.736214 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:16.736326 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:48:16.736326 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:16.736326 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:48:16.736326 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:16.736326 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:17.737188 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:48:17.737188 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:17.737188 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:17.737188 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:18.739446 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:48:18.740459 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:18.740459 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:48:18.740459 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:19.740359 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:48:19.740863 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:19.740863 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:19.740863 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:20.738425 CHANGE Clock_Byte           MB0            47 -> 251
+2026/11/22 18:48:20.738425 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:20.738425 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:48:20.738425 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:20.738425 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:21.738160 CHANGE Clock_Byte           MB0            251 -> 63
+2026/11/22 18:48:21.738160 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:21.738160 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:21.738160 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:22.737506 CHANGE Clock_Byte           MB0            63 -> 171
+2026/11/22 18:48:22.737506 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:22.737506 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:48:22.737506 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:23.734139 CHANGE Clock_Byte           MB0            171 -> 111
+2026/11/22 18:48:23.734139 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:23.734139 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:23.734139 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:24.738899 CHANGE Clock_Byte           MB0            111 -> 187
+2026/11/22 18:48:24.738899 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:24.738899 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:48:24.738899 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:24.738899 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:25.736251 CHANGE Clock_Byte           MB0            187 -> 127
+2026/11/22 18:48:25.736737 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:25.736737 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:48:25.736737 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:26.739213 CHANGE Clock_Byte           MB0            127 -> 235
+2026/11/22 18:48:26.739618 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:48:26.739618 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:48:26.739618 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:48:27.737518 CHANGE Clock_Byte           MB0            235 -> 47
+2026/11/22 18:48:27.737518 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:48:27.737518 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:48:27.737518 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:48:28.625639 shutting down
+2026/11/22 18:50:23.752841 PLC Monitor 1.3.1-dev starting
+2026/11/22 18:50:23.753943 export enabled: csv
+2026/11/22 18:50:23.756675 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/22 18:50:23.813189 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/22 18:50:23.813189 polling 4 block(s) every 1s
+2026/11/22 18:50:23.859215 CHANGE EStop_OK             I0.0           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE AC_Supply_Ok         I0.1           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE DC_Supply_Ok         I0.2           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE PB_Reset             I0.3           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Fluff01Mi n          I0.4           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Fluff01Max           I0.5           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Shutter01IsClose     I0.6           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Shutter02IsOpen      I0.7           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE AnySafetyDoor        I1.0           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Fluff01Block         I1.1           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE HerboldRequest       I8.0           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Blower01Ready        I8.1           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Blower01Running      I8.2           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Blower01DriveFault   I8.3           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Blower01CBTrip       I8.4           - -> TRUE
+2026/11/22 18:50:23.859215 CHANGE DischargeScrew01Ready I8.5           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE DischargeScrew01Running I8.6           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE DischargeScrew01DrvFault I8.7           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE DischargeScrew01CBTrip I9.0           - -> TRUE
+2026/11/22 18:50:23.859215 CHANGE Paddle01CBTrip       I9.1           - -> TRUE
+2026/11/22 18:50:23.859215 CHANGE Paddle02CBTrip       I9.2           - -> TRUE
+2026/11/22 18:50:23.859215 CHANGE Paddle03CBTrip       I9.3           - -> TRUE
+2026/11/22 18:50:23.859215 CHANGE FlapToDushIsClose    I9.4           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE FlapToDushIsOpen     I9.5           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE DischaScwCoolFanCBTrip I9.6           - -> TRUE
+2026/11/22 18:50:23.859215 CHANGE SpareI9.7            I9.7           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE SpareQ0.0            Q0.0           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE SpareQ0.1            Q0.1           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE SpareQ0.2            Q0.2           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE SpareQ0.3            Q0.3           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE ValvaClean           Q0.4           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE ShutterClose         Q0.5           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE ShutterOpen          Q0.6           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE FlapToDustWork       Q0.7           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE SpareQ1.0            Q1.0           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE SpareQ1.1            Q1.1           - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE ACSupplyOn           Q12.0          - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE DischargeScrew01CoolOn Q12.1          - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE SpareQ12.2           Q12.2          - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE SpareQ12.3           Q12.3          - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Paddle01Run          Q12.4          - -> FALSE
+2026/11/22 18:50:23.859215 CHANGE Paddle02Run          Q12.5          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE Paddle03Run          Q12.6          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE TowerLightHorn       Q12.7          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE DCSupplyOn           Q13.0          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE SpareQ13.1           Q13.1          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE Blower01DriveRun     Q13.2          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE Blower01DriveStop    Q13.3          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE Blower01DriveReset   Q13.4          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE DischargeScrew01DriveRun Q13.5          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE DischargeScrew01DriveStop Q13.6          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE DischargeScrew01DriveReset Q13.7          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE AnalogToBlower       QW64           - -> 100
+2026/11/22 18:50:23.859788 CHANGE AnalogToscrew        QW66           - -> 100
+2026/11/22 18:50:23.859788 CHANGE Clock_Byte           MB0            - -> 121
+2026/11/22 18:50:23.859788 CHANGE Clock_10Hz           M0.0           - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE Clock_5Hz            M0.1           - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE Clock_2.5Hz          M0.2           - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE Clock_2Hz            M0.3           - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE Clock_1.25Hz         M0.4           - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE Clock_1Hz            M0.5           - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE Clock_0.625Hz        M0.6           - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE Clock_0.5Hz          M0.7           - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE System_Byte          MB1            - -> 4
+2026/11/22 18:50:23.859788 CHANGE FirstScan            M1.0           - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE DiagStatusUpdate     M1.1           - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE AlwaysTRUE           M1.2           - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE AlwaysFALSE          M1.3           - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE PB_AutoStop          M20.0          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE PB_AutoStart         M20.1          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE Lamp_AutoRun         M20.2          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE Lamp_EStop           M20.3          - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE Silo_Level_AI        MW21           - -> 0
+2026/11/22 18:50:23.859788 CHANGE LampFill_Request     M23.0          - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE FillOnLevel          MW24           - -> 0
+2026/11/22 18:50:23.859788 CHANGE 200Ms                M200.0         - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE 200MsTrig            M200.1         - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE 200MsBuffer          M200.2         - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE 500Ms                M200.3         - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE 500MsTrig            M200.4         - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE 500MsBuffer          M200.5         - -> TRUE
+2026/11/22 18:50:23.859788 CHANGE ResetTrig            M200.6         - -> FALSE
+2026/11/22 18:50:23.859788 CHANGE ResetBuffer          M200.7         - -> FALSE
+2026/11/22 18:50:24.849521 CHANGE Clock_Byte           MB0            121 -> 189
+2026/11/22 18:50:24.850011 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:24.850011 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:24.850011 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:24.850011 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/22 18:50:24.850011 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/22 18:50:25.853113 CHANGE Clock_Byte           MB0            189 -> 41
+2026/11/22 18:50:25.853113 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:25.853113 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:25.853113 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:26.851164 CHANGE Clock_Byte           MB0            41 -> 237
+2026/11/22 18:50:26.851164 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:26.851164 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:26.851164 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:27.854182 CHANGE Clock_Byte           MB0            237 -> 57
+2026/11/22 18:50:27.854182 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:27.854182 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:27.854182 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:27.854182 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:27.854182 CHANGE 200Ms                M200.0         FALSE -> TRUE
+2026/11/22 18:50:27.854182 CHANGE 200MsTrig            M200.1         FALSE -> TRUE
+2026/11/22 18:50:27.854182 CHANGE 200MsBuffer          M200.2         FALSE -> TRUE
+2026/11/22 18:50:28.855098 CHANGE Clock_Byte           MB0            57 -> 253
+2026/11/22 18:50:28.855098 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:28.855098 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:28.855098 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:29.852724 CHANGE Clock_Byte           MB0            253 -> 105
+2026/11/22 18:50:29.852724 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:29.852724 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:29.852724 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:29.852724 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/22 18:50:29.852724 CHANGE 200MsTrig            M200.1         TRUE -> FALSE
+2026/11/22 18:50:29.852724 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/22 18:50:30.851448 CHANGE Clock_Byte           MB0            105 -> 173
+2026/11/22 18:50:30.851448 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:30.851448 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:30.851448 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:31.852471 CHANGE Clock_Byte           MB0            173 -> 121
+2026/11/22 18:50:31.852471 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:31.852471 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:31.852471 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:31.852471 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:32.852460 CHANGE Clock_Byte           MB0            121 -> 189
+2026/11/22 18:50:32.852460 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:32.852460 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:32.852460 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:33.850495 CHANGE Clock_Byte           MB0            189 -> 41
+2026/11/22 18:50:33.850495 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:33.850495 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:33.850495 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:34.852832 CHANGE Clock_Byte           MB0            41 -> 237
+2026/11/22 18:50:34.852832 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:34.852832 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:34.852832 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:35.854563 CHANGE Clock_Byte           MB0            237 -> 57
+2026/11/22 18:50:35.854563 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:35.854563 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:35.854563 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:35.854563 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:36.854352 CHANGE Clock_Byte           MB0            57 -> 253
+2026/11/22 18:50:36.854352 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:36.854352 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:36.854352 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:37.852538 CHANGE Clock_Byte           MB0            253 -> 105
+2026/11/22 18:50:37.852538 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:37.852538 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:37.852538 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:38.850764 CHANGE Clock_Byte           MB0            105 -> 173
+2026/11/22 18:50:38.850764 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:38.850764 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:38.850764 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:39.856621 CHANGE Clock_Byte           MB0            173 -> 121
+2026/11/22 18:50:39.856621 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:39.856621 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:39.856621 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:39.856621 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:39.856621 CHANGE 200Ms                M200.0         FALSE -> TRUE
+2026/11/22 18:50:39.856621 CHANGE 200MsTrig            M200.1         FALSE -> TRUE
+2026/11/22 18:50:39.856621 CHANGE 200MsBuffer          M200.2         FALSE -> TRUE
+2026/11/22 18:50:40.852882 CHANGE Clock_Byte           MB0            121 -> 189
+2026/11/22 18:50:40.852882 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:40.852882 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:40.852882 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:40.852882 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/22 18:50:40.852882 CHANGE 200MsTrig            M200.1         TRUE -> FALSE
+2026/11/22 18:50:40.852882 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/22 18:50:41.852603 CHANGE Clock_Byte           MB0            189 -> 41
+2026/11/22 18:50:41.852603 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:41.852603 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:41.852603 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:42.852613 CHANGE Clock_Byte           MB0            41 -> 237
+2026/11/22 18:50:42.852613 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:42.852613 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:42.852613 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:43.854447 CHANGE Clock_Byte           MB0            237 -> 57
+2026/11/22 18:50:43.854447 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:43.854447 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:43.854447 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:43.854447 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:44.854287 CHANGE Clock_Byte           MB0            57 -> 253
+2026/11/22 18:50:44.855067 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:44.855067 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:44.855067 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:45.852877 CHANGE Clock_Byte           MB0            253 -> 105
+2026/11/22 18:50:45.852877 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:45.852877 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:45.852877 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:46.853561 CHANGE Clock_Byte           MB0            105 -> 173
+2026/11/22 18:50:46.853561 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:46.853561 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:46.853561 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:47.853547 CHANGE Clock_Byte           MB0            173 -> 121
+2026/11/22 18:50:47.853547 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:47.853547 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:47.853547 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:47.853547 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:48.854710 CHANGE Clock_Byte           MB0            121 -> 189
+2026/11/22 18:50:48.854710 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:48.855266 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:48.855266 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:49.853462 CHANGE Clock_Byte           MB0            189 -> 41
+2026/11/22 18:50:49.853462 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:49.853462 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:49.853462 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:50.851017 CHANGE Clock_Byte           MB0            41 -> 237
+2026/11/22 18:50:50.851017 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:50.851017 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:50.851017 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:51.851801 CHANGE Clock_Byte           MB0            237 -> 57
+2026/11/22 18:50:51.851801 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:51.851801 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:51.851801 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:51.851801 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:52.852015 CHANGE Clock_Byte           MB0            57 -> 253
+2026/11/22 18:50:52.852015 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:52.852015 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:52.852015 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:53.860341 CHANGE Clock_Byte           MB0            253 -> 105
+2026/11/22 18:50:53.860341 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:53.860341 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:53.861359 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:53.861359 CHANGE 200Ms                M200.0         FALSE -> TRUE
+2026/11/22 18:50:53.861359 CHANGE 200MsBuffer          M200.2         FALSE -> TRUE
+2026/11/22 18:50:54.852755 CHANGE Clock_Byte           MB0            105 -> 173
+2026/11/22 18:50:54.852755 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:54.852755 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:54.852755 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:54.852755 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/22 18:50:54.852755 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/22 18:50:55.851134 CHANGE Clock_Byte           MB0            173 -> 121
+2026/11/22 18:50:55.851134 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:55.851134 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:55.851134 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:55.851134 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:56.851916 CHANGE Clock_Byte           MB0            121 -> 189
+2026/11/22 18:50:56.851916 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:56.851916 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:56.851916 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:57.852235 CHANGE Clock_Byte           MB0            189 -> 41
+2026/11/22 18:50:57.852235 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:57.852235 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:50:57.852235 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:58.850359 CHANGE Clock_Byte           MB0            41 -> 237
+2026/11/22 18:50:58.850359 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:50:58.850359 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:50:58.850359 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:50:59.856325 CHANGE Clock_Byte           MB0            237 -> 57
+2026/11/22 18:50:59.856325 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:50:59.856325 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:50:59.856325 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:50:59.856325 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:50:59.856325 CHANGE 200Ms                M200.0         FALSE -> TRUE
+2026/11/22 18:50:59.856325 CHANGE 200MsTrig            M200.1         FALSE -> TRUE
+2026/11/22 18:50:59.856325 CHANGE 200MsBuffer          M200.2         FALSE -> TRUE
+2026/11/22 18:51:00.853171 CHANGE Clock_Byte           MB0            57 -> 253
+2026/11/22 18:51:00.853507 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:51:00.853507 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:51:00.853507 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:51:00.853507 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/22 18:51:00.853507 CHANGE 200MsTrig            M200.1         TRUE -> FALSE
+2026/11/22 18:51:00.853507 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/22 18:51:01.854999 CHANGE Clock_Byte           MB0            253 -> 105
+2026/11/22 18:51:01.854999 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:51:01.854999 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:51:01.854999 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:51:01.854999 CHANGE 200Ms                M200.0         FALSE -> TRUE
+2026/11/22 18:51:01.854999 CHANGE 200MsTrig            M200.1         FALSE -> TRUE
+2026/11/22 18:51:01.854999 CHANGE 200MsBuffer          M200.2         FALSE -> TRUE
+2026/11/22 18:51:02.854147 CHANGE Clock_Byte           MB0            105 -> 173
+2026/11/22 18:51:02.854147 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:51:02.854147 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:51:02.854147 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:51:03.850558 CHANGE Clock_Byte           MB0            173 -> 121
+2026/11/22 18:51:03.850558 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:51:03.850558 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:51:03.850558 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:51:03.850558 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:51:03.850558 CHANGE 200Ms                M200.0         TRUE -> FALSE
+2026/11/22 18:51:03.850558 CHANGE 200MsTrig            M200.1         TRUE -> FALSE
+2026/11/22 18:51:03.850558 CHANGE 200MsBuffer          M200.2         TRUE -> FALSE
+2026/11/22 18:51:04.852773 CHANGE Clock_Byte           MB0            121 -> 189
+2026/11/22 18:51:04.852773 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:51:04.852773 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:51:04.852773 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:51:05.854710 CHANGE Clock_Byte           MB0            189 -> 41
+2026/11/22 18:51:05.854710 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:51:05.854710 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:51:05.854710 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:51:06.850786 CHANGE Clock_Byte           MB0            41 -> 237
+2026/11/22 18:51:06.850786 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:51:06.850786 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:51:06.850786 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:51:07.850867 CHANGE Clock_Byte           MB0            237 -> 57
+2026/11/22 18:51:07.850867 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:51:07.850867 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:51:07.850867 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:51:07.850867 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:51:08.853548 CHANGE Clock_Byte           MB0            57 -> 253
+2026/11/22 18:51:08.853548 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:51:08.853548 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:51:08.853548 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:51:09.851776 CHANGE Clock_Byte           MB0            253 -> 105
+2026/11/22 18:51:09.851776 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:51:09.851776 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:51:09.851776 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:51:10.854740 CHANGE Clock_Byte           MB0            105 -> 173
+2026/11/22 18:51:10.854740 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:51:10.854740 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:51:10.854740 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:51:11.852406 CHANGE Clock_Byte           MB0            173 -> 121
+2026/11/22 18:51:11.853144 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:51:11.853144 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 18:51:11.853144 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:51:11.853144 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:51:12.853062 CHANGE Clock_Byte           MB0            121 -> 189
+2026/11/22 18:51:12.853062 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:51:12.853062 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 18:51:12.853062 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:51:13.852705 CHANGE Clock_Byte           MB0            189 -> 41
+2026/11/22 18:51:13.854220 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 18:51:13.854220 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 18:51:13.854220 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 18:51:14.850134 CHANGE Clock_Byte           MB0            41 -> 237
+2026/11/22 18:51:14.850134 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 18:51:14.850134 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 18:51:14.850134 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 18:51:15.605450 shutting down
+2026/11/22 19:03:21.078128 PLC Monitor 1.3.1-dev starting
+2026/11/22 19:03:21.079806 export enabled: csv
+2026/11/22 19:03:21.082559 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/22 19:03:21.143834 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/22 19:03:21.143834 polling 4 block(s) every 1s
+2026/11/22 19:03:21.186299 CHANGE EStop_OK             I0.0           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE AC_Supply_Ok         I0.1           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DC_Supply_Ok         I0.2           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE PB_Reset             I0.3           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Fluff01Mi n          I0.4           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Fluff01Max           I0.5           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Shutter01IsClose     I0.6           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Shutter02IsOpen      I0.7           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE AnySafetyDoor        I1.0           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Fluff01Block         I1.1           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE HerboldRequest       I8.0           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Blower01Ready        I8.1           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Blower01Running      I8.2           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Blower01DriveFault   I8.3           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Blower01CBTrip       I8.4           - -> TRUE
+2026/11/22 19:03:21.186299 CHANGE DischargeScrew01Ready I8.5           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DischargeScrew01Running I8.6           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DischargeScrew01DrvFault I8.7           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DischargeScrew01CBTrip I9.0           - -> TRUE
+2026/11/22 19:03:21.186299 CHANGE Paddle01CBTrip       I9.1           - -> TRUE
+2026/11/22 19:03:21.186299 CHANGE Paddle02CBTrip       I9.2           - -> TRUE
+2026/11/22 19:03:21.186299 CHANGE Paddle03CBTrip       I9.3           - -> TRUE
+2026/11/22 19:03:21.186299 CHANGE FlapToDushIsClose    I9.4           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE FlapToDushIsOpen     I9.5           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DischaScwCoolFanCBTrip I9.6           - -> TRUE
+2026/11/22 19:03:21.186299 CHANGE SpareI9.7            I9.7           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ0.0            Q0.0           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ0.1            Q0.1           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ0.2            Q0.2           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ0.3            Q0.3           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE ValvaClean           Q0.4           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE ShutterClose         Q0.5           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE ShutterOpen          Q0.6           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE FlapToDustWork       Q0.7           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ1.0            Q1.0           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ1.1            Q1.1           - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE ACSupplyOn           Q12.0          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DischargeScrew01CoolOn Q12.1          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ12.2           Q12.2          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ12.3           Q12.3          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Paddle01Run          Q12.4          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Paddle02Run          Q12.5          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Paddle03Run          Q12.6          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE TowerLightHorn       Q12.7          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DCSupplyOn           Q13.0          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE SpareQ13.1           Q13.1          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Blower01DriveRun     Q13.2          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Blower01DriveStop    Q13.3          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE Blower01DriveReset   Q13.4          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DischargeScrew01DriveRun Q13.5          - -> FALSE
+2026/11/22 19:03:21.186299 CHANGE DischargeScrew01DriveStop Q13.6          - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE DischargeScrew01DriveReset Q13.7          - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE AnalogToBlower       QW64           - -> 100
+2026/11/22 19:03:21.186821 CHANGE AnalogToscrew        QW66           - -> 100
+2026/11/22 19:03:21.186821 CHANGE Clock_Byte           MB0            - -> 67
+2026/11/22 19:03:21.186821 CHANGE Clock_10Hz           M0.0           - -> TRUE
+2026/11/22 19:03:21.186821 CHANGE Clock_5Hz            M0.1           - -> TRUE
+2026/11/22 19:03:21.186821 CHANGE Clock_2.5Hz          M0.2           - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE Clock_2Hz            M0.3           - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE Clock_1.25Hz         M0.4           - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE Clock_1Hz            M0.5           - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE Clock_0.625Hz        M0.6           - -> TRUE
+2026/11/22 19:03:21.186821 CHANGE Clock_0.5Hz          M0.7           - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE System_Byte          MB1            - -> 4
+2026/11/22 19:03:21.186821 CHANGE FirstScan            M1.0           - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE DiagStatusUpdate     M1.1           - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE AlwaysTRUE           M1.2           - -> TRUE
+2026/11/22 19:03:21.186821 CHANGE AlwaysFALSE          M1.3           - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE PB_AutoStop          M20.0          - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE PB_AutoStart         M20.1          - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE Lamp_AutoRun         M20.2          - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE Lamp_EStop           M20.3          - -> TRUE
+2026/11/22 19:03:21.186821 CHANGE Silo_Level_AI        MW21           - -> 0
+2026/11/22 19:03:21.186821 CHANGE LampFill_Request     M23.0          - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE FillOnLevel          MW24           - -> 0
+2026/11/22 19:03:21.186821 CHANGE 200Ms                M200.0         - -> TRUE
+2026/11/22 19:03:21.186821 CHANGE 200MsTrig            M200.1         - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE 200MsBuffer          M200.2         - -> TRUE
+2026/11/22 19:03:21.186821 CHANGE 500Ms                M200.3         - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE 500MsTrig            M200.4         - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE 500MsBuffer          M200.5         - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE ResetTrig            M200.6         - -> FALSE
+2026/11/22 19:03:21.186821 CHANGE ResetBuffer          M200.7         - -> FALSE
+2026/11/22 19:03:22.183508 CHANGE Clock_Byte           MB0            67 -> 135
+2026/11/22 19:03:22.183508 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 19:03:22.183508 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 19:03:22.183508 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 19:03:23.181692 CHANGE Clock_Byte           MB0            135 -> 83
+2026/11/22 19:03:23.181692 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 19:03:23.181692 CHANGE Clock_1.25Hz         M0.4           FALSE -> TRUE
+2026/11/22 19:03:23.181692 CHANGE Clock_0.625Hz        M0.6           FALSE -> TRUE
+2026/11/22 19:03:23.181692 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 19:03:24.183774 CHANGE Clock_Byte           MB0            83 -> 151
+2026/11/22 19:03:24.184780 CHANGE Clock_2.5Hz          M0.2           FALSE -> TRUE
+2026/11/22 19:03:24.184780 CHANGE Clock_0.625Hz        M0.6           TRUE -> FALSE
+2026/11/22 19:03:24.184780 CHANGE Clock_0.5Hz          M0.7           FALSE -> TRUE
+2026/11/22 19:03:25.184944 CHANGE Clock_Byte           MB0            151 -> 3
+2026/11/22 19:03:25.184944 CHANGE Clock_2.5Hz          M0.2           TRUE -> FALSE
+2026/11/22 19:03:25.184944 CHANGE Clock_1.25Hz         M0.4           TRUE -> FALSE
+2026/11/22 19:03:25.184944 CHANGE Clock_0.5Hz          M0.7           TRUE -> FALSE
+2026/11/22 19:03:26.009523 new tags configuration
+2026/11/22 19:03:26.009523 config updated: 0 tags
+2026/11/22 19:03:26.009523 no tags configured; add some on the dashboard
+2026/11/22 19:04:10.171141 SCAN PLC 192.168.1.1: DB1..DB1000 areas=true blocklist=false
+2026/11/22 19:04:11.400727 SCAN PLC: 17 areas found 
+2026/11/22 19:05:33.405551 SCAN 192.168.1.0/24: 254 address(es)
+2026/11/22 19:05:35.628687 SCAN 192.168.1.0/24: done, 2 device(s) found
+2026/11/22 19:08:26.115452 SCAN 192.168.1.0/24: 254 address(es)
+2026/11/22 19:08:28.342530 SCAN 192.168.1.0/24: done, 3 device(s) found
+2026/11/22 19:15:53.718707 PLC Monitor 1.3.1-dev starting
+2026/11/22 19:15:53.721636 export enabled: csv
+2026/11/22 19:15:53.722172 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/22 19:15:53.722172 no tags configured; add them on the dashboard
+2026/11/22 19:15:53.777811 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/22 19:15:53.777811 no tags configured; add some on the dashboard
+2026/11/22 19:16:05.167604 SCAN 192.168.1.0/24: 254 address(es)
+2026/11/22 19:16:08.029136 SCAN 192.168.1.0/24: done, 3 device(s) found
+2026/11/22 19:16:38.250068 OPC UA browse opc.tcp://192.168.1.1:4840
+2026/11/22 19:16:50.477746 OPC UA browse opc.tcp://192.168.1.1:4840
+2026/11/22 19:16:54.113370 OPC UA browse opc.tcp://192.168.1.1:4840
+2026/11/22 19:16:58.717154 OPC UA browse opc.tcp://192.168.1.1:4840
+2026/11/22 19:17:06.061838 network settings changed, connecting to OPC UA opc.tcp://192.168.1.1:4840
+2026/11/22 19:17:06.507550 PLC connected (OPC UA opc.tcp://192.168.1.1:4840)
+2026/11/22 19:17:06.507550 no tags configured; add some on the dashboard
+2026/11/22 19:17:16.569485 OPC UA browse opc.tcp://192.168.1.1:4840
+2026/11/22 19:17:31.673538 network settings changed, connecting to ISO-TCP 192.168.1.1 rack 0 slot 1
+2026/11/22 19:17:31.931261 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/22 19:17:31.931261 no tags configured; add some on the dashboard
+2026/11/22 19:17:38.716393 network settings changed, connecting to OPC UA opc.tcp://192.168.1.1:4840
+2026/11/22 19:17:39.159696 PLC connected (OPC UA opc.tcp://192.168.1.1:4840)
+2026/11/22 19:17:39.159696 no tags configured; add some on the dashboard
+2026/11/22 19:17:41.242509 OPC UA browse opc.tcp://192.168.1.1:4840
+2026/11/22 19:17:50.232860 network settings changed, connecting to ISO-TCP 192.168.1.1 rack 0 slot 1
+2026/11/22 19:17:50.490910 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/22 19:17:50.490910 no tags configured; add some on the dashboard
+2026/11/22 19:19:30.058218 SCAN PLC 192.168.1.1: DB1..DB2000 areas=false blocklist=false
+2026/11/22 19:19:32.003539 SCAN PLC: 14 areas found 
+2026/11/22 19:19:41.395113 SCAN PLC 192.168.1.1: DB1..DB2000 areas=false blocklist=false
+2026/11/22 19:19:43.351514 SCAN PLC: 14 areas found 
+2026/11/22 19:20:12.910536 SCAN PLC 192.168.1.1: DB1..DB2000 areas=false blocklist=false
+2026/11/22 19:20:14.862541 SCAN PLC: 14 areas found 
+2026/11/22 19:20:27.796192 config updated: 12 tags
+2026/11/22 19:20:27.796192 polling 1 block(s) every 1s
+2026/11/22 19:20:27.804234 CHANGE ControlVoltageOn.DC_OK DB3.DBX0.0     - -> FALSE
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.AC_OK DB3.DBX0.1     - -> FALSE
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.Reset DB3.DBX0.2     - -> FALSE
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.DC_IsOn DB3.DBX0.3     - -> FALSE
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.AC_IsOn DB3.DBX0.4     - -> FALSE
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.MonitorDelay_Set DB3.DBW2       - -> 5
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.MonitorDelay_Act DB3.DBW4       - -> 0
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.FirstFault_Act DB3.DBW6       - -> 0
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.FirstFault_Old DB3.DBW8       - -> 0
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.OnDC_Cmd DB3.DBX10.0    - -> FALSE
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.OnAC_Cmd DB3.DBX10.1    - -> FALSE
+2026/11/22 19:20:27.804656 CHANGE ControlVoltageOn.E-Stop_OK DB3.DBX10.2    - -> FALSE
+2026/11/22 19:20:38.811577 config updated: 0 tags
+2026/11/22 19:20:38.812100 new tags configuration
+2026/11/22 19:20:38.812100 no tags configured; add some on the dashboard
+2026/11/22 19:20:46.728881 config updated: 130 tags
+2026/11/22 19:20:46.728881 polling 1 block(s) every 1s
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].AutoStart DB10.DBX0.0    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].AutoStop DB10.DBX0.1    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].Interlock DB10.DBX0.2    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].ManualStart DB10.DBX0.3    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].ManualStop DB10.DBX0.4    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].Enable DB10.DBX0.5    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].Disable DB10.DBX0.6    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].Fault  DB10.DBX0.7    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].EStop  DB10.DBX1.0    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[0].Running DB10.DBX1.1    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].AutoStart DB10.DBX2.0    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].AutoStop DB10.DBX2.1    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].Interlock DB10.DBX2.2    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].ManualStart DB10.DBX2.3    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].ManualStop DB10.DBX2.4    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].Enable DB10.DBX2.5    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].Disable DB10.DBX2.6    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].Fault  DB10.DBX2.7    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].EStop  DB10.DBX3.0    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[1].Running DB10.DBX3.1    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].AutoStart DB10.DBX4.0    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].AutoStop DB10.DBX4.1    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].Interlock DB10.DBX4.2    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].ManualStart DB10.DBX4.3    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].ManualStop DB10.DBX4.4    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].Enable DB10.DBX4.5    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].Disable DB10.DBX4.6    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].Fault  DB10.DBX4.7    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].EStop  DB10.DBX5.0    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[2].Running DB10.DBX5.1    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].AutoStart DB10.DBX6.0    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].AutoStop DB10.DBX6.1    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].Interlock DB10.DBX6.2    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].ManualStart DB10.DBX6.3    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].ManualStop DB10.DBX6.4    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].Enable DB10.DBX6.5    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].Disable DB10.DBX6.6    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].Fault  DB10.DBX6.7    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].EStop  DB10.DBX7.0    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[3].Running DB10.DBX7.1    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].AutoStart DB10.DBX8.0    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].AutoStop DB10.DBX8.1    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].Interlock DB10.DBX8.2    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].ManualStart DB10.DBX8.3    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].ManualStop DB10.DBX8.4    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].Enable DB10.DBX8.5    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].Disable DB10.DBX8.6    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].Fault  DB10.DBX8.7    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].EStop  DB10.DBX9.0    - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Dev[4].Running DB10.DBX9.1    - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Sys.AutoMode  DB10.DBX10.0   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Sys.ExtRequest DB10.DBX10.1   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Sys.PatternActive DB10.DBX10.2   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Sys.EStop     DB10.DBX10.3   - -> TRUE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Cmd.AutoStart DB10.DBX12.0   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Cmd.AutoStop  DB10.DBX12.1   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Cmd.EStop     DB10.DBX12.2   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Cmd.ResetEStop DB10.DBX12.3   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Cmd.ExtRequest DB10.DBX12.4   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[0]     DB10.DBX14.0   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[1]     DB10.DBX14.1   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[2]     DB10.DBX14.2   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[3]     DB10.DBX14.3   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[4]     DB10.DBX14.4   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[5]     DB10.DBX14.5   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[6]     DB10.DBX14.6   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[7]     DB10.DBX14.7   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[8]     DB10.DBX15.0   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[9]     DB10.DBX15.1   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[10]    DB10.DBX15.2   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[11]    DB10.DBX15.3   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[12]    DB10.DBX15.4   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[13]    DB10.DBX15.5   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[14]    DB10.DBX15.6   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[15]    DB10.DBX15.7   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[16]    DB10.DBX16.0   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[17]    DB10.DBX16.1   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[18]    DB10.DBX16.2   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[19]    DB10.DBX16.3   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[20]    DB10.DBX16.4   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[21]    DB10.DBX16.5   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[22]    DB10.DBX16.6   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[23]    DB10.DBX16.7   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[24]    DB10.DBX17.0   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[25]    DB10.DBX17.1   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[26]    DB10.DBX17.2   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[27]    DB10.DBX17.3   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[28]    DB10.DBX17.4   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[29]    DB10.DBX17.5   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[30]    DB10.DBX17.6   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[31]    DB10.DBX17.7   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[32]    DB10.DBX18.0   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[33]    DB10.DBX18.1   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[34]    DB10.DBX18.2   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[35]    DB10.DBX18.3   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[36]    DB10.DBX18.4   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[37]    DB10.DBX18.5   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[38]    DB10.DBX18.6   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.DevCmd[39]    DB10.DBX18.7   - -> FALSE
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Delay[0]      DB10.DBW20     - -> 70
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Delay[1]      DB10.DBW22     - -> 30
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Delay[2]      DB10.DBW24     - -> 30
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Delay[3]      DB10.DBW26     - -> 30
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Delay[4]      DB10.DBW28     - -> 50
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Delay[5]      DB10.DBW30     - -> 50
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Proc.CurrentStep DB10.DBW32     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Proc.StepElapsed DB10.DBW34     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Proc.SiloLevel DB10.DBW36     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Proc.Spare    DB10.DBW38     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepCount DB10.DBW40     - -> 6
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[0] DB10.DBW42     - -> 1
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[1] DB10.DBW44     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[2] DB10.DBW46     - -> 2
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[3] DB10.DBW48     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[4] DB10.DBW50     - -> 4
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[5] DB10.DBW52     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[6] DB10.DBW54     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[7] DB10.DBW56     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[8] DB10.DBW58     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.Mask[9] DB10.DBW60     - -> 0
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[0] DB10.DBW62     - -> 80
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[1] DB10.DBW64     - -> 20
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[2] DB10.DBW66     - -> 80
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[3] DB10.DBW68     - -> 20
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[4] DB10.DBW70     - -> 80
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[5] DB10.DBW72     - -> 20
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[6] DB10.DBW74     - -> 50
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[7] DB10.DBW76     - -> 50
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[8] DB10.DBW78     - -> 50
+2026/11/22 19:20:46.737245 CHANGE DB_HMI.Pattern.StepTime[9] DB10.DBW80     - -> 50
+2026/11/22 19:22:35.617793 new tags configuration
+2026/11/22 19:22:35.617793 config updated: 0 tags
+2026/11/22 19:22:35.617793 no tags configured; add some on the dashboard
+2026/11/22 19:23:34.951133 shutting down
+2026/11/22 19:32:14.414589 shutting down
+2026/11/23 07:28:21.618353 PLC Monitor 1.3.2 starting
+2026/11/23 07:28:21.661022 export enabled: csv
+2026/11/23 07:28:21.661022 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 07:28:21.661022 no tags configured; add them on the dashboard
+2026/11/23 07:28:21.665066 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 2s)
+2026/11/23 07:28:23.665611 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 4s)
+2026/11/23 07:28:27.666096 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 8s)
+2026/11/23 07:28:35.666339 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 16s)
+2026/11/23 07:28:51.666825 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 30s)
+2026/11/23 07:29:21.667085 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 30s)
+2026/11/23 07:29:51.667303 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 30s)
+2026/11/23 07:30:21.668042 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 30s)
+2026/11/23 07:30:51.669201 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 30s)
+2026/11/23 07:31:19.109711 SCAN 127.0.0.1: 1 address(es)
+2026/11/23 07:31:19.114079 SCAN 127.0.0.1: done, 1 device(s) found
+2026/11/23 07:31:21.669341 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 30s)
+2026/11/23 07:31:51.670196 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: connectex: A socket operation was attempted to an unreachable host. (retry in 30s)
+2026/11/23 07:31:55.782341 SCAN 192.168.1.1: 1 address(es)
+2026/11/23 07:31:55.782851 SCAN 192.168.1.1: done, 0 device(s) found
+2026/11/23 07:32:10.957910 SCAN 192.168.1.1: 1 address(es)
+2026/11/23 07:32:11.366244 SCAN 192.168.1.1: done, 0 device(s) found
+2026/11/23 07:32:21.577342 shutting down
+2026/11/23 07:38:52.083037 PLC Monitor 1.3.3-dev starting
+2026/11/23 07:38:52.084672 export enabled: csv
+2026/11/23 07:38:52.085211 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 07:38:52.085211 no tags configured; add them on the dashboard
+2026/11/23 07:38:57.085213 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/23 07:39:00.085691 SCAN 192.168.137.0/24: 254 address(es)
+2026/11/23 07:39:01.716794 SCAN 192.168.137.0/24: done, 0 device(s) found
+2026/11/23 07:39:02.085836 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/23 07:39:11.087374 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/23 07:39:12.580515 SCAN 192.168.137.0/24: 254 address(es)
+2026/11/23 07:39:14.202537 SCAN 192.168.137.0/24: done, 0 device(s) found
+2026/11/23 07:39:24.088141 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 16s)
+2026/11/23 07:39:45.094327 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:40:20.097878 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:40:55.103350 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:41:13.429244 SCAN 127.0.0.1: 1 address(es)
+2026/11/23 07:41:13.437811 SCAN 127.0.0.1: done, 1 device(s) found
+2026/11/23 07:41:30.104919 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:42:05.106402 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:42:40.109439 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:43:15.111550 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:43:50.117203 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:44:25.120222 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:45:00.124982 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:45:28.652944 SCAN 10.14.68.1: 1 address(es)
+2026/11/23 07:45:29.054228 SCAN 10.14.68.1: done, 0 device(s) found
+2026/11/23 07:45:35.126609 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:45:57.120985 shutting down
+2026/11/23 07:52:10.120364 PLC Monitor 1.3.3-dev starting
+2026/11/23 07:52:10.121443 export enabled: csv
+2026/11/23 07:52:10.121443 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 07:52:10.121443 no tags configured; add them on the dashboard
+2026/11/23 07:52:15.122484 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/23 07:52:22.123652 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/23 07:52:28.500767 SCAN all: 255 address(es) in [192.168.137.0/24 127.0.0.1]
+2026/11/23 07:52:30.146106 SCAN all: done, 1 device(s) found
+2026/11/23 07:52:31.124458 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/23 07:52:44.126224 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 16s)
+2026/11/23 07:53:05.126844 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:53:12.387501 SCAN all: 255 address(es) in [192.168.137.0/24 127.0.0.1]
+2026/11/23 07:53:14.038486 SCAN all: done, 1 device(s) found
+2026/11/23 07:53:40.128816 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 07:53:53.243325 shutting down
+2026/11/23 08:19:09.526413 PLC Monitor 1.3.3 starting
+2026/11/23 08:19:09.527532 export enabled: csv
+2026/11/23 08:19:09.527532 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 08:19:09.527532 no tags configured; add them on the dashboard
+2026/11/23 08:19:14.528884 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/23 08:19:21.529658 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/23 08:19:30.530833 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/23 08:19:43.531671 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 16s)
+2026/11/23 08:19:46.878064 SCAN all: 509 address(es) in [192.168.5.0/24 192.168.137.0/24 127.0.0.1]
+2026/11/23 08:19:50.142474 SCAN all: done, 2 device(s) found
+2026/11/23 08:20:04.532858 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:20:39.533828 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:21:14.534350 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:21:49.534832 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:22:24.535968 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:22:50.299958 PLC connect failed: the server has no endpoint with security Basic256Sha256/signandencrypt (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:23:07.242331 OPC UA browse opc.tcp://192.168.137.161:4840
+2026/11/23 08:23:12.223694 OPC UA browse opc.tcp://192.168.137.161:4840
+2026/11/23 08:23:15.254567 OPC UA browse opc.tcp://192.168.137.161:4840
+2026/11/23 08:23:20.317225 PLC connect failed: the server has no endpoint with security Basic256Sha256/signandencrypt (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:23:21.527436 OPC UA browse opc.tcp://192.168.137.161:4840
+2026/11/23 08:23:29.258350 OPC UA browse opc.tcp://192.168.137.161:4840
+2026/11/23 08:23:50.334355 PLC connect failed: the server has no endpoint with security Basic256Sha256/signandencrypt (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:24:14.875203 PLC connect failed: the server has no endpoint with security Basic256Sha256/signandencrypt (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:24:21.975843 PLC connect failed: the server has no endpoint with security Aes128_Sha256_RsaOaep/signandencrypt (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:24:30.106557 PLC connect failed: the server has no endpoint with security Aes256_Sha256_RsaPss/signandencrypt (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:24:36.440157 PLC connect failed: the server has no endpoint with security Basic256Sha256/signandencrypt (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:24:41.827328 PLC connect failed: the server has no endpoint with security Basic256Sha256/sign (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:24:46.675316 PLC connect failed: the server has no endpoint with security Aes128_Sha256_RsaOaep/sign (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:24:51.841037 PLC connect failed: the server has no endpoint with security Aes256_Sha256_RsaPss/sign (it offers: Basic256/MessageSecurityModeSign, Basic256/MessageSecurityModeSignAndEncrypt, Basic128Rsa15/MessageSecurityModeSign, Basic128Rsa15/MessageSecurityModeSignAndEncrypt, None/MessageSecurityModeNone) (retry in 30s)
+2026/11/23 08:24:58.142895 PLC connect failed: OPC UA connect opc.tcp://192.168.137.161:4840: EOF (retry in 30s)
+2026/11/23 08:25:31.498467 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:25:34.067571 SCAN all: 509 address(es) in [192.168.5.0/24 192.168.137.0/24 127.0.0.1]
+2026/11/23 08:25:37.312596 SCAN all: done, 3 device(s) found
+2026/11/23 08:26:06.499264 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:26:41.501051 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:26:41.501051 shutting down
+2026/11/23 08:31:51.222375 PLC Monitor 1.3.4-dev starting
+2026/11/23 08:31:51.222899 export enabled: csv
+2026/11/23 08:31:51.223410 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 08:31:51.223410 no tags configured; add them on the dashboard
+2026/11/23 08:31:55.682757 SCAN all: 510 address(es) in [192.168.1.1 192.168.5.0/24 192.168.137.0/24 127.0.0.1]
+2026/11/23 08:31:56.223421 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/23 08:31:58.939507 SCAN all: done, 3 device(s) found
+2026/11/23 08:32:03.224891 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/23 08:32:12.226246 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/23 08:32:25.227260 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 16s)
+2026/11/23 08:32:46.227654 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:33:21.228725 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:33:56.229365 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:34:31.230058 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:35:06.230493 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:35:41.231564 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:36:16.232363 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:36:51.233525 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:37:26.234699 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:38:01.235598 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:38:36.236225 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:39:11.237515 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:39:46.238489 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:40:21.239285 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:40:56.239743 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:41:23.838996 shutting down
+2026/11/23 08:49:34.528143 PLC Monitor 1.3.4-dev starting
+2026/11/23 08:49:34.529195 export enabled: csv
+2026/11/23 08:49:34.529776 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 08:49:34.529776 no tags configured; add them on the dashboard
+2026/11/23 08:49:38.724231 SCAN all: 256 address(es) in [192.168.1.1 192.168.137.0/24 127.0.0.1]
+2026/11/23 08:49:39.529935 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/23 08:49:40.362140 SCAN all: done, 2 device(s) found
+2026/11/23 08:49:46.532244 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/23 08:49:55.532653 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/23 08:50:08.533455 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 16s)
+2026/11/23 08:50:15.554833 SCAN all: 256 address(es) in [192.168.1.1 192.168.137.0/24 127.0.0.1]
+2026/11/23 08:50:17.205529 SCAN all: done, 2 device(s) found
+2026/11/23 08:50:29.534459 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:50:29.534459 shutting down
+2026/11/23 08:51:15.900363 PLC Monitor 1.3.4-dev starting
+2026/11/23 08:51:15.901491 export enabled: csv
+2026/11/23 08:51:15.901491 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 08:51:15.901491 no tags configured; add them on the dashboard
+2026/11/23 08:51:20.583232 SCAN all: 256 address(es) in [192.168.1.1 192.168.137.0/24 127.0.0.1]
+2026/11/23 08:51:20.902771 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/23 08:51:22.216843 SCAN all: done, 2 device(s) found
+2026/11/23 08:51:27.903537 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/23 08:51:36.904088 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/23 08:51:49.905796 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 16s)
+2026/11/23 08:52:10.913200 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:52:45.913801 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:53:20.915116 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:53:55.916630 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:54:30.917464 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:55:05.918720 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:55:40.919307 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:56:15.920882 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:56:50.921218 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:57:25.923018 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:58:00.924136 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:58:35.925376 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:59:10.926628 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 08:59:45.929563 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:00:20.930491 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:00:55.931558 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:01:30.932861 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:02:05.934016 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:02:40.935592 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:03:15.937241 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:03:50.937923 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:04:25.939138 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:05:00.940417 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:05:35.951879 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:06:10.952941 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:06:45.953832 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:07:20.954786 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:07:55.956731 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:08:30.957612 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:09:05.959424 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 30s)
+2026/11/23 09:09:15.386645 shutting down
+2026/11/23 09:13:34.085944 PLC Monitor dev starting
+2026/11/23 09:13:34.087024 export enabled: csv
+2026/11/23 09:13:34.087024 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 09:13:34.087024 no tags configured; add them on the dashboard
+2026/11/23 09:13:39.088223 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 2s)
+2026/11/23 09:13:39.360340 SCAN all: 510 address(es) in [192.168.1.1 192.168.5.0/24 192.168.137.0/24 127.0.0.1]
+2026/11/23 09:13:42.615968 SCAN all: done, 2 device(s) found
+2026/11/23 09:13:46.089139 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 4s)
+2026/11/23 09:13:55.090038 PLC connect failed: connect 192.168.1.1 rack 0 slot 1: dial tcp 192.168.1.1:102: i/o timeout (retry in 8s)
+2026/11/23 09:13:56.557836 NETWORK ADAPTER add 192.168.1.200/24 to Ethernet 2 (from 127.0.0.1:49766) – done
+2026/11/23 09:14:03.151456 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/23 09:14:03.151456 no tags configured; add some on the dashboard
+2026/11/23 09:14:20.499824 SCAN all: 763 address(es) in [192.168.1.0/24 192.168.5.0/24 192.168.137.0/24 127.0.0.1]
+2026/11/23 09:14:25.724882 SCAN all: done, 4 device(s) found
+2026/11/23 09:17:17.454689 SCAN all: 763 address(es) in [192.168.1.0/24 192.168.5.0/24 192.168.137.0/24 127.0.0.1]
+2026/11/23 09:17:22.682655 SCAN all: done, 6 device(s) found
+2026/11/23 09:20:35.996659 SCAN PLC 192.168.1.1: DB1..DB1000 areas=true blocklist=false
+2026/11/23 09:20:37.216787 SCAN PLC: 17 areas found 
+2026/11/23 09:23:48.048671 SCAN all: 763 address(es) in [192.168.1.0/24 192.168.5.0/24 192.168.137.0/24 127.0.0.1]
+2026/11/23 09:23:53.275232 SCAN all: done, 6 device(s) found
+2026/11/23 09:24:51.401922 shutting down
+2026/11/23 10:07:54.585408 PLC Monitor dev starting
+2026/11/23 10:07:54.586526 export enabled: csv
+2026/11/23 10:07:54.586526 trend history in C:\Users\PC\Documents\Claude\Golang\s7monitor\history (kept 30 days)
+2026/11/23 10:07:54.586526 no tags configured; add them on the dashboard
+2026/11/23 10:07:54.647738 PLC connected (ISO-TCP 192.168.1.1 rack 0 slot 1)
+2026/11/23 10:07:54.647738 no tags configured; add some on the dashboard
+2026/11/23 10:11:02.976560 shutting down

@@ -1,0 +1,398 @@
+# S7 Monitor tag configuration
+tags:
+    - name: SpareQ0.0
+      area: Q
+      offset: 0
+      type: BOOL
+    - name: SpareQ0.1
+      area: Q
+      offset: 0
+      bit: 1
+      type: BOOL
+    - name: SpareQ0.2
+      area: Q
+      offset: 0
+      bit: 2
+      type: BOOL
+    - name: SpareQ0.3
+      area: Q
+      offset: 0
+      bit: 3
+      type: BOOL
+    - name: ValvaClean
+      area: Q
+      offset: 0
+      bit: 4
+      type: BOOL
+    - name: ShutterClose
+      area: Q
+      offset: 0
+      bit: 5
+      type: BOOL
+    - name: ShutterOpen
+      area: Q
+      offset: 0
+      bit: 6
+      type: BOOL
+    - name: FlapToDustWork
+      area: Q
+      offset: 0
+      bit: 7
+      type: BOOL
+    - name: SpareQ1.0
+      area: Q
+      offset: 1
+      type: BOOL
+    - name: SpareQ1.1
+      area: Q
+      offset: 1
+      bit: 1
+      type: BOOL
+    - name: EStop_OK
+      area: I
+      offset: 0
+      type: BOOL
+    - name: AC_Supply_Ok
+      area: I
+      offset: 0
+      bit: 1
+      type: BOOL
+    - name: DC_Supply_Ok
+      area: I
+      offset: 0
+      bit: 2
+      type: BOOL
+    - name: PB_Reset
+      area: I
+      offset: 0
+      bit: 3
+      type: BOOL
+    - name: Fluff01Mi n
+      area: I
+      offset: 0
+      bit: 4
+      type: BOOL
+    - name: Fluff01Max
+      area: I
+      offset: 0
+      bit: 5
+      type: BOOL
+    - name: Shutter01IsClose
+      area: I
+      offset: 0
+      bit: 6
+      type: BOOL
+    - name: Shutter02IsOpen
+      area: I
+      offset: 0
+      bit: 7
+      type: BOOL
+    - name: AnySafetyDoor
+      area: I
+      offset: 1
+      type: BOOL
+    - name: Fluff01Block
+      area: I
+      offset: 1
+      bit: 1
+      type: BOOL
+    - name: HerboldRequest
+      area: I
+      offset: 8
+      type: BOOL
+    - name: Blower01Ready
+      area: I
+      offset: 8
+      bit: 1
+      type: BOOL
+    - name: Blower01Running
+      area: I
+      offset: 8
+      bit: 2
+      type: BOOL
+    - name: Blower01DriveFault
+      area: I
+      offset: 8
+      bit: 3
+      type: BOOL
+    - name: Blower01CBTrip
+      area: I
+      offset: 8
+      bit: 4
+      type: BOOL
+    - name: DischargeScrew01Ready
+      area: I
+      offset: 8
+      bit: 5
+      type: BOOL
+    - name: DischargeScrew01Running
+      area: I
+      offset: 8
+      bit: 6
+      type: BOOL
+    - name: DischargeScrew01DrvFault
+      area: I
+      offset: 8
+      bit: 7
+      type: BOOL
+    - name: DischargeScrew01CBTrip
+      area: I
+      offset: 9
+      type: BOOL
+    - name: Paddle01CBTrip
+      area: I
+      offset: 9
+      bit: 1
+      type: BOOL
+    - name: Paddle02CBTrip
+      area: I
+      offset: 9
+      bit: 2
+      type: BOOL
+    - name: Paddle03CBTrip
+      area: I
+      offset: 9
+      bit: 3
+      type: BOOL
+    - name: FlapToDushIsClose
+      area: I
+      offset: 9
+      bit: 4
+      type: BOOL
+    - name: FlapToDushIsOpen
+      area: I
+      offset: 9
+      bit: 5
+      type: BOOL
+    - name: DischaScwCoolFanCBTrip
+      area: I
+      offset: 9
+      bit: 6
+      type: BOOL
+    - name: SpareI9.7
+      area: I
+      offset: 9
+      bit: 7
+      type: BOOL
+    - name: DCSupplyOn
+      area: Q
+      offset: 13
+      type: BOOL
+    - name: ACSupplyOn
+      area: Q
+      offset: 12
+      type: BOOL
+    - name: DischargeScrew01CoolOn
+      area: Q
+      offset: 12
+      bit: 1
+      type: BOOL
+    - name: SpareQ12.2
+      area: Q
+      offset: 12
+      bit: 2
+      type: BOOL
+    - name: SpareQ12.3
+      area: Q
+      offset: 12
+      bit: 3
+      type: BOOL
+    - name: SpareQ13.1
+      area: Q
+      offset: 13
+      bit: 1
+      type: BOOL
+    - name: Paddle01Run
+      area: Q
+      offset: 12
+      bit: 4
+      type: BOOL
+    - name: Paddle02Run
+      area: Q
+      offset: 12
+      bit: 5
+      type: BOOL
+    - name: Paddle03Run
+      area: Q
+      offset: 12
+      bit: 6
+      type: BOOL
+    - name: TowerLightHorn
+      area: Q
+      offset: 12
+      bit: 7
+      type: BOOL
+    - name: Blower01DriveRun
+      area: Q
+      offset: 13
+      bit: 2
+      type: BOOL
+    - name: Blower01DriveStop
+      area: Q
+      offset: 13
+      bit: 3
+      type: BOOL
+    - name: Blower01DriveReset
+      area: Q
+      offset: 13
+      bit: 4
+      type: BOOL
+    - name: DischargeScrew01DriveRun
+      area: Q
+      offset: 13
+      bit: 5
+      type: BOOL
+    - name: DischargeScrew01DriveStop
+      area: Q
+      offset: 13
+      bit: 6
+      type: BOOL
+    - name: DischargeScrew01DriveReset
+      area: Q
+      offset: 13
+      bit: 7
+      type: BOOL
+    - name: 200Ms
+      area: M
+      offset: 200
+      type: BOOL
+    - name: 200MsTrig
+      area: M
+      offset: 200
+      bit: 1
+      type: BOOL
+    - name: 200MsBuffer
+      area: M
+      offset: 200
+      bit: 2
+      type: BOOL
+    - name: 500Ms
+      area: M
+      offset: 200
+      bit: 3
+      type: BOOL
+    - name: 500MsTrig
+      area: M
+      offset: 200
+      bit: 4
+      type: BOOL
+    - name: 500MsBuffer
+      area: M
+      offset: 200
+      bit: 5
+      type: BOOL
+    - name: ResetTrig
+      area: M
+      offset: 200
+      bit: 6
+      type: BOOL
+    - name: ResetBuffer
+      area: M
+      offset: 200
+      bit: 7
+      type: BOOL
+    - name: Clock_Byte
+      area: M
+      offset: 0
+      type: BYTE
+    - name: Clock_10Hz
+      area: M
+      offset: 0
+      type: BOOL
+    - name: Clock_5Hz
+      area: M
+      offset: 0
+      bit: 1
+      type: BOOL
+    - name: Clock_2.5Hz
+      area: M
+      offset: 0
+      bit: 2
+      type: BOOL
+    - name: Clock_2Hz
+      area: M
+      offset: 0
+      bit: 3
+      type: BOOL
+    - name: Clock_1.25Hz
+      area: M
+      offset: 0
+      bit: 4
+      type: BOOL
+    - name: Clock_1Hz
+      area: M
+      offset: 0
+      bit: 5
+      type: BOOL
+    - name: Clock_0.625Hz
+      area: M
+      offset: 0
+      bit: 6
+      type: BOOL
+    - name: Clock_0.5Hz
+      area: M
+      offset: 0
+      bit: 7
+      type: BOOL
+    - name: System_Byte
+      area: M
+      offset: 1
+      type: BYTE
+    - name: FirstScan
+      area: M
+      offset: 1
+      type: BOOL
+    - name: DiagStatusUpdate
+      area: M
+      offset: 1
+      bit: 1
+      type: BOOL
+    - name: AlwaysTRUE
+      area: M
+      offset: 1
+      bit: 2
+      type: BOOL
+    - name: AlwaysFALSE
+      area: M
+      offset: 1
+      bit: 3
+      type: BOOL
+    - name: PB_AutoStop
+      area: M
+      offset: 20
+      type: BOOL
+    - name: PB_AutoStart
+      area: M
+      offset: 20
+      bit: 1
+      type: BOOL
+    - name: Lamp_AutoRun
+      area: M
+      offset: 20
+      bit: 2
+      type: BOOL
+    - name: Lamp_EStop
+      area: M
+      offset: 20
+      bit: 3
+      type: BOOL
+    - name: Silo_Level_AI
+      area: M
+      offset: 21
+      type: INT
+    - name: LampFill_Request
+      area: M
+      offset: 23
+      type: BOOL
+    - name: FillOnLevel
+      area: M
+      offset: 24
+      type: INT
+    - name: AnalogToBlower
+      area: Q
+      offset: 64
+      type: INT
+    - name: AnalogToscrew
+      area: Q
+      offset: 66
+      type: INT
