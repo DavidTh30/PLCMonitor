@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scan PLC – PLC Monitor</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="themes.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e5e7eb;
+          --good:#15803d; --bad:#b91c1c; --warn:#b45309; --accent:#2563eb; --accent-fg:#fff;
+          --code:#f3f4f6; --soft:#eef2ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#171b23; --fg:#e5e7eb; --muted:#9ca3af; --line:#2a303b;
+            --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --accent:#60a5fa; --accent-fg:#0f1218;
+            --code:#11151c; --soft:#1f2633; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+         display:flex; flex-direction:column; }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:10px 16px; }
+  h1 { font-size:17px; margin:0 0 8px; display:flex; align-items:center; gap:10px; }
+  h1 .spacer { flex:1; }
+  h1 small { font-weight:400; color:var(--muted); font-size:13px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  label { font-size:13px; color:var(--muted); display:inline-flex; align-items:center; gap:6px; }
+  label.check { color:var(--fg); }
+  input, select { padding:4px 8px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); font:inherit; }
+  input[type=number] { width:84px; }
+  input[type=checkbox] { margin:0; }
+  button { font:inherit; padding:5px 12px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; }
+  button:hover:not(:disabled) { border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); font-weight:600; }
+  button.small { padding:2px 8px; font-size:12px; }
+  .progress { height:6px; background:var(--line); border-radius:3px; overflow:hidden; flex:1; min-width:120px; max-width:260px; }
+  .progress div { height:100%; background:var(--accent); width:0; transition:width .2s; }
+  .msg { font-size:13px; color:var(--muted); margin-top:6px; }
+  .msg.bad { color:var(--bad); } .msg.warn { color:var(--warn); }
+  .body { flex:1; display:flex; min-height:0; }
+  aside { width:230px; border-right:1px solid var(--line); background:var(--card); display:flex; flex-direction:column; min-height:0; }
+  aside h3 { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:10px 12px 6px; }
+  #areaList { overflow:auto; flex:1; }
+  .area { display:flex; justify-content:space-between; gap:8px; padding:5px 12px; cursor:pointer; border-left:3px solid transparent; }
+  .area:hover { background:var(--soft); }
+  .area.on { background:var(--soft); border-left-color:var(--accent); font-weight:600; }
+  .area small { color:var(--muted); font-weight:400; }
+  .open { border-top:1px solid var(--line); padding:8px 12px; display:flex; flex-direction:column; gap:6px; }
+  .open .row input[type=number] { width:70px; }
+  main { flex:1; display:flex; flex-direction:column; min-width:0; min-height:0; }
+  .viewbar { padding:8px 14px; border-bottom:1px solid var(--line); background:var(--card); }
+  .viewbar b { font-size:15px; }
+  .tablewrap { flex:1; overflow:auto; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th { position:sticky; top:0; background:var(--card); text-align:left; font-weight:600; color:var(--muted); font-size:12px; border-bottom:1px solid var(--line); padding:5px 8px; z-index:1; }
+  td { border-bottom:1px solid var(--line); padding:3px 8px; white-space:nowrap; }
+  td.mono, .mono { font-family:ui-monospace, Consolas, monospace; }
+  td.val { text-align:right; font-family:ui-monospace, Consolas, monospace; }
+  tr.picked td { background:var(--soft); }
+  tr.zero td.val, tr.zero td.hex { color:var(--muted); }
+  td.tag { color:var(--muted); font-size:12px; }
+  .bits { display:inline-flex; gap:3px; }
+  .bit { width:24px; height:22px; padding:0; font:11px ui-monospace, Consolas, monospace; border-radius:4px; }
+  .bit.one { background:var(--good); border-color:var(--good); color:#fff; }
+  .bit.pick { outline:2px solid var(--accent); outline-offset:1px; }
+  .bit.istag { border-style:dashed; }
+  .empty { padding:30px; color:var(--muted); text-align:center; }
+  footer { border-top:1px solid var(--line); background:var(--card); padding:8px 14px; }
+  #pickList { font-size:12px; color:var(--muted); max-height:3.2em; overflow:auto; }
+  .chip { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:1px 2px; background:var(--soft); color:var(--fg); cursor:pointer; }
+  .chip:hover { border-color:var(--bad); text-decoration:line-through; }
+  td.name { font-weight:600; } td.cmt { color:var(--muted); font-size:12px; white-space:normal; min-width:120px; }
+  td.dt { color:var(--muted); font-size:12px; }
+  .area .nm { display:block; font-size:11px; color:var(--muted); font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; }
+  .area.unscanned { opacity:.7; }
+  dialog { border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--fg); padding:0; width:min(760px, 96vw); max-height:90vh; }
+  dialog::backdrop { background:rgba(0,0,0,.35); }
+  .dlg { padding:14px 18px; display:flex; flex-direction:column; gap:10px; max-height:88vh; overflow:auto; }
+  .dlg h2 { margin:0; font-size:16px; }
+  .dlg ol { margin:0; padding-left:20px; font-size:13px; color:var(--muted); }
+  .dlg table td, .dlg table th { padding:4px 6px; }
+  .dlg input[type=number] { width:80px; }
+  .ok { color:var(--good); } .warn { color:var(--warn); } .bad { color:var(--bad); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Scan PLC <small id="target"></small><span class="spacer"></span>
+    <button class="small" id="btnNames" title="Import variable names from the PLC engineering software">📄 Variable names…</button>
+    <button class="small" onclick="S7Themes.openPicker()" title="Colour theme of all PLC Monitor windows">Theme</button></h1>
+  <div class="row">
+    <label>Data blocks from DB <input type="number" id="from" min="1" max="65535" value="1"></label>
+    <label>to DB <input type="number" id="to" min="1" max="65535" value="1000"></label>
+    <label class="check"><input type="checkbox" id="optAreas" checked> M, I and Q too</label>
+    <label class="check" title="Works on 300/400-series CPUs. 1200/1500-series do not answer it; their data blocks are found by trying each number."><input type="checkbox" id="optList"> Ask the CPU for its DB list (300/400-series)</label>
+    <button class="primary" id="btnScan">Scan</button>
+    <button id="btnStop" hidden>Stop</button>
+    <div class="progress" id="prog" hidden><div></div></div>
+  </div>
+  <div class="msg warn" id="namesHint" hidden>No variable names yet: the PLC does not send its tag names over ISO-TCP (PUT/GET), only bytes.
+    Export them from the PLC engineering software and <a href="#" id="namesHintLink">import them here</a> (PLC tag table → Export .xlsx, .xml or .sdf; data blocks and FBs → Generate source from blocks).</div>
+  <div class="msg" id="scanMsg">Finds the data blocks the PLC lets PLC Monitor read (PUT/GET access, non-optimized blocks). Only reads; monitoring goes on.</div>
+</header>
+<div class="body">
+  <aside>
+    <h3>Found</h3>
+    <div id="areaList"><div class="empty">No scan yet</div></div>
+    <div class="open">
+      <h3 style="margin:0">Open by number</h3>
+      <div class="row">
+        <select id="openArea"><option>DB</option><option>M</option><option>I</option><option>Q</option></select>
+        <input type="number" id="openDB" min="1" max="65535" value="1" title="DB number">
+        <button class="small" id="btnOpen">Open</button>
+      </div>
+    </div>
+  </aside>
+  <main>
+    <div class="viewbar row" id="viewbar" hidden>
+      <b id="curName"></b>
+      <label>View as <select id="vtype">
+        <option value="NAMES">Names</option><option>BOOL</option><option selected>BYTE</option><option>SINT</option><option>USINT</option>
+        <option>WORD</option><option>INT</option><option>UINT</option>
+        <option>DWORD</option><option>DINT</option><option>UDINT</option><option>REAL</option><option>LREAL</option>
+      </select></label>
+      <label>Bytes <input type="number" id="vstart" min="0" value="0" title="First byte"></label>
+      <label>– <input type="number" id="vend" min="0" value="0" title="Last byte"></label>
+      <button class="small" id="btnPrev" title="Previous bytes">◀</button>
+      <button class="small" id="btnNext" title="Next bytes">▶</button>
+      <label class="check"><input type="checkbox" id="hideZero"> Hide zeros</label>
+      <label class="check"><input type="checkbox" id="live" checked> Live</label>
+      <button class="small" id="btnPickAll" title="Pick every row shown">Pick all shown</button>
+      <span class="msg" id="readMsg" style="margin:0"></span>
+    </div>
+    <div class="tablewrap" id="tablewrap"><div class="empty" id="hint">Scan the PLC, then pick a data block on the left.<br>Pick rows (or single bits) and add them as tags.</div></div>
+  </main>
+</div>
+<footer class="row">
+  <span id="pickCount">Nothing picked</span>
+  <div id="pickList" style="flex:1"></div>
+  <span class="msg" id="addMsg" style="margin:0"></span>
+  <button id="btnClear" disabled>Clear</button>
+  <button class="primary" id="btnAdd" disabled>Add as tags</button>
+</footer>
+<dialog id="symDlg"><div class="dlg">
+  <h2>Variable names</h2>
+  <div class="msg" style="margin:0">PUT/GET only gives bytes. Names come from files exported from the PLC engineering software; they are kept next to the config.</div>
+  <ol>
+    <li><b>Data blocks:</b> in the project tree select the data blocks (and their PLC data types) → right-click → <b>Generate source from blocks</b> → <i>Including all dependent blocks</i> (.db, .udt, .scl). STEP 7 classic: <i>Generate source</i> (.awl).</li>
+    <li><b>Inputs, outputs, markers:</b> open the PLC tag table → <b>Export</b> (.xlsx, .xml or .sdf), or a .csv with Name, Data Type, Logical Address, Comment.</li>
+    <li>Give each data block its <b>DB number</b> below (a generated source has only the name). Numbers are filled in when the name is DB10 or the size matches one scanned DB.</li>
+  </ol>
+  <div class="row"><button class="primary" id="btnImport">Import files…</button><input type="file" id="symFile" multiple accept=".db,.udt,.scl,.awl,.txt,.xlsx,.xml,.sdf,.csv,.tsv" hidden>
+    <span class="msg" id="symMsg" style="margin:0"></span><span style="flex:1"></span><button id="btnSymClear">Remove all</button></div>
+  <div id="symTable"></div>
+  <div class="row" style="justify-content:flex-end"><button id="btnSymClose">Close</button></div>
+</div></dialog>
+<script>'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const SIZE = { BOOL: 1, BYTE: 1, SINT: 1, USINT: 1, WORD: 2, UINT: 2, INT: 2, DWORD: 4, UDINT: 4, DINT: 4, REAL: 4, LREAL: 8 };
+const PAGE = 512; // bytes shown at a time
+let config = null, areas = [], cur = null, data = null, dataStart = 0, polling = null, liveTimer = null, reading = false;
+const picks = new Map(); // address -> tag (with name and comment when known)
+let syms = { blocks: [], files: [], notes: [] }, curSyms = [], shownSyms = [];
+
+// ---- variable names (imported from the PLC engineering software) ----
+const dbBlock = db => syms.blocks.find(b => b.kind === 'db' && b.db === db);
+function symsFor(a) {
+  if (a.area === 'DB') {
+    const b = dbBlock(a.db);
+    return b ? b.symbols.map(s => ({ ...s, full: b.name + '.' + s.name })) : [];
+  }
+  return syms.blocks.filter(b => b.kind === 'tags').flatMap(b => b.symbols.filter(s => s.area === a.area).map(s => ({ ...s, full: s.name })))
+    .sort((x, y) => x.offset - y.offset || x.bit - y.bit);
+}
+// symAt finds the variable at exactly this address and size.
+const symAt = t => curSyms.find(s => s.offset === t.offset &&
+  (t.type === 'BOOL' ? s.type === 'BOOL' && s.bit === t.bit : s.type && s.type !== 'BOOL' && s.size === SIZE[t.type]));
+const namesAt = off => [...new Set(curSyms.filter(s => s.offset === off && s.type !== 'BOOL').map(s => s.full))];
+
+async function api(method, path, body) {
+  const r = await fetch(path, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+// address gives the absolute address as the engineering software writes it, also used as the tag name.
+function address(t) {
+  const sz = SIZE[t.type];
+  if (t.area === 'DB') {
+    const db = `DB${t.db}.`;
+    if (t.type === 'BOOL') return `${db}DBX${t.offset}.${t.bit}`;
+    return sz === 1 ? `${db}DBB${t.offset}` : sz === 2 ? `${db}DBW${t.offset}` : sz === 4 ? `${db}DBD${t.offset}` : `${db}LREAL${t.offset}`;
+  }
+  if (t.type === 'BOOL') return `${t.area}${t.offset}.${t.bit}`;
+  return t.area + (sz === 1 ? 'B' : sz === 2 ? 'W' : sz === 4 ? 'D' : 'LREAL') + t.offset;
+}
+const areaName = a => a.area === 'DB' ? `DB${a.db}` + (dbBlock(a.db) ? ` "${dbBlock(a.db).name}"` : '') : { M: 'M (markers)', I: 'I (inputs)', Q: 'Q (outputs)' }[a.area];
+const sameArea = (t, a) => t.area === a.area && (a.area !== 'DB' || t.db === a.db);
+
+// Existing tags, to show which addresses already are one.
+function tagAt(t) {
+  return (config?.tags || []).find(x => x.area === t.area && (t.area !== 'DB' || x.db === t.db) && x.offset === t.offset &&
+    (x.type === 'BOOL') === (t.type === 'BOOL') && (t.type !== 'BOOL' || x.bit === t.bit) && (t.type === 'BOOL' || SIZE[x.type] === SIZE[t.type]));
+}
+
+// ---- scan ----
+async function loadState() {
+  const st = await api('GET', 'api/plcscan');
+  $('btnScan').hidden = st.running; $('btnStop').hidden = !st.running; $('prog').hidden = !st.running;
+  $('prog').firstChild.style.width = st.total ? (100 * st.done / st.total) + '%' : '0';
+  if (st.target) $('target').textContent = '· ' + st.target;
+  const m = $('scanMsg');
+  if (st.running) { m.className = 'msg'; m.textContent = `${st.phase}… DB ${st.done} of ${st.total}`; }
+  else if (st.error && st.error !== 'stopped') { m.className = 'msg bad'; m.textContent = '✖ ' + st.error; }
+  else if (st.target) {
+    const n = st.found.filter(a => a.area === 'DB').length;
+    m.className = n ? 'msg' : 'msg warn';
+    m.textContent = (st.error === 'stopped' ? 'Stopped. ' : '') + (n
+      ? `${n} data block${n > 1 ? 's' : ''} found.` + (st.listed?.length ? ` The CPU listed ${st.listed.length}.` : '')
+      : 'No readable data blocks in this range. On 1200/1500-series CPUs, turn on "Permit access with PUT/GET" and switch off "Optimized block access" for each DB.') +
+      (st.note ? ' ' + st.note : '');
+  }
+  if (!st.running && JSON.stringify(st.found) !== JSON.stringify(areas)) { areas = st.found; renderAreas(); }
+  if (st.running && !polling) polling = setInterval(loadState, 300);
+  if (!st.running && polling) { clearInterval(polling); polling = null; }
+}
+
+$('btnScan').onclick = async () => {
+  try {
+    await api('POST', 'api/plcscan', { from: +$('from').value, to: +$('to').value, areas: $('optAreas').checked, block_list: $('optList').checked });
+    areas = []; renderAreas();
+    loadState();
+  } catch (e) { $('scanMsg').className = 'msg bad'; $('scanMsg').textContent = '✖ ' + e.message; }
+};
+$('btnStop').onclick = () => api('DELETE', 'api/plcscan').then(loadState);
+
+// The list: what the scan found, plus imported data blocks that have a
+// number but were not found (not scanned yet, or not readable).
+let areaRows = [];
+function renderAreas() {
+  const el = $('areaList');
+  const extra = syms.blocks.filter(b => b.kind === 'db' && b.db && !areas.some(a => a.area === 'DB' && a.db === b.db))
+    .map(b => ({ area: 'DB', db: b.db, size: 0, unscanned: true }));
+  areaRows = [...areas.filter(a => a.area === 'DB'), ...extra].sort((x, y) => x.db - y.db).concat(areas.filter(a => a.area !== 'DB'));
+  if (!areaRows.length) { el.innerHTML = '<div class="empty">Nothing found yet</div>'; return; }
+  el.innerHTML = areaRows.map((a, i) => {
+    const b = a.area === 'DB' && dbBlock(a.db);
+    return `<div class="area${cur && sameArea(cur, a) ? ' on' : ''}${a.unscanned ? ' unscanned' : ''}" data-i="${i}"
+      title="${a.unscanned ? 'Imported, but not found by the scan (not scanned yet, optimized, or not in the PLC)' : ''}">
+      <span>${a.area === 'DB' ? 'DB' + a.db : esc(areaName(a))}${b ? `<span class="nm">${esc(b.name)}</span>` : ''}</span>
+      <small>${a.unscanned ? 'not found' : a.size + ' bytes'}</small></div>`;
+  }).join('');
+}
+$('areaList').onclick = ev => { const d = ev.target.closest('.area'); if (d) openArea(areaRows[+d.dataset.i]); };
+$('btnOpen').onclick = () => {
+  const area = $('openArea').value, db = +$('openDB').value;
+  const known = areas.find(a => sameArea({ area, db }, a));
+  openArea(known || { area, db: area === 'DB' ? db : 0, size: 0 });
+};
+$('openArea').onchange = () => { $('openDB').disabled = $('openArea').value !== 'DB'; };
+
+// ---- byte view ----
+function openArea(a) {
+  cur = a;
+  curSyms = symsFor(a);
+  const b = a.area === 'DB' && dbBlock(a.db);
+  $('viewbar').hidden = false;
+  $('curName').textContent = areaName(a) + (a.size ? ` · ${a.size} bytes` : '');
+  $('vstart').value = 0;
+  if (curSyms.length) {
+    $('vtype').value = 'NAMES';
+    const end = Math.max(...curSyms.map(s => s.offset + Math.max(s.size, 1)));
+    $('vend').value = Math.min(a.size || (b ? b.size : end) || end, a.area === 'DB' ? 4096 : Math.max(end, PAGE)) - 1;
+  } else {
+    if ($('vtype').value === 'NAMES') $('vtype').value = 'BYTE';
+    $('vend').value = Math.min(a.size || 64, PAGE) - 1;
+  }
+  renderAreas();
+  read();
+}
+function range() {
+  const max = cur.size ? cur.size - 1 : 65535;
+  let s = Math.max(0, Math.min(+$('vstart').value || 0, max)), e = Math.max(s, Math.min(+$('vend').value || 0, max));
+  if (e - s + 1 > 4096) e = s + 4095;
+  return [s, e];
+}
+async function read() {
+  if (!cur || reading) return;
+  const [s, e] = range();
+  reading = true;
+  try {
+    const r = await api('GET', `api/plcscan/read?area=${cur.area}&db=${cur.db || 0}&start=${s}&size=${e - s + 1}`);
+    data = Uint8Array.from(atob(r.data || ''), c => c.charCodeAt(0)); dataStart = s;
+    $('readMsg').textContent = '';
+    render();
+  } catch (err) {
+    $('readMsg').textContent = '✖ ' + err.message;
+    $('readMsg').className = 'msg bad';
+    if (!data || dataStart !== s) { data = null; $('tablewrap').innerHTML = `<div class="empty">Could not read ${esc(areaName(cur))} bytes ${s}–${e}.<br>${esc(err.message)}</div>`; }
+  } finally { reading = false; }
+}
+
+function decode(type, b, i) {
+  const dv = new DataView(b.buffer, b.byteOffset + i);
+  switch (type) {
+    case 'BYTE': return '16#' + b[i].toString(16).toUpperCase().padStart(2, '0') + ` (${b[i]})`;
+    case 'SINT': return dv.getInt8(0);
+    case 'USINT': return b[i];
+    case 'WORD': return '16#' + dv.getUint16(0).toString(16).toUpperCase().padStart(4, '0');
+    case 'INT': return dv.getInt16(0);
+    case 'UINT': return dv.getUint16(0);
+    case 'DWORD': return '16#' + dv.getUint32(0).toString(16).toUpperCase().padStart(8, '0');
+    case 'DINT': return dv.getInt32(0);
+    case 'UDINT': return dv.getUint32(0);
+    case 'REAL': { const v = dv.getFloat32(0); return Number.isFinite(v) ? +v.toPrecision(7) : String(v); }
+    case 'LREAL': { const v = dv.getFloat64(0); return Number.isFinite(v) ? +v.toPrecision(15) : String(v); }
+  }
+}
+const hex = (b, i, n) => Array.from(b.subarray(i, i + n), x => x.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+
+// Value of a variable that is not a tag type: strings as text, else hex.
+function otherVal(s, i) {
+  if (/^String/i.test(s.data_type) && i + 2 <= data.length) {
+    const n = Math.min(data[i + 1], data[i], data.length - i - 2);
+    return "'" + String.fromCharCode(...data.subarray(i + 2, i + 2 + n)) + "'";
+  }
+  return hex(data, i, Math.min(s.size, 16)) + (s.size > 16 ? ' …' : '');
+}
+
+function renderNames() {
+  const hide = $('hideZero').checked, end = dataStart + data.length;
+  shownSyms = [];
+  const rows = [];
+  for (const s of curSyms) {
+    const i = s.offset - dataStart;
+    if (i < 0 || s.offset + Math.max(s.size, 1) > end) continue;
+    const t = { area: cur.area, db: cur.db || 0, offset: s.offset, bit: s.bit, type: s.type || 'BYTE' };
+    const a = s.type ? address(t) : '', p = s.type && picks.has(a), tag = s.type && tagAt(t);
+    let val, zero;
+    if (s.type === 'BOOL') { const on = (data[i] >> s.bit) & 1; val = on ? 'TRUE' : 'FALSE'; zero = !on; }
+    else { zero = data.subarray(i, i + s.size).every(x => x === 0); val = s.type ? decode(s.type, data, i) : otherVal(s, i); }
+    if (hide && zero && !p) continue;
+    const addr = s.type ? a : (cur.area === 'DB' ? `DB${cur.db}.DBB${s.offset}` : `${cur.area}B${s.offset}`) + ` (${s.size} bytes)`;
+    rows.push(`<tr data-sym="${shownSyms.length}" class="${p ? 'picked' : ''}${zero ? ' zero' : ''}">
+      <td>${s.type ? `<input type="checkbox" class="pk"${p ? ' checked' : ''}>` : ''}</td>
+      <td class="name">${esc(s.name)}</td><td class="mono">${esc(addr)}</td><td class="dt">${esc(s.data_type)}</td>
+      <td class="val">${esc(val)}</td><td class="cmt">${esc(s.comment || '')}</td><td class="tag">${tag ? 'tag ' + esc(tag.name) : ''}</td></tr>`);
+    shownSyms.push(s);
+  }
+  const head = '<tr><th style="width:28px"></th><th>Name</th><th>Address</th><th>Data type</th><th>Value</th><th>Comment</th><th>Already a tag</th></tr>';
+  const wrap = $('tablewrap'), top = wrap.scrollTop;
+  wrap.innerHTML = rows.length ? `<table><thead>${head}</thead><tbody>${rows.join('')}</tbody></table>`
+    : `<div class="empty">${curSyms.length ? 'No variables in these bytes' + (hide ? ' (or only zeros)' : '') : 'No variable names for this area. Import them with 📄 Variable names…'}</div>`;
+  wrap.scrollTop = top;
+}
+
+function render() {
+  if (!cur || !data) return;
+  if ($('vtype').value === 'NAMES') return renderNames();
+  const type = $('vtype').value, sz = SIZE[type], hide = $('hideZero').checked;
+  const rows = [];
+  for (let i = 0; i + sz <= data.length; i += sz) {
+    const off = dataStart + i;
+    const zero = data.subarray(i, i + sz).every(x => x === 0);
+    if (type === 'BOOL') {
+      const bits = [], bitNames = [];
+      let anyPick = false;
+      for (let bit = 7; bit >= 0; bit--) {
+        const t = { area: cur.area, db: cur.db || 0, offset: off, bit, type: 'BOOL' };
+        const a = address(t), on = (data[i] >> bit) & 1, p = picks.has(a), tag = tagAt(t), sym = symAt(t);
+        anyPick ||= p;
+        if (sym) bitNames.push(`${bit}: ${sym.full}`);
+        bits.push(`<button class="bit${on ? ' one' : ''}${p ? ' pick' : ''}${tag ? ' istag' : ''}" data-bit="${bit}" title="${sym ? esc(sym.full) + ' – ' : ''}${esc(a)} = ${on ? 'TRUE' : 'FALSE'}${tag ? ' · tag ' + esc(tag.name) : ''} – click to pick">${bit}</button>`);
+      }
+      if (hide && zero && !anyPick) continue;
+      rows.push(`<tr data-off="${off}" class="${zero ? 'zero' : ''}"><td></td><td class="mono">${esc(address({ area: cur.area, db: cur.db, offset: off, type: 'BYTE' }))}</td>
+        <td class="mono hex">${hex(data, i, 1)}</td><td><span class="bits">${bits.join('')}</span></td><td class="cmt">${esc([...namesAt(off), ...bitNames.reverse()].join(', '))}</td></tr>`);
+      bitNames.length = 0;
+      continue;
+    }
+    const t = { area: cur.area, db: cur.db || 0, offset: off, bit: 0, type };
+    const a = address(t), p = picks.has(a), tag = tagAt(t);
+    if (hide && zero && !p) continue;
+    rows.push(`<tr data-off="${off}" class="${p ? 'picked' : ''}${zero ? ' zero' : ''}"><td><input type="checkbox" class="pk"${p ? ' checked' : ''}></td>
+      <td class="mono">${esc(a)}</td><td class="mono hex">${hex(data, i, sz)}</td><td class="val">${esc(decode(type, data, i))}</td>
+      <td class="cmt">${esc(namesAt(off).join(', '))}</td><td class="tag">${tag ? 'tag ' + esc(tag.name) : ''}</td></tr>`);
+  }
+  const head = type === 'BOOL'
+    ? '<tr><th style="width:28px"></th><th>Address</th><th>Hex</th><th>Bits 7 … 0 (click to pick)</th><th>Names</th></tr>'
+    : `<tr><th style="width:28px"></th><th>Address</th><th>Hex</th><th>Value (${type})</th><th>Name</th><th>Already a tag</th></tr>`;
+  const wrap = $('tablewrap'), top = wrap.scrollTop;
+  wrap.innerHTML = rows.length ? `<table><thead>${head}</thead><tbody>${rows.join('')}</tbody></table>`
+    : `<div class="empty">${hide ? 'Only zeros in these bytes' : 'No bytes'}</div>`;
+  wrap.scrollTop = top;
+}
+
+// symTag makes the pick for a variable shown in the Names view.
+const symTag = s => ({ area: cur.area, db: cur.db || 0, offset: s.offset, bit: s.bit, type: s.type, name: s.full, comment: s.comment || '' });
+// withName adds the imported name of the variable at that address, if any.
+function withName(t) {
+  const s = symAt(t);
+  return s ? { ...t, name: s.full, comment: s.comment || '' } : t;
+}
+$('tablewrap').addEventListener('click', ev => {
+  const sr = ev.target.closest('tr[data-sym]');
+  if (sr) {
+    const s = shownSyms[+sr.dataset.sym];
+    if (s && s.type) togglePick(symTag(s));
+    return;
+  }
+  const tr = ev.target.closest('tr[data-off]');
+  if (!tr) return;
+  const off = +tr.dataset.off, type = $('vtype').value;
+  const bitBtn = ev.target.closest('.bit');
+  if (type === 'BOOL' && !bitBtn) return;
+  togglePick(withName({ area: cur.area, db: cur.db || 0, offset: off, bit: bitBtn ? +bitBtn.dataset.bit : 0, type }));
+});
+function togglePick(t, on) {
+  const a = address(t);
+  if (on ?? !picks.has(a)) picks.set(a, t); else picks.delete(a);
+  render(); renderPicks();
+}
+$('btnPickAll').onclick = () => {
+  if (!cur || !data) return;
+  const type = $('vtype').value;
+  if (type === 'NAMES') {
+    shownSyms.filter(s => s.type).forEach(s => { const t = symTag(s); picks.set(address(t), t); });
+    render(); renderPicks();
+    return;
+  }
+  document.querySelectorAll('#tablewrap tr[data-off]').forEach(tr => {
+    const off = +tr.dataset.off;
+    if (type === 'BOOL') for (let bit = 0; bit < 8; bit++) { const t = withName({ area: cur.area, db: cur.db || 0, offset: off, bit, type }); picks.set(address(t), t); }
+    else { const t = withName({ area: cur.area, db: cur.db || 0, offset: off, bit: 0, type }); picks.set(address(t), t); }
+  });
+  render(); renderPicks();
+};
+
+function renderPicks() {
+  const n = picks.size;
+  $('pickCount').textContent = n ? `${n} picked` : 'Nothing picked';
+  $('pickList').innerHTML = [...picks.entries()].map(([a, t]) => `<span class="chip" data-a="${esc(a)}" title="${esc(a)} – click to remove">${esc(t.name || a)} <small>${t.type}</small></span>`).join('');
+  $('btnClear').disabled = $('btnAdd').disabled = !n;
+  $('btnAdd').textContent = n ? `Add ${n} as tag${n > 1 ? 's' : ''}` : 'Add as tags';
+}
+$('pickList').onclick = ev => { const c = ev.target.closest('.chip'); if (c) { picks.delete(c.dataset.a); render(); renderPicks(); } };
+$('btnClear').onclick = () => { picks.clear(); render(); renderPicks(); };
+
+$('btnAdd').onclick = async () => {
+  const btn = $('btnAdd');
+  btn.disabled = true;
+  try {
+    config = await api('GET', 'api/config');
+    const taken = new Set(config.tags.map(t => t.name));
+    const fresh = [];
+    for (const [a, t] of picks) {
+      if (tagAt(t)) continue; // already monitored
+      const base = t.name || a;
+      let name = base, i = 2;
+      while (taken.has(name)) name = `${base}_${i++}`;
+      taken.add(name);
+      fresh.push({ name, area: t.area, db: t.area === 'DB' ? t.db : 0, offset: t.offset, bit: t.type === 'BOOL' ? t.bit : 0, type: t.type, deadband: 0, description: t.comment || '' });
+    }
+    const skipped = picks.size - fresh.length;
+    if (fresh.length) await api('PUT', 'api/tags', [...config.tags, ...fresh]);
+    config = await api('GET', 'api/config');
+    picks.clear(); renderPicks(); render();
+    $('addMsg').className = 'msg';
+    $('addMsg').textContent = `✔ ${fresh.length} tag${fresh.length === 1 ? '' : 's'} added` + (skipped ? `, ${skipped} already were tags` : '') + '.';
+  } catch (e) {
+    $('addMsg').className = 'msg bad'; $('addMsg').textContent = '✖ ' + e.message;
+  } finally { btn.disabled = !picks.size; }
+};
+
+// View controls
+$('vtype').onchange = () => render();
+$('hideZero').onchange = () => render();
+$('vstart').onchange = $('vend').onchange = () => read();
+function page(dir) {
+  const [s, e] = range(), n = e - s + 1, max = cur.size ? cur.size - 1 : 65535;
+  const ns = Math.max(0, Math.min(s + dir * n, max));
+  $('vstart').value = ns; $('vend').value = Math.min(ns + n - 1, max);
+  read();
+}
+$('btnPrev').onclick = () => page(-1);
+$('btnNext').onclick = () => page(1);
+// ---- Variable names dialog ----
+async function loadSyms() {
+  try { syms = await api('GET', 'api/plcscan/symbols'); } catch (_) { return; }
+  if (cur) { curSyms = symsFor(cur); $('curName').textContent = areaName(cur) + (cur.size ? ` · ${cur.size} bytes` : ''); }
+  renderAreas(); renderSymTable();
+  if (cur && data) render();
+  $('namesHint').hidden = syms.files.length > 0;
+  $('btnNames').textContent = syms.files.length ? `📄 Variable names (${syms.files.length} file${syms.files.length > 1 ? 's' : ''})…` : '📄 Variable names…';
+}
+function renderSymTable() {
+  const dbs = syms.blocks.filter(b => b.kind === 'db'), tabs = syms.blocks.filter(b => b.kind === 'tags');
+  let h = '';
+  if (dbs.length) {
+    h += `<table><thead><tr><th>Data block</th><th>DB number</th><th>Size</th><th>Variables</th><th>Note</th></tr></thead><tbody>` +
+      dbs.map(b => {
+        const scanned = b.db && areas.find(a => a.area === 'DB' && a.db === b.db);
+        const size = !b.db ? '' : !scanned ? '<span class="warn" title="Not found by the last scan">not found</span>'
+          : scanned.size === b.size ? '<span class="ok" title="Same size as in the PLC">✔ matches</span>'
+          : `<span class="warn" title="The PLC has ${scanned.size} bytes: an older or newer version, or the wrong DB number">⚠ PLC: ${scanned.size}</span>`;
+        return `<tr><td class="name" title="${esc(b.file)}">${esc(b.name)}</td>
+          <td><input type="number" min="0" max="65535" value="${b.db || ''}" placeholder="?" data-block="${esc(b.name)}" class="dbno"></td>
+          <td>${b.size} bytes ${size}</td><td>${b.symbols.length}</td><td class="cmt${b.optimized ? ' bad' : ''}">${esc(b.note || '')}</td></tr>`;
+      }).join('') + '</tbody></table>';
+  }
+  if (tabs.length) h += `<p class="msg">Tag tables: ${tabs.map(b => `<b>${esc(b.name)}</b> (${b.symbols.length} tags${b.note ? ', ' + esc(b.note) : ''})`).join(', ')}</p>`;
+  if (syms.files.length) h += `<p class="msg">Files: ${syms.files.map(f => `<span class="chip" data-file="${esc(f)}" title="Remove this file">${esc(f)}</span>`).join(' ')}</p>`;
+  if (syms.notes.length) h += `<p class="msg bad">${syms.notes.map(esc).join('<br>')}</p>`;
+  $('symTable').innerHTML = h || '<p class="msg">No files imported yet.</p>';
+}
+$('btnNames').onclick = () => { renderSymTable(); $('symDlg').showModal(); };
+$('namesHintLink').onclick = ev => { ev.preventDefault(); $('btnNames').click(); };
+// File → Import → Variable names in the main window opens plcscan#names.
+function namesFromHash() { if (location.hash === '#names') { history.replaceState(null, '', location.pathname); $('btnNames').click(); } }
+window.addEventListener('hashchange', namesFromHash);
+setTimeout(namesFromHash, 0);
+$('btnSymClose').onclick =() => $('symDlg').close();
+$('btnImport').onclick = () => $('symFile').click();
+function toBase64(buf) {
+  const b = new Uint8Array(buf);
+  let s = '';
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+$('symFile').onchange = async () => {
+  const files = [...$('symFile').files];
+  $('symFile').value = '';
+  const msg = $('symMsg'), bad = [];
+  for (const f of files) {
+    msg.className = 'msg'; msg.textContent = `Reading ${f.name}…`;
+    try { await api('POST', 'api/plcscan/symbols', { name: f.name, data: toBase64(await f.arrayBuffer()) }); }
+    catch (e) { bad.push(e.message); }
+  }
+  await loadSyms();
+  msg.className = bad.length ? 'msg bad' : 'msg';
+  msg.textContent = bad.length ? '✖ ' + bad.join('; ') : `✔ ${files.length} file${files.length > 1 ? 's' : ''} imported`;
+  if (cur) openArea(cur);
+};
+$('symTable').addEventListener('change', async ev => {
+  const inp = ev.target.closest('.dbno');
+  if (!inp) return;
+  try {
+    await api('PUT', 'api/plcscan/symbols/db', { block: inp.dataset.block, db: +inp.value || 0 });
+    $('symMsg').className = 'msg'; $('symMsg').textContent = '';
+  } catch (e) { $('symMsg').className = 'msg bad'; $('symMsg').textContent = '✖ ' + e.message; }
+  await loadSyms();
+  if (cur) openArea(cur);
+});
+$('symTable').addEventListener('click', async ev => {
+  const c = ev.target.closest('.chip[data-file]');
+  if (!c || !confirm(`Remove the names from ${c.dataset.file}?`)) return;
+  await api('DELETE', 'api/plcscan/symbols?file=' + encodeURIComponent(c.dataset.file)).catch(e => alert(e.message));
+  await loadSyms();
+  if (cur) openArea(cur);
+});
+$('btnSymClear').onclick = async () => {
+  if (!syms.files.length || !confirm('Remove all imported variable names?')) return;
+  await api('DELETE', 'api/plcscan/symbols').catch(e => alert(e.message));
+  await loadSyms();
+  if (cur) openArea(cur);
+};
+
+liveTimer = setInterval(() => { if ($('live').checked && cur && !document.hidden) read(); }, 1000);
+
+(async () => {
+  try {
+    config = await api('GET', 'api/config');
+    if (config.network?.protocol === 'modbus') {
+      $('btnScan').disabled = true;
+      $('scanMsg').className = 'msg warn';
+      $('scanMsg').textContent = 'Scan PLC is for ISO-TCP PLCs (data blocks). The network is set to Modbus.';
+    }
+    if (!config.can_write) { $('btnScan').disabled = true; $('btnAdd').title = 'This dashboard is read-only'; }
+  } catch (_) {}
+  await loadSyms();
+  loadState().catch(e => { $('scanMsg').className = 'msg bad'; $('scanMsg').textContent = '✖ ' + e.message; });
+  setInterval(() => { api('GET', 'api/config').then(c => { config = c; }).catch(() => {}); }, 5000);
+})();
+</script>
+</body>
+</html>

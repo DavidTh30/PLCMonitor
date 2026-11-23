@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Help – PLC Monitor</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="themes.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e5e7eb; --accent:#2563eb;
+          --good:#15803d; --bad:#b91c1c; --code:#f3f4f6; --soft:#eef2ff; --s7:#0f766e; --mb:#7c3aed; --ix:#b45309; --mq:#0e7490; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#171b23; --fg:#e5e7eb; --muted:#9ca3af; --line:#2a303b; --accent:#60a5fa;
+            --good:#4ade80; --bad:#f87171; --code:#11151c; --soft:#1f2633; --s7:#2dd4bf; --mb:#a78bfa; --ix:#fbbf24; --mq:#22d3ee; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.6 system-ui, -apple-system, "Segoe UI", "Leelawadee UI", Tahoma, sans-serif; }
+  body[data-lang="en"] [lang="th"], body[data-lang="th"] [lang="en"] { display:none !important; }
+  .layout { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - var(--s7tb, 0px)); }
+  aside { background:var(--card); border-right:1px solid var(--line); padding:16px 12px; position:sticky; top:var(--s7tb, 0px); height:calc(100vh - var(--s7tb, 0px)); overflow:auto; }
+  aside h1 { font-size:16px; margin:0 0 12px; display:flex; gap:8px; align-items:center; }
+  aside a { display:block; padding:5px 10px; border-radius:6px; color:var(--fg); text-decoration:none; font-size:14px; }
+  aside a:hover { background:var(--soft); }
+  aside a.on { background:var(--soft); color:var(--accent); font-weight:600; }
+  aside a.sub { padding-left:22px; font-size:13px; color:var(--muted); }
+  .lang { display:flex; gap:4px; margin:0 0 14px; }
+  .lang button { flex:1; font:inherit; font-size:13px; padding:4px; border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:6px; cursor:pointer; }
+  .lang button.on { background:var(--accent); border-color:var(--accent); color:var(--accent-fg, #fff); font-weight:600; }
+  main { padding:24px 32px 80px; max-width:980px; }
+  h2 { font-size:24px; margin:8px 0 6px; padding-top:12px; border-top:1px solid var(--line); scroll-margin-top:calc(var(--s7tb, 0px) + 10px); }
+  section:first-of-type h2 { border-top:0; }
+  h3 { font-size:17px; margin:22px 0 6px; scroll-margin-top:calc(var(--s7tb, 0px) + 10px); }
+  p, li { max-width:78ch; }
+  .lead { color:var(--muted); margin-top:0; }
+  code, pre { font-family:ui-monospace, Consolas, monospace; font-size:13px; }
+  code { background:var(--code); padding:1px 5px; border-radius:4px; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:8px; padding:10px 12px; overflow-x:auto; line-height:1.5; }
+  pre code { background:none; padding:0; }
+  table { border-collapse:collapse; margin:8px 0 14px; font-size:14px; }
+  th, td { border:1px solid var(--line); padding:5px 10px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); font-weight:600; }
+  figure { margin:14px 0 18px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  figure svg { width:100%; height:auto; display:block; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:6px; text-align:center; }
+  .steps { counter-reset:st; list-style:none; padding:0; }
+  .steps > li { counter-increment:st; position:relative; padding:4px 0 8px 40px; }
+  .steps > li::before { content:counter(st); position:absolute; left:0; top:3px; width:26px; height:26px; border-radius:50%;
+                        background:var(--accent); color:var(--accent-fg, #fff); font-weight:700; font-size:13px; display:grid; place-items:center; }
+  .note { border-left:4px solid var(--accent); background:var(--soft); padding:8px 12px; border-radius:0 8px 8px 0; margin:12px 0; }
+  .warn { border-left-color:#d97706; }
+  .tag { display:inline-block; font-size:12px; font-weight:700; padding:0 8px; border-radius:999px; color:var(--on-topic, #fff); }
+  .t-mb { background:var(--mb); } .t-ix { background:var(--ix); } .t-mq { background:var(--mq); }
+  @media (prefers-color-scheme: dark) { .t-mb, .t-ix, .t-mq { color:var(--on-topic, #0f1218); } }
+  kbd { border:1px solid var(--line); border-bottom-width:2px; border-radius:4px; padding:0 5px; font:inherit; font-size:13px; background:var(--card); }
+
+  /* diagrams */
+  .d-box { fill:var(--card); stroke:var(--fg); stroke-width:1.4; }
+  .d-soft { fill:var(--soft); stroke:var(--accent); stroke-width:1.4; }
+  .d-s7 { fill:var(--card); stroke:var(--s7); stroke-width:2; }
+  .d-mb { fill:var(--card); stroke:var(--mb); stroke-width:2; }
+  .d-ix { fill:var(--card); stroke:var(--ix); stroke-width:2; }
+  .d-mq { fill:var(--card); stroke:var(--mq); stroke-width:2; }
+  .d-t { fill:var(--fg); font:600 13px system-ui, sans-serif; }
+  .d-s { fill:var(--muted); font:11px system-ui, sans-serif; }
+  .d-m { fill:var(--fg); font:11px ui-monospace, Consolas, monospace; }
+  .d-line { stroke:var(--fg); stroke-width:1.6; fill:none; }
+  .d-bus { stroke:var(--mb); stroke-width:3; fill:none; }
+  .d-dash { stroke:var(--muted); stroke-width:1.4; fill:none; stroke-dasharray:5 4; }
+  .d-arrowhead { fill:var(--fg); }
+  .d-res { fill:var(--card); stroke:var(--bad); stroke-width:1.6; }
+  .d-hl { fill:none; stroke:var(--accent); stroke-width:2.5; }
+  .d-num { fill:var(--accent); } .d-numt { fill:var(--accent-fg, #fff); font:700 12px system-ui, sans-serif; }
+  @media (max-width:760px) { .layout { grid-template-columns:1fr; } aside { position:static; height:auto; } main { padding:16px; } }
+</style>
+</head>
+<body data-lang="en">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="d-arrowhead"/></marker>
+  </defs>
+</svg>
+<div class="layout">
+<aside>
+  <h1><img src="favicon.png" width="22" height="22" alt=""> PLC Monitor Help</h1>
+  <div class="lang"><button data-lang="en">English</button><button data-lang="th">ไทย</button></div>
+  <div class="lang"><button class="theme-btn" onclick="S7Themes.openPicker()">Theme…</button></div>
+  <nav id="toc">
+    <a href="#start"><span lang="en">Getting started</span><span lang="th">เริ่มต้นใช้งาน</span></a>
+    <a href="#modbus">Modbus</a>
+    <a class="sub" href="#modbus-tcp">Modbus TCP</a>
+    <a class="sub" href="#modbus-rtu">RS485 (RTU)</a>
+    <a class="sub" href="#modbus-gw"><span lang="en">RS485 gateway</span><span lang="th">RS485 ผ่าน gateway</span></a>
+    <a class="sub" href="#modbus-addr"><span lang="en">Addresses &amp; tags</span><span lang="th">Address และ tag</span></a>
+    <a class="sub" href="#modbus-trouble"><span lang="en">Troubleshooting</span><span lang="th">แก้ปัญหา</span></a>
+    <a href="#plcnames"><span lang="en">Tag names from the PLC</span><span lang="th">ดึงชื่อ Tag จาก PLC</span></a>
+    <a class="sub" href="#plcnames-ways"><span lang="en">Three ways</span><span lang="th">3 วิธี</span></a>
+    <a class="sub" href="#plcnames-tia"><span lang="en">OPC UA in the engineering software</span><span lang="th">เปิด OPC UA ในโปรแกรมเขียน PLC</span></a>
+    <a class="sub" href="#plcnames-window"><span lang="en">PLC tags window</span><span lang="th">หน้าต่าง PLC tags</span></a>
+    <a class="sub" href="#plcnames-files"><span lang="en">Names from exported files</span><span lang="th">ชื่อจากไฟล์ที่ export</span></a>
+    <a class="sub" href="#plcnames-dev"><span lang="en">For developers</span><span lang="th">สำหรับนักพัฒนา</span></a>
+    <a href="#export"><span lang="en">Export settings</span><span lang="th">หน้า Export settings</span></a>
+    <a href="#influxdb">InfluxDB</a>
+    <a class="sub" href="#influx-install"><span lang="en">Install</span><span lang="th">ติดตั้ง</span></a>
+    <a class="sub" href="#influx-setup"><span lang="en">Connect PLC Monitor</span><span lang="th">ตั้งค่าใน PLC Monitor</span></a>
+    <a class="sub" href="#influx-query"><span lang="en">View the data</span><span lang="th">ดูข้อมูล</span></a>
+    <a class="sub" href="#influx-trouble"><span lang="en">Troubleshooting</span><span lang="th">แก้ปัญหา</span></a>
+    <a href="#mqtt">MQTT</a>
+    <a class="sub" href="#mqtt-broker"><span lang="en">Install a broker</span><span lang="th">ติดตั้ง broker</span></a>
+    <a class="sub" href="#mqtt-setup"><span lang="en">Connect PLC Monitor</span><span lang="th">ตั้งค่าใน PLC Monitor</span></a>
+    <a class="sub" href="#mqtt-use"><span lang="en">Use the data</span><span lang="th">นำข้อมูลไปใช้</span></a>
+    <a class="sub" href="#mqtt-trouble"><span lang="en">Troubleshooting</span><span lang="th">แก้ปัญหา</span></a>
+  </nav>
+</aside>
+
+<main>
+<!-- ======================================================= START -->
+<section id="start">
+  <h2><span lang="en">Getting started</span><span lang="th">เริ่มต้นใช้งาน</span></h2>
+  <p class="lead" lang="en">PLC Monitor reads values from ISO-TCP PLCs and Modbus devices, shows them live, charts them, and passes every change on to a CSV file, InfluxDB and/or an MQTT broker.</p>
+  <p class="lead" lang="th">PLC Monitor อ่านค่าจาก PLC แบบ ISO-TCP และอุปกรณ์ Modbus แสดงค่าแบบ real-time วาดกราฟ และส่งทุกค่าที่เปลี่ยนไปยังไฟล์ CSV, InfluxDB และ/หรือ MQTT broker</p>
+  <figure>
+    <svg viewBox="0 0 900 270" role="img" aria-label="Data flow overview">
+      <rect class="d-s7" x="10" y="20" width="170" height="54" rx="8"/><text class="d-t" x="24" y="44">ISO-TCP PLC</text><text class="d-s" x="24" y="62">300–1500 series · port 102</text>
+      <rect class="d-mb" x="10" y="106" width="170" height="54" rx="8"/><text class="d-t" x="24" y="130">Modbus TCP device</text><text class="d-s" x="24" y="148">meter, drive, PLC · port 502</text>
+      <rect class="d-mb" x="10" y="192" width="170" height="54" rx="8"/><text class="d-t" x="24" y="216">RS485 slaves (RTU)</text><text class="d-s" x="24" y="234">COM port or gateway</text>
+      <path class="d-line" d="M180 47 C230 47 230 120 300 125" marker-end="url(#ar)"/>
+      <path class="d-line" d="M180 133 L300 135" marker-end="url(#ar)"/>
+      <path class="d-line" d="M180 219 C230 219 230 150 300 145" marker-end="url(#ar)"/>
+      <rect class="d-soft" x="300" y="88" width="200" height="94" rx="10"/>
+      <text class="d-t" x="350" y="116" style="font-size:16px">PLC Monitor</text>
+      <text class="d-s" x="316" y="140">read every poll interval</text>
+      <text class="d-s" x="316" y="156">live table · charts · history files</text>
+      <text class="d-s" x="316" y="172">write values · generators</text>
+      <path class="d-line" d="M500 110 C540 100 540 47 580 47" marker-end="url(#ar)"/>
+      <path class="d-line" d="M500 135 L580 135" marker-end="url(#ar)"/>
+      <path class="d-line" d="M500 160 C540 170 540 219 580 219" marker-end="url(#ar)"/>
+      <text class="d-s" x="512" y="128">changes</text>
+      <rect class="d-box" x="580" y="22" width="140" height="50" rx="8"/><text class="d-t" x="594" y="45">CSV file</text><text class="d-s" x="594" y="62">changes.csv</text>
+      <rect class="d-ix" x="580" y="110" width="140" height="50" rx="8"/><text class="d-t" x="594" y="133">InfluxDB</text><text class="d-s" x="594" y="150">v1 · v2 · v3</text>
+      <rect class="d-mq" x="580" y="194" width="140" height="50" rx="8"/><text class="d-t" x="594" y="217">MQTT broker</text><text class="d-s" x="594" y="234">Mosquitto, EMQX, …</text>
+      <path class="d-line" d="M720 47 L760 47" marker-end="url(#ar)"/><path class="d-line" d="M720 135 L760 135" marker-end="url(#ar)"/><path class="d-line" d="M720 219 L760 219" marker-end="url(#ar)"/>
+      <text class="d-t" x="766" y="51">Excel</text>
+      <text class="d-t" x="766" y="139">Grafana</text>
+      <text class="d-t" x="766" y="214">HMI, Node-RED,</text><text class="d-t" x="766" y="231">phone, SCADA</text>
+    </svg>
+    <figcaption><span lang="en">Where the data goes</span><span lang="th">เส้นทางของข้อมูล</span></figcaption>
+  </figure>
+  <ol class="steps" lang="en">
+    <li><b>File → Network settings</b> (or the <i>Network settings</i> button): choose ISO-TCP or Modbus and enter the address. Tick <i>Use the built-in simulator</i> to try everything without a device.</li>
+    <li><b>+ Add tag</b>: enter where the value is (area, offset, type). Values appear in the table at the next poll.</li>
+    <li><b>Chart</b> on a row shows the trend; <b>Write</b> sends a value or runs a signal generator.</li>
+    <li><b>Export</b> (button at the top, or File → Export → Export settings): send changes to CSV, InfluxDB or MQTT. Each has a <b>Test connection</b> button.</li>
+    <li><b>File → Save</b> keeps the network and tag settings in files you can open again later.</li>
+  </ol>
+  <ol class="steps" lang="th">
+    <li><b>File → Network settings</b> (หรือปุ่ม <i>Network settings</i>): เลือก ISO-TCP หรือ Modbus แล้วใส่ address ติ๊ก <i>Use the built-in simulator</i> เพื่อลองใช้งานโดยไม่ต้องมีอุปกรณ์จริง</li>
+    <li><b>+ Add tag</b>: ใส่ตำแหน่งของค่า (area, offset, type) ค่าจะขึ้นในตารางในรอบอ่านถัดไป</li>
+    <li>ปุ่ม <b>Chart</b> ในแต่ละแถวแสดงกราฟ ปุ่ม <b>Write</b> เขียนค่าหรือเปิด signal generator</li>
+    <li><b>Export</b> (ปุ่มด้านบน หรือ File → Export → Export settings): ส่งค่าที่เปลี่ยนไป CSV, InfluxDB หรือ MQTT ทุกแบบมีปุ่ม <b>Test connection</b> สำหรับทดสอบ</li>
+    <li><b>File → Save</b> บันทึกการตั้งค่า network และ tag เป็นไฟล์ เพื่อเปิดใช้ภายหลัง</li>
+  </ol>
+</section>
+
+<!-- ======================================================= MODBUS -->
+<section id="modbus">
+  <h2><span class="tag t-mb">Modbus</span> <span lang="en">Reading Modbus devices</span><span lang="th">อ่านค่าจากอุปกรณ์ Modbus</span></h2>
+  <p lang="en">Modbus is the common language of energy meters, inverters, drives, temperature controllers and many PLCs. PLC Monitor is the <b>master</b> (client): it asks, the devices (slaves) answer. Choose the connection in <b>Network settings → Protocol</b>:</p>
+  <p lang="th">Modbus เป็นภาษากลางของมิเตอร์ไฟฟ้า อินเวอร์เตอร์ ไดรฟ์ ตัวควบคุมอุณหภูมิ และ PLC หลายรุ่น PLC Monitor เป็น <b>master</b> (client) ที่ถามค่า ส่วนอุปกรณ์ (slave) เป็นฝ่ายตอบ เลือกรูปแบบการเชื่อมต่อได้ที่ <b>Network settings → Protocol</b>:</p>
+  <table>
+    <tr><th>Protocol</th><th lang="en">Use it when</th><th lang="th">ใช้เมื่อ</th><th lang="en">You enter</th><th lang="th">ต้องใส่</th></tr>
+    <tr><td>Modbus TCP/IP</td><td lang="en">the device has an Ethernet port (or a gateway that converts to Modbus TCP)</td><td lang="th">อุปกรณ์มีพอร์ต Ethernet (หรือใช้ gateway ที่แปลงเป็น Modbus TCP)</td><td>IP[:502], unit ID</td></tr>
+    <tr><td>Modbus RTU – RS485 (COM port)</td><td lang="en">devices on an RS485 cable, connected to the PC by a USB-RS485 adapter</td><td lang="th">อุปกรณ์ต่อสาย RS485 และต่อเข้าคอมผ่านตัวแปลง USB-RS485</td><td>COM port, baud, parity, slave ID</td></tr>
+    <tr><td>Modbus RTU – RS485 via gateway</td><td lang="en">an RS485-to-Ethernet converter in "transparent / raw" mode</td><td lang="th">ใช้ตัวแปลง RS485 เป็น Ethernet แบบ "transparent / raw"</td><td>gateway IP:port, slave ID</td></tr>
+  </table>
+
+  <h3 id="modbus-tcp">Modbus TCP</h3>
+  <figure>
+    <svg viewBox="0 0 900 190" role="img" aria-label="Modbus TCP network">
+      <rect class="d-soft" x="20" y="60" width="160" height="70" rx="10"/><text class="d-t" x="36" y="88">PC – PLC Monitor</text><text class="d-s" x="36" y="108">192.168.1.5</text>
+      <rect class="d-box" x="300" y="72" width="130" height="46" rx="6"/><text class="d-t" x="324" y="100">Ethernet switch</text>
+      <path class="d-line" d="M180 95 L300 95"/>
+      <rect class="d-mb" x="560" y="10" width="300" height="48" rx="8"/><text class="d-t" x="576" y="31">Energy meter</text><text class="d-m" x="576" y="49">192.168.1.20:502 · unit ID 1</text>
+      <rect class="d-mb" x="560" y="72" width="300" height="48" rx="8"/><text class="d-t" x="576" y="93">Inverter / drive</text><text class="d-m" x="576" y="111">192.168.1.21:502 · unit ID 1</text>
+      <rect class="d-mb" x="560" y="134" width="300" height="48" rx="8"/><text class="d-t" x="576" y="155">PLC with Modbus TCP server</text><text class="d-m" x="576" y="173">192.168.1.22:502 · unit ID 255 or 1</text>
+      <path class="d-line" d="M430 95 C500 95 500 34 560 34"/><path class="d-line" d="M430 95 L560 96"/><path class="d-line" d="M430 95 C500 95 500 158 560 158"/>
+      <text class="d-s" x="190" y="86">Modbus TCP, port 502</text>
+    </svg>
+    <figcaption lang="en">One Modbus TCP connection talks to one IP address. To read several devices, run one PLC Monitor per device, or give each tag a Slave ID when the devices sit behind one gateway.</figcaption>
+    <figcaption lang="th">การเชื่อมต่อ Modbus TCP หนึ่งครั้งคุยกับ IP เดียว ถ้าจะอ่านหลายเครื่อง ให้เปิด PLC Monitor หนึ่งตัวต่ออุปกรณ์หนึ่งเครื่อง หรือถ้าอุปกรณ์อยู่หลัง gateway ตัวเดียวกัน ให้ใส่ Slave ID ในแต่ละ tag</figcaption>
+  </figure>
+  <ol class="steps" lang="en">
+    <li>Make sure the PC and the device are in the same network: e.g. PC 192.168.1.5, device 192.168.1.20, mask 255.255.255.0. <code>ping 192.168.1.20</code> should answer.</li>
+    <li><b>Network settings</b> → Protocol <b>Modbus TCP/IP</b> → Device address <code>192.168.1.20</code> (port 502 is added automatically) → Default unit ID from the device manual (often 1; some PLCs use 255).</li>
+    <li>Press <b>Apply &amp; reconnect</b>. The top bar turns green <b>CONNECTED</b> once a tag reads successfully.</li>
+    <li>Not sure of the IP? Open <b>Topology</b> and press <b>Scan</b>: it lists every device answering on port 502.</li>
+  </ol>
+  <ol class="steps" lang="th">
+    <li>ให้ PC กับอุปกรณ์อยู่ในวง network เดียวกัน เช่น PC 192.168.1.5 อุปกรณ์ 192.168.1.20 mask 255.255.255.0 แล้วลอง <code>ping 192.168.1.20</code> ต้องมีการตอบกลับ</li>
+    <li><b>Network settings</b> → Protocol <b>Modbus TCP/IP</b> → Device address <code>192.168.1.20</code> (ไม่ต้องใส่พอร์ต 502 โปรแกรมเติมให้) → Default unit ID ตามคู่มืออุปกรณ์ (ส่วนใหญ่เป็น 1 บาง PLC ใช้ 255)</li>
+    <li>กด <b>Apply &amp; reconnect</b> แถบด้านบนจะเป็นสีเขียว <b>CONNECTED</b> เมื่ออ่าน tag ได้สำเร็จ</li>
+    <li>ไม่รู้ IP ของอุปกรณ์? เปิดหน้า <b>Topology</b> แล้วกด <b>Scan</b> จะแสดงทุกอุปกรณ์ที่ตอบบนพอร์ต 502</li>
+  </ol>
+
+  <h3 id="modbus-rtu">Modbus RTU – RS485</h3>
+  <figure>
+    <svg viewBox="0 0 900 250" role="img" aria-label="RS485 wiring">
+      <rect class="d-soft" x="10" y="20" width="150" height="64" rx="10"/><text class="d-t" x="24" y="46">PC – PLC Monitor</text><text class="d-s" x="24" y="66">COM3</text>
+      <path class="d-line" d="M160 52 L210 52"/><text class="d-s" x="166" y="44">USB</text>
+      <rect class="d-box" x="210" y="28" width="130" height="48" rx="6"/><text class="d-t" x="222" y="50">USB-RS485</text><text class="d-s" x="222" y="66">adapter</text>
+      <path class="d-line" d="M275 76 L275 140"/>
+      <path class="d-bus" d="M110 140 L860 140"/><text class="d-m" x="40" y="136">A / D+</text>
+      <path class="d-bus" d="M110 160 L860 160" style="stroke-dasharray:8 4"/><text class="d-m" x="40" y="164">B / D−</text>
+      <path class="d-line" d="M110 180 L860 180" style="stroke:var(--muted)"/><text class="d-m" x="40" y="184">GND</text>
+      <rect class="d-res" x="96" y="138" width="10" height="24"/><text class="d-s" x="72" y="214">120 Ω</text><path class="d-dash" d="M101 162 L95 202"/>
+      <rect class="d-res" x="864" y="138" width="10" height="24"/><text class="d-s" x="842" y="214">120 Ω</text><path class="d-dash" d="M869 162 L862 202"/>
+      <g><path class="d-line" d="M430 140 L430 100"/><rect class="d-mb" x="370" y="54" width="120" height="46" rx="6"/><text class="d-t" x="382" y="74">Meter</text><text class="d-m" x="382" y="91">ID 1</text></g>
+      <g><path class="d-line" d="M590 140 L590 100"/><rect class="d-mb" x="530" y="54" width="120" height="46" rx="6"/><text class="d-t" x="542" y="74">Temp. ctrl</text><text class="d-m" x="542" y="91">ID 2</text></g>
+      <g><path class="d-line" d="M750 140 L750 100"/><rect class="d-mb" x="690" y="54" width="120" height="46" rx="6"/><text class="d-t" x="702" y="74">Drive</text><text class="d-m" x="702" y="91">ID 3</text></g>
+      <text class="d-s" x="300" y="236">daisy chain: one cable from device to device, no star · all devices: same baud rate and parity, different IDs</text>
+    </svg>
+    <figcaption lang="en">RS485 wiring: A to A, B to B, common GND; a 120 Ω resistor at the two far ends of a long bus.</figcaption>
+    <figcaption lang="th">การเดินสาย RS485: A ต่อ A, B ต่อ B, ต่อ GND ร่วมกัน และใส่ตัวต้านทาน 120 Ω ที่ปลายสายทั้งสองด้านเมื่อสายยาว</figcaption>
+  </figure>
+  <ol class="steps" lang="en">
+    <li>Plug in the USB-RS485 adapter (install its driver). Windows Device Manager shows it under <i>Ports (COM &amp; LPT)</i>, e.g. COM3.</li>
+    <li>On every device set a <b>different slave ID</b> and the <b>same</b> baud rate, data bits, parity and stop bits (commonly 9600 8N1 or 9600 8E1).</li>
+    <li><b>Network settings</b> → Protocol <b>Modbus RTU – RS485 / RS232 (COM port)</b> → pick the serial port (press ↻ after plugging in) → baud rate, parity … → Default unit ID = the ID most tags use.</li>
+    <li>Tags of other devices: set their <b>Slave ID</b> in the tag dialog. The address column then shows e.g. <code>U2:HR100</code>.</li>
+    <li>Set the timeout to about 300–500 ms: a device that is switched off then only slows the poll down a little.</li>
+    <li>Which IDs are on the cable? <b>Topology → Scan slave IDs</b> asks every ID on the current connection.</li>
+  </ol>
+  <ol class="steps" lang="th">
+    <li>เสียบตัวแปลง USB-RS485 (ติดตั้งไดรเวอร์ให้เรียบร้อย) ใน Device Manager ของ Windows จะเห็นอยู่ใต้ <i>Ports (COM &amp; LPT)</i> เช่น COM3</li>
+    <li>ตั้ง <b>slave ID ไม่ซ้ำกัน</b> ในทุกอุปกรณ์ และตั้ง baud rate, data bits, parity, stop bits <b>ให้เหมือนกัน</b> (ที่ใช้บ่อยคือ 9600 8N1 หรือ 9600 8E1)</li>
+    <li><b>Network settings</b> → Protocol <b>Modbus RTU – RS485 / RS232 (COM port)</b> → เลือก serial port (เสียบสายแล้วกด ↻) → baud rate, parity … → Default unit ID = ID ที่ tag ส่วนใหญ่ใช้</li>
+    <li>tag ของอุปกรณ์ตัวอื่น ให้ใส่ <b>Slave ID</b> ในหน้าต่าง tag คอลัมน์ Address จะแสดงเป็น เช่น <code>U2:HR100</code></li>
+    <li>ตั้ง timeout ประมาณ 300–500 ms ถ้ามีอุปกรณ์ปิดอยู่ รอบการอ่านจะช้าลงเพียงเล็กน้อย</li>
+    <li>อยากรู้ว่ามี ID อะไรอยู่บนสายบ้าง? ใช้ <b>Topology → Scan slave IDs</b> โปรแกรมจะถามทีละ ID ผ่านการเชื่อมต่อปัจจุบัน</li>
+  </ol>
+
+  <h3 id="modbus-gw"><span lang="en">RS485 through an Ethernet gateway</span><span lang="th">RS485 ผ่าน Ethernet gateway</span></h3>
+  <figure>
+    <svg viewBox="0 0 900 170" role="img" aria-label="RS485 gateway">
+      <rect class="d-soft" x="10" y="50" width="150" height="64" rx="10"/><text class="d-t" x="24" y="76">PC – PLC Monitor</text><text class="d-s" x="24" y="96">Ethernet</text>
+      <path class="d-line" d="M160 82 L300 82"/><text class="d-s" x="172" y="74">TCP, e.g. port 502 / 4001 / 8899</text>
+      <rect class="d-box" x="300" y="46" width="170" height="72" rx="8"/><text class="d-t" x="314" y="72">RS485 ⇄ Ethernet</text><text class="d-t" x="314" y="90">gateway</text><text class="d-m" x="314" y="108">192.168.1.30</text>
+      <path class="d-bus" d="M470 82 L880 82"/>
+      <g><path class="d-line" d="M560 82 L560 120"/><rect class="d-mb" x="510" y="120" width="100" height="40" rx="6"/><text class="d-m" x="526" y="145">ID 1</text></g>
+      <g><path class="d-line" d="M690 82 L690 120"/><rect class="d-mb" x="640" y="120" width="100" height="40" rx="6"/><text class="d-m" x="656" y="145">ID 2</text></g>
+      <g><path class="d-line" d="M820 82 L820 120"/><rect class="d-mb" x="770" y="120" width="100" height="40" rx="6"/><text class="d-m" x="786" y="145">ID 5</text></g>
+      <text class="d-s" x="500" y="40">RS485 (baud rate and parity set in the gateway)</text>
+    </svg>
+  </figure>
+  <p lang="en">Two kinds of gateways exist; pick the protocol that matches the gateway's mode:</p>
+  <p lang="th">gateway มีสองแบบ ให้เลือก protocol ให้ตรงกับโหมดของ gateway:</p>
+  <table>
+    <tr><th lang="en">Gateway mode</th><th lang="th">โหมดของ gateway</th><th>Protocol in PLC Monitor</th></tr>
+    <tr><td lang="en">"Modbus TCP to RTU" / "Modbus gateway" (converts)</td><td lang="th">"Modbus TCP to RTU" / "Modbus gateway" (แปลงโปรโตคอล)</td><td><b>Modbus TCP/IP</b>, address = gateway IP, unit ID = slave ID</td></tr>
+    <tr><td lang="en">"Transparent" / "raw" / "TCP server, none" (passes bytes)</td><td lang="th">"Transparent" / "raw" / "TCP server, none" (ส่งผ่านข้อมูลตรง ๆ)</td><td><b>Modbus RTU – RS485 via gateway</b>, address = gateway IP:port</td></tr>
+  </table>
+
+  <h3 id="modbus-addr"><span lang="en">Addresses and tags</span><span lang="th">Address และ tag</span></h3>
+  <p lang="en">Device manuals list registers in one of two styles. PLC Monitor uses the <b>0-based offset</b> of each area:</p>
+  <p lang="th">คู่มืออุปกรณ์เขียนเลข register ได้สองแบบ PLC Monitor ใช้ <b>offset ที่เริ่มนับจาก 0</b> ของแต่ละ area:</p>
+  <table>
+    <tr><th>Area</th><th lang="en">Holds</th><th lang="th">เก็บอะไร</th><th lang="en">Manual says</th><th lang="th">คู่มือเขียนว่า</th><th>Offset</th><th lang="en">Write?</th><th lang="th">เขียนได้?</th></tr>
+    <tr><td><b>HR</b> holding registers</td><td lang="en">settings, values (16-bit)</td><td lang="th">ค่าตั้ง ค่าวัด (16 บิต)</td><td>40001 / 400001 / 0x0000</td><td>0</td><td>✔</td></tr>
+    <tr><td><b>IR</b> input registers</td><td lang="en">measurements (16-bit)</td><td lang="th">ค่าวัด (16 บิต)</td><td>30001 / 300001</td><td>0</td><td>–</td></tr>
+    <tr><td><b>COIL</b> coils</td><td lang="en">on/off outputs</td><td lang="th">เอาต์พุต เปิด/ปิด</td><td>00001</td><td>0</td><td>✔</td></tr>
+    <tr><td><b>DI</b> discrete inputs</td><td lang="en">on/off inputs</td><td lang="th">อินพุต เปิด/ปิด</td><td>10001</td><td>0</td><td>–</td></tr>
+  </table>
+  <p lang="en">Rule: <b>offset = register number − first number</b>. Register 40101 → HR offset 100; 30001 → IR offset 0. If the manual already counts from 0 (hex addresses such as 0x0064), use that number as the offset.</p>
+  <p lang="th">วิธีคิด: <b>offset = เลข register − เลขตัวแรก</b> เช่น register 40101 → HR offset 100, 30001 → IR offset 0 ถ้าคู่มือนับจาก 0 อยู่แล้ว (เช่นเลขฐานสิบหก 0x0064) ให้ใช้เลขนั้นเป็น offset ได้เลย</p>
+  <p lang="en"><b>32-bit values</b> (REAL/float, DINT, DWORD) use two registers. Devices differ in which register comes first; if a value looks absurd (e.g. 1.4E-41 instead of 230.5), switch <b>Network settings → 32/64-bit word order</b>:</p>
+  <p lang="th"><b>ค่า 32 บิต</b> (REAL/float, DINT, DWORD) ใช้ 2 register แต่ละยี่ห้อเรียงลำดับไม่เหมือนกัน ถ้าค่าที่อ่านได้แปลก ๆ (เช่น 1.4E-41 แทนที่จะเป็น 230.5) ให้สลับ <b>Network settings → 32/64-bit word order</b>:</p>
+  <figure>
+    <svg viewBox="0 0 900 150" role="img" aria-label="Word order">
+      <text class="d-t" x="20" y="30">230.5 as REAL = 0x43668000</text>
+      <text class="d-s" x="20" y="64">High word first (ABCD)</text>
+      <rect class="d-mb" x="200" y="44" width="150" height="34" rx="4"/><text class="d-m" x="214" y="66">HR100 = 0x4366</text>
+      <rect class="d-mb" x="360" y="44" width="150" height="34" rx="4"/><text class="d-m" x="374" y="66">HR101 = 0x8000</text>
+      <text class="d-s" x="530" y="66">→ 230.5 ✔ (most PLCs and devices)</text>
+      <text class="d-s" x="20" y="114">Low word first (CDAB)</text>
+      <rect class="d-mb" x="200" y="94" width="150" height="34" rx="4"/><text class="d-m" x="214" y="116">HR100 = 0x8000</text>
+      <rect class="d-mb" x="360" y="94" width="150" height="34" rx="4"/><text class="d-m" x="374" y="116">HR101 = 0x4366</text>
+      <text class="d-s" x="530" y="116">→ choose "Low word first" for these devices</text>
+    </svg>
+  </figure>
+  <h3><span lang="en">Example: an energy meter on RS485</span><span lang="th">ตัวอย่าง: มิเตอร์ไฟฟ้าบน RS485</span></h3>
+  <p lang="en">The manual says: slave ID 1, 9600 baud, 8N1; voltage L1 = input register 30001 (float, 2 registers); total energy = 30343 (float). Settings:</p>
+  <p lang="th">คู่มือบอกว่า: slave ID 1, 9600 baud, 8N1; แรงดัน L1 = input register 30001 (float, 2 register); พลังงานรวม = 30343 (float) ตั้งค่าดังนี้:</p>
+  <table>
+    <tr><th>Network settings</th><td>Modbus RTU – RS485 · COM3 · 9600 · 8 · None · 1 · unit ID 1 · timeout 500ms</td></tr>
+    <tr><th>Tag “L1_Voltage”</th><td>Area IR · Offset 0 · Type REAL</td></tr>
+    <tr><th>Tag “Energy_kWh”</th><td>Area IR · Offset 342 · Type REAL</td></tr>
+  </table>
+  <p lang="en">Example config file lines (config.yaml), if you prefer editing the file:</p>
+  <p lang="th">ถ้าอยากแก้ในไฟล์ config.yaml โดยตรง เขียนได้แบบนี้:</p>
+<pre><code>protocol: modbus
+modbus:
+    mode: rtu            # tcp | rtu | rtuovertcp
+    serial_port: COM3
+    baud: 9600
+    parity: "N"
+    unit_id: 1
+    timeout: 500ms
+tags:
+    - name: L1_Voltage
+      area: IR
+      offset: 0
+      type: REAL
+    - name: Pump2_Run    # a coil on another slave
+      area: COIL
+      offset: 4
+      unit: 2
+      type: BOOL</code></pre>
+
+  <h3 id="modbus-trouble"><span lang="en">Troubleshooting</span><span lang="th">แก้ปัญหา</span></h3>
+  <table>
+    <tr><th lang="en">Message</th><th lang="th">ข้อความ</th><th lang="en">Cause and fix</th><th lang="th">สาเหตุและวิธีแก้</th></tr>
+    <tr><td>connection refused / i/o timeout (TCP)</td><td lang="en">Wrong IP or port, device off, firewall, or the PC is in another subnet. Try <code>ping</code> and Topology → Scan. Another subnet: ⚙ → <b>Network adapters</b> → <b>Reach a PLC</b>: type the PLC's address and press Add (e.g. 192.168.1.200 next to a PLC at 192.168.1.1; Windows asks for administrator permission).</td><td lang="th">IP หรือพอร์ตผิด อุปกรณ์ปิดอยู่ ติด firewall หรือ PC อยู่คนละวง network ลอง <code>ping</code> และ Topology → Scan ถ้าอยู่คนละวง: ⚙ → <b>Network adapters</b> → <b>Reach a PLC</b> ใส่ IP ของ PLC แล้วกด Add (เช่น 192.168.1.200 สำหรับ PLC 192.168.1.1 – Windows จะขอสิทธิ์ผู้ดูแลระบบ)</td></tr>
+    <tr><td>no device answered (RTU)</td><td lang="en">Baud rate/parity differ, A and B swapped, wrong slave ID, or the COM port is used by another program. Swap A/B first – it is the most common mistake.</td><td lang="th">baud rate/parity ไม่ตรงกัน สาย A กับ B สลับกัน slave ID ผิด หรือมีโปรแกรมอื่นใช้ COM port อยู่ แนะนำให้ลองสลับ A/B ก่อน เพราะเป็นความผิดพลาดที่เจอบ่อยที่สุด</td></tr>
+    <tr><td>illegal data address</td><td lang="en">The register does not exist: check offset = number − 40001/30001. With "Max gap" above 0 a read may cross an unmapped register – set it to 0.</td><td lang="th">ไม่มี register นี้ในอุปกรณ์ ตรวจว่า offset = เลข − 40001/30001 ถูกต้องหรือไม่ ถ้า "Max gap" มากกว่า 0 การอ่านอาจข้ามไปโดน register ที่ไม่มีอยู่จริง ให้ตั้งเป็น 0</td></tr>
+    <tr><td>illegal function</td><td lang="en">Wrong area: e.g. the value is an input register (IR) but the tag uses HR.</td><td lang="th">เลือก area ผิด เช่น ค่าเป็น input register (IR) แต่ tag ตั้งเป็น HR</td></tr>
+    <tr><td>gateway target device failed to respond</td><td lang="en">The gateway works but the slave behind it does not answer: slave ID, RS485 wiring or the gateway's serial settings.</td><td lang="th">gateway ทำงานปกติ แต่ slave ที่อยู่หลัง gateway ไม่ตอบ ให้ตรวจ slave ID สาย RS485 และค่า serial ใน gateway</td></tr>
+    <tr><td lang="en">value is huge / tiny / negative</td><td lang="th">ค่าใหญ่ เล็ก หรือติดลบผิดปกติ</td><td lang="en">Word order (see above), wrong type (INT vs WORD, REAL vs DINT), or the offset is one register off.</td><td lang="th">word order ไม่ตรง (ดูด้านบน) ชนิดข้อมูลผิด (INT กับ WORD, REAL กับ DINT) หรือ offset เลื่อนไปหนึ่ง register</td></tr>
+  </table>
+</section>
+
+<!-- ======================================================= PLC NAMES -->
+<section id="plcnames">
+  <h2><span lang="en">Tag names from the PLC</span><span lang="th">ดึงชื่อ Tag จาก PLC</span></h2>
+  <p class="lead" lang="en">ISO-TCP (PUT/GET, port 102) only moves bytes: the PLC never sends the names you gave your tags in the PLC engineering software. Names come either from the PLC's <b>OPC UA server</b>, which publishes every variable by its symbolic name, or from files exported from the engineering software.</p>
+  <p class="lead" lang="th">ISO-TCP (PUT/GET, port 102) ส่งมาแค่ค่า byte PLC ไม่ส่งชื่อ Tag ที่ตั้งไว้ในโปรแกรมเขียน PLC (engineering software) มาด้วย ชื่อจึงต้องมาจาก <b>OPC UA server</b> ของ PLC ซึ่งเปิดเผยตัวแปรทุกตัวตามชื่อ หรือจากไฟล์ที่ export จากโปรแกรมเขียน PLC</p>
+  <figure>
+    <svg viewBox="0 0 900 200" role="img" aria-label="Where names come from">
+      <rect class="d-s7" x="10" y="20" width="200" height="160" rx="10"/>
+      <text class="d-t" x="26" y="46">1200 / 1500-series CPU</text>
+      <text class="d-s" x="26" y="74">port 102 · ISO-TCP PUT/GET</text><text class="d-m" x="26" y="90">bytes only: DB1.DBW2</text>
+      <text class="d-s" x="26" y="122">port 4840 · OPC UA server</text><text class="d-m" x="26" y="138">"Line_Data"."Speed"</text>
+      <text class="d-s" x="26" y="160">names, types, comments</text>
+      <path class="d-line" d="M210 85 L380 60" marker-end="url(#ar)"/><text class="d-s" x="250" y="62">Scan PLC</text>
+      <path class="d-line" d="M210 130 L380 130" marker-end="url(#ar)"/><text class="d-s" x="250" y="124">PLC tags (OPC UA)</text>
+      <rect class="d-box" x="560" y="150" width="140" height="40" rx="8"/><text class="d-t" x="572" y="168">Engineering SW</text><text class="d-s" x="572" y="183">.db · .udt · .xlsx</text>
+      <path class="d-dash" d="M560 168 C470 168 470 80 470 70"/><text class="d-s" x="476" y="120">import</text>
+      <rect class="d-soft" x="380" y="30" width="180" height="56" rx="8"/><text class="d-t" x="394" y="54">Scan PLC window</text><text class="d-s" x="394" y="72">bytes + imported names</text>
+      <rect class="d-soft" x="380" y="104" width="180" height="56" rx="8"/><text class="d-t" x="394" y="128">PLC tags window</text><text class="d-s" x="394" y="146">browse by name, live</text>
+      <path class="d-line" d="M560 58 L700 90" marker-end="url(#ar)"/><path class="d-line" d="M560 132 L700 100" marker-end="url(#ar)"/>
+      <rect class="d-box" x="700" y="66" width="190" height="56" rx="8"/><text class="d-t" x="714" y="90">Tag list</text><text class="d-s" x="714" y="108">add · save as · compare · update</text>
+    </svg>
+    <figcaption><span lang="en">Where tag names come from</span><span lang="th">ชื่อ Tag มาจากไหนได้บ้าง</span></figcaption>
+  </figure>
+
+  <h3 id="plcnames-ways"><span lang="en">Three ways to get names</span><span lang="th">3 วิธีในการได้ชื่อ</span></h3>
+  <table>
+    <tr><th></th><th lang="en">How</th><th lang="th">ทำอย่างไร</th><th lang="en">Good for</th><th lang="th">เหมาะกับ</th></tr>
+    <tr><td><b>1. OPC UA</b></td>
+      <td lang="en">File → <b>PLC tags (OPC UA)</b> → Read tag list from PLC. Set Network → Protocol to <b>OPC UA</b> to monitor the tags by name.</td>
+      <td lang="th">File → <b>PLC tags (OPC UA)</b> → Read tag list from PLC แล้วตั้ง Network → Protocol เป็น <b>OPC UA</b> เพื่อ monitor ตามชื่อ</td>
+      <td lang="en">1500-series CPUs, and 1200-series CPUs with firmware 4.4+. Works with <b>optimized</b> data blocks. No files to export.</td>
+      <td lang="th">CPU ตระกูล 1500 และ CPU ตระกูล 1200 firmware 4.4 ขึ้นไป ใช้กับ DB แบบ <b>optimized</b> ได้ ไม่ต้อง export ไฟล์</td></tr>
+    <tr><td><b>2. OPC UA + ISO-TCP</b></td>
+      <td lang="en">Read the list over OPC UA, but keep monitoring over ISO-TCP (port 102): pick <i>Read as: absolute address</i>. Needs the names imported in Scan PLC, because OPC UA does not give absolute addresses.</td>
+      <td lang="th">อ่านรายชื่อผ่าน OPC UA แต่ยัง monitor ผ่าน ISO-TCP (port 102) โดยเลือก <i>Read as: absolute address</i> ต้อง import ชื่อใน Scan PLC ด้วย เพราะ OPC UA ไม่ให้ address แบบ absolute</td>
+      <td lang="en">Keeping ISO-TCP while checking names and comments against the PLC (Compare).</td>
+      <td lang="th">ยังใช้ ISO-TCP อยู่ แต่อยากตรวจชื่อและ comment เทียบกับ PLC (Compare)</td></tr>
+    <tr><td><b>3. Exported files</b></td>
+      <td lang="en">Scan PLC → 📄 Variable names → import DB sources (.db/.udt) and the PLC tag table (.xlsx/.xml/.sdf). Or File → Import → PLC tag table (.xlsx / .xml / .sdf)… to add the tag table as tags.</td>
+      <td lang="th">Scan PLC → 📄 Variable names → import source ของ DB (.db/.udt) และ PLC tag table (.xlsx/.xml/.sdf) หรือ File → Import → PLC tag table (.xlsx / .xml / .sdf)… เพื่อเพิ่ม tag table เป็น Tag</td>
+      <td lang="en">PLCs without OPC UA (300/400-series CPUs, older 1200-series CPUs). Non-optimized DBs only.</td>
+      <td lang="th">PLC ที่ไม่มี OPC UA (CPU ตระกูล 300/400, CPU ตระกูล 1200 รุ่นเก่า) ใช้ได้เฉพาะ DB ที่ไม่ optimized</td></tr>
+  </table>
+
+  <h3 id="plcnames-tia"><span lang="en">Switch on OPC UA in the PLC engineering software</span><span lang="th">เปิด OPC UA ในโปรแกรมเขียน PLC (engineering software)</span></h3>
+  <ol class="steps" lang="en">
+    <li>CPU properties → <b>OPC UA → Server → General</b>: tick <b>Activate OPC UA server</b>. Note the server address (port <b>4840</b>). Also tick <b>Enable standard server interface</b> (1200-series CPUs from firmware 4.5 and 1500-series CPUs from 2.9, under <i>Server interfaces</i>): without it the PLC answers but publishes no tags, and the PLC tags window says so.</li>
+    <li><b>Runtime licenses → OPC UA</b>: choose the OPC UA runtime licence that fits the CPU (small/medium/large for 1500-series, Basic for 1200-series).</li>
+    <li><b>Server → Security</b>: for a first test allow <i>No security</i> and <i>Guest authentication</i>. With security on, choose <b>Sign &amp; encrypt / Basic256Sha256</b> in PLC Monitor and trust its certificate (<code>opcua-client-cert.pem</code> next to the config), or tick <i>Automatically accept client certificates during runtime</i>.</li>
+    <li>For each data block and PLC tag: <b>Accessible from HMI/OPC UA</b> and <b>Visible in HMI engineering</b> must be ticked (they are by default). With the <i>standard server interface</i>, all such variables are published.</li>
+    <li>Download to the CPU. In PLC Monitor: File → PLC → PLC tags (OPC UA) → endpoint <code>opc.tcp://&lt;PLC IP&gt;:4840</code> → <b>Read tag list from PLC</b>.</li>
+  </ol>
+  <ol class="steps" lang="th">
+    <li>Properties ของ CPU → <b>OPC UA → Server → General</b>: ติ๊ก <b>Activate OPC UA server</b> และจด address ของ server (port <b>4840</b>) และติ๊ก <b>Enable standard server interface</b> ด้วย (CPU ตระกูล 1200 firmware 4.5 ขึ้นไป และ CPU ตระกูล 1500 firmware 2.9 ขึ้นไป อยู่ใน <i>Server interfaces</i>) ถ้าไม่ติ๊ก PLC จะตอบแต่ไม่ส่ง tag ออกมา และหน้าต่าง PLC tags จะแจ้งเรื่องนี้</li>
+    <li><b>Runtime licenses → OPC UA</b>: เลือก OPC UA runtime licence ให้ตรงกับ CPU (small/medium/large สำหรับตระกูล 1500 หรือ Basic สำหรับตระกูล 1200)</li>
+    <li><b>Server → Security</b>: ทดสอบครั้งแรกให้อนุญาต <i>No security</i> และ <i>Guest authentication</i> ถ้าเปิด security ให้เลือก <b>Sign &amp; encrypt / Basic256Sha256</b> ใน PLC Monitor แล้วให้ PLC trust certificate ของ PLC Monitor (<code>opcua-client-cert.pem</code> ที่อยู่ข้าง config) หรือติ๊ก <i>Automatically accept client certificates during runtime</i></li>
+    <li>ใน DB และ PLC tag ทุกตัวต้องติ๊ก <b>Accessible from HMI/OPC UA</b> และ <b>Visible in HMI engineering</b> (ค่าเริ่มต้นติ๊กไว้แล้ว) ถ้าใช้ <i>standard server interface</i> ตัวแปรเหล่านี้จะถูกเปิดเผยทั้งหมด</li>
+    <li>Download ลง CPU แล้วใน PLC Monitor: File → PLC → PLC tags (OPC UA) → endpoint <code>opc.tcp://&lt;IP ของ PLC&gt;:4840</code> → <b>Read tag list from PLC</b></li>
+  </ol>
+
+  <h3 id="plcnames-window"><span lang="en">The PLC tags window</span><span lang="th">หน้าต่าง PLC tags</span></h3>
+  <table>
+    <tr><th><span lang="en">Button</span><span lang="th">ปุ่ม</span></th><th lang="en">What it does</th><th lang="th">ทำอะไร</th></tr>
+    <tr><td><b>Read tag list from PLC</b></td>
+      <td lang="en">Browses the OPC UA server: name, area (I/Q/M/DB), data type, comment, live value, and the absolute address when known.</td>
+      <td lang="th">อ่านรายการจาก OPC UA server: ชื่อ, area (I/Q/M/DB), ชนิดข้อมูล, comment, ค่าสด และ absolute address ถ้าทราบ</td></tr>
+    <tr><td><b>Add as tags</b></td>
+      <td lang="en">Adds the ticked variables to the tag list, named as in the PLC, with the comment as description. <i>Read as</i> chooses OPC UA (node ID) or absolute address.</td>
+      <td lang="th">เพิ่มตัวแปรที่ติ๊กเข้า tag list โดยใช้ชื่อเดียวกับใน PLC และนำ comment มาเป็น description ช่อง <i>Read as</i> เลือกว่าจะอ่านผ่าน OPC UA (node ID) หรือ absolute address</td></tr>
+    <tr><td><b>Save as tag file…</b></td>
+      <td lang="en">Writes the ticked variables (or all shown) as a <code>.tags.yaml</code> file, to open later with File → Tag configuration → Open.</td>
+      <td lang="th">บันทึกตัวแปรที่ติ๊ก (หรือทั้งหมดที่แสดง) เป็นไฟล์ <code>.tags.yaml</code> เปิดใช้ภายหลังได้ที่ File → Tag configuration → Open</td></tr>
+    <tr><td><b>Export CSV…</b></td>
+      <td lang="en">The list shown, with node IDs, types, comments and values, for Excel (semicolon separated).</td>
+      <td lang="th">รายการที่แสดงอยู่ พร้อม node ID, ชนิดข้อมูล, comment และค่า สำหรับเปิดใน Excel (คั่นด้วย ;)</td></tr>
+    <tr><td><b>Compare / update…</b></td>
+      <td lang="en">Checks every tag against the PLC: <span style="color:var(--good)">match</span>, <b>differs</b> (name, type or comment changed in the PLC), or <b>not in the PLC</b> (deleted or renamed there). Tick the rows and <b>Apply</b> to update names, types and descriptions, or remove tags that are gone.</td>
+      <td lang="th">ตรวจ Tag ทุกตัวเทียบกับ PLC: <span style="color:var(--good)">ตรงกัน</span>, <b>ต่างกัน</b> (ชื่อ ชนิด หรือ comment ใน PLC เปลี่ยน) หรือ <b>ไม่มีใน PLC</b> (ถูกลบหรือเปลี่ยนชื่อ) ติ๊กแถวแล้วกด <b>Apply</b> เพื่ออัปเดตชื่อ ชนิด description หรือลบ Tag ที่ไม่มีแล้ว</td></tr>
+  </table>
+  <p class="note" lang="en">Renaming a tag in Compare does not move its chart history files (they are per tag name). Charts and tag windows that show it need the tag added again.</p>
+  <p class="note" lang="th">การเปลี่ยนชื่อ Tag ผ่าน Compare จะไม่ย้ายไฟล์ประวัติกราฟ (เก็บแยกตามชื่อ Tag) กราฟและ tag window ที่ใช้ Tag นั้นต้องเพิ่ม Tag เข้าไปใหม่</p>
+
+  <h3 id="plcnames-files"><span lang="en">Names from engineering software files (without OPC UA)</span><span lang="th">ชื่อจากไฟล์ของโปรแกรมเขียน PLC (กรณีไม่มี OPC UA)</span></h3>
+  <ul lang="en">
+    <li><b>Data blocks:</b> select them (and their PLC data types) in the project tree → right-click → <b>Generate source from blocks → Including all dependent blocks</b>. Import the <code>.db</code>/<code>.udt</code>/<code>.scl</code> file in Scan PLC → 📄 Variable names, and give each block its DB number. <b>Instance DBs of function blocks</b> work too when the FB's source is in the import (with its multi-instances, timers TON/TOF/TP, counters and R_TRIG/F_TRIG); variables are named like <code>Blower01.Status.Fault</code> or <code>Seq.tmReqOn.ET</code>.</li>
+    <li><b>Inputs, outputs, markers:</b> open the PLC tag table → <b>Export</b> → <code>.xlsx</code> or <code>.xml</code> (both the tag table's own XML export and Openness XML export work), and import it the same way.</li>
+    <li><b>As tags straight away:</b> File → Import → <b>PLC tag table (.xlsx / .xml / .sdf)…</b> (or pick the file in File → Tag configuration → <b>Open…</b>) adds every I, Q and M tag of the table to the tag list with its name, type and comment. A tag whose name is already in the list gets the address, type and comment from the file instead of a copy. Tags without an address and types such as String are skipped. One Ctrl+Z undoes the import.</li>
+    <li><b>Back to the engineering software:</b> File → Export → <b>PLC tag table (.xlsx)…</b> or <b>(.xml)…</b> writes the tag list as a PLC tag table (the .xlsx has the sheet <i>PLC Tags</i> with the same columns the engineering software exports). In the engineering software open the PLC tags → <b>Import</b> and choose the file. Only I, Q and M tags fit in a tag table; DB, Modbus, OPC UA and LReal tags are left out and counted.</li>
+    <li><b>Data blocks from SCL as tags:</b> File → Import → <b>Data blocks from SCL source (.scl / .db / .udt)…</b> (or the file in File → Tag configuration → <b>Open…</b>) lists the data blocks of the source, also instance DBs of FBs, with size and DB number. <b>Find DB numbers on the PLC</b> scans the PLC (only reads) and fills in the numbers by size; ✓ means the size matches the PLC. <b>Add as tags</b> adds the variables of the ticked blocks as tags named <code>Block.Variable</code>.</li>
+    <li><b>Tags as SCL:</b> File → Export → <b>Data blocks as SCL source (.scl)…</b> writes the tags in data blocks as SCL data blocks (standard access) in which every tag keeps its address – <code>Spare_…</code> members fill the gaps. In the engineering software: External source files → add the file → <b>Generate blocks from source</b>, then give each block its DB number.</li>
+    <li>Only <b>non-optimized</b> DBs can be read over PUT/GET. PLC Monitor works out the offsets with the rules of standard access, as the engineering software shows them in the <i>Offset</i> column.</li>
+  </ul>
+  <ul lang="th">
+    <li><b>Data block:</b> เลือก DB (และ PLC data type ที่ใช้) ใน Project tree → คลิกขวา → <b>Generate source from blocks → Including all dependent blocks</b> แล้ว import ไฟล์ <code>.db</code>/<code>.udt</code>/<code>.scl</code> ใน Scan PLC → 📄 Variable names และใส่หมายเลข DB ให้แต่ละ block ใช้กับ <b>instance DB ของ function block</b> ได้ด้วย ถ้ามี source ของ FB อยู่ในไฟล์ที่ import (รวม multi-instance, timer TON/TOF/TP, counter และ R_TRIG/F_TRIG) ชื่อตัวแปรจะเป็นแบบ <code>Blower01.Status.Fault</code> หรือ <code>Seq.tmReqOn.ET</code></li>
+    <li><b>Input, output, marker:</b> เปิด PLC tag table → <b>Export</b> → <code>.xlsx</code> หรือ <code>.xml</code> (ใช้ได้ทั้ง XML ที่ export จาก tag table และ Openness XML export) แล้ว import แบบเดียวกัน</li>
+    <li><b>นำเข้าเป็น Tag ทันที:</b> File → Import → <b>PLC tag table (.xlsx / .xml / .sdf)…</b> (หรือเลือกไฟล์ใน File → Tag configuration → <b>Open…</b>) จะเพิ่ม Tag ของ I, Q และ M ทุกตัวในตารางเข้ารายการ Tag พร้อมชื่อ ชนิด และ comment ถ้ามี Tag ชื่อเดียวกันอยู่แล้ว จะอัปเดต address ชนิด และ comment ตามไฟล์แทนการเพิ่มซ้ำ Tag ที่ไม่มี address และชนิดอย่าง String จะถูกข้าม กด Ctrl+Z ครั้งเดียวยกเลิกการนำเข้าทั้งหมด</li>
+    <li><b>ส่งกลับไปโปรแกรมเขียน PLC:</b> File → Export → <b>PLC tag table (.xlsx)…</b> หรือ <b>(.xml)…</b> จะเขียนรายการ Tag เป็น PLC tag table (ไฟล์ .xlsx มี sheet <i>PLC Tags</i> และคอลัมน์ตามที่โปรแกรมเขียน PLC export) ในโปรแกรมเขียน PLC เปิด PLC tags → <b>Import</b> แล้วเลือกไฟล์ ส่งออกได้เฉพาะ Tag ของ I, Q และ M ส่วน Tag ของ DB, Modbus, OPC UA และ LReal จะไม่ถูกส่งออก และแจ้งจำนวนให้</li>
+    <li><b>Data block จาก SCL เป็น Tag:</b> File → Import → <b>Data blocks from SCL source (.scl / .db / .udt)…</b> (หรือเลือกไฟล์ใน File → Tag configuration → <b>Open…</b>) จะแสดง data block ในไฟล์ รวม instance DB ของ FB พร้อมขนาดและหมายเลข DB ปุ่ม <b>Find DB numbers on the PLC</b> จะ scan PLC (อ่านอย่างเดียว) แล้วเติมหมายเลขตามขนาดให้ เครื่องหมาย ✓ แปลว่าขนาดตรงกับใน PLC กด <b>Add as tags</b> เพื่อเพิ่มตัวแปรของ block ที่ติ๊กเป็น Tag ชื่อแบบ <code>Block.Variable</code></li>
+    <li><b>Tag เป็น SCL:</b> File → Export → <b>Data blocks as SCL source (.scl)…</b> จะเขียน Tag ที่อยู่ใน DB เป็น data block แบบ SCL (standard access) โดยทุก Tag อยู่ที่ address เดิม ช่องว่างจะเติมด้วยตัวแปร <code>Spare_…</code> ในโปรแกรมเขียน PLC ให้เพิ่มไฟล์ใน External source files → <b>Generate blocks from source</b> แล้วตั้งหมายเลข DB ให้แต่ละ block</li>
+    <li>อ่านผ่าน PUT/GET ได้เฉพาะ DB ที่ <b>ไม่ optimized</b> PLC Monitor คำนวณ offset ตามกฎของ standard access ให้ตรงกับคอลัมน์ <i>Offset</i> ในโปรแกรมเขียน PLC</li>
+  </ul>
+
+  <h3 id="plcnames-dev"><span lang="en">Notes for developers</span><span lang="th">หมายเหตุสำหรับนักพัฒนา</span></h3>
+  <p lang="en">How the names get into PLC Monitor, for anyone extending it or connecting other tools:</p>
+  <p lang="th">กลไกการดึงชื่อเข้ามาใน PLC Monitor สำหรับผู้ที่จะพัฒนาต่อหรือเชื่อมกับเครื่องมืออื่น:</p>
+  <ul lang="en">
+    <li><b>Why not over ISO-TCP?</b> PUT/GET addresses memory as area + offset; symbols exist only in the engineering software project. Symbolic access on 1200/1500-series CPUs uses a newer proprietary protocol that is not open. OPC UA is the open, supported way to read by name.</li>
+    <li><b>Node IDs.</b> The PLC's built-in server uses string node IDs that are the symbol itself, in its own namespace (usually <code>ns=3</code>): <code>ns=3;s="Line_Data"."Motor"."Speed"</code>, <code>ns=3;s="Start_PB"</code>. Always take the namespace from browsing, never hard-code it. The tree is <code>Objects/&lt;PLC name&gt;/Inputs|Outputs|Memory|DataBlocksGlobal|DataBlocksInstance/…</code>.</li>
+    <li><b>Browsing</b> (<code>opcua.go</code>, <code>browseVars</code>): breadth-first Browse from the Objects folder over hierarchical references (properties and namespace 0 skipped), then one Read per 100 variables for DataType, Description, AccessLevel and ValueRank. OPC UA built-in types map to tag types (Int16 → INT, Float → REAL, …); arrays and structures are listed but not offered as tags.</li>
+    <li><b>Monitoring by name.</b> A tag with <code>area: UA</code> and <code>node: …</code>. All UA tags of a poll are read with one OPC UA Read per 100 nodes; a missing node marks only its own tag bad. Writes use the OPC UA type of the tag type (INT → Int16, REAL → Float, …).</li>
+    <li><b>No absolute addresses over OPC UA.</b> To map a name to an absolute address (Read as: absolute address, Compare of ISO-TCP tags) the names imported in Scan PLC are used: DB sources are laid out with the standard access rules (<code>symbols.go</code>, <code>layouter</code>); tag tables give the address directly.</li>
+    <li><b>Files:</b> imported names → <code>plc-symbols.json</code>; OPC UA client certificate → <code>opcua-client-cert.pem</code> / <code>opcua-client-key.pem</code> (application URI <code>urn:plcmonitor:client</code>), all next to the config.</li>
+    <li><b>API:</b> <code>POST /api/opcua/browse</code> <code>{"endpoint","security","username","password"}</code>, <code>GET /api/opcua/browse</code> (progress and variables), <code>POST /api/opcua/read</code> <code>{"nodes":[…]}</code>, <code>POST /api/opcua/tagfile</code> (tags → YAML), <code>/api/plcscan/symbols</code> for imported names.</li>
+    <li><b>Without a PLC:</b> the tests include a fake OPC UA server that behaves like a PLC's built-in server. Run it with <code>$env:PLC_UA_SERVE="4840"; go test -run TestUAServe -timeout 0</code> and browse <code>opc.tcp://127.0.0.1:4840</code>. UaExpert is a good second opinion on what a real PLC publishes.</li>
+  </ul>
+  <ul lang="th">
+    <li><b>ทำไมไม่ดึงชื่อผ่าน ISO-TCP?</b> PUT/GET อ้างตำแหน่งด้วย area + offset ส่วนชื่อ symbol มีอยู่แค่ในโปรเจกต์ของโปรแกรมเขียน PLC การเข้าถึงด้วยชื่อบน CPU ตระกูล 1200/1500 ใช้โปรโตคอลรุ่นใหม่ที่เป็นกรรมสิทธิ์และไม่เปิดเผย OPC UA จึงเป็นทางเปิดและรองรับอย่างเป็นทางการสำหรับการอ่านด้วยชื่อ</li>
+    <li><b>Node ID:</b> server ที่ติดมากับ PLC ใช้ node ID แบบ string ที่เป็นชื่อ symbol เลย อยู่ใน namespace ของตัวเอง (ปกติ <code>ns=3</code>) เช่น <code>ns=3;s="Line_Data"."Motor"."Speed"</code>, <code>ns=3;s="Start_PB"</code> ให้อ่านหมายเลข namespace จากการ browse เสมอ ห้าม fix ค่าไว้ โครงสร้างคือ <code>Objects/&lt;ชื่อ PLC&gt;/Inputs|Outputs|Memory|DataBlocksGlobal|DataBlocksInstance/…</code></li>
+    <li><b>การ browse</b> (<code>opcua.go</code>, <code>browseVars</code>): Browse แบบ breadth-first จาก Objects folder ตาม hierarchical reference (ข้าม property และ namespace 0) แล้ว Read ครั้งละ 100 ตัวแปร เพื่อเอา DataType, Description, AccessLevel และ ValueRank ชนิดข้อมูลพื้นฐานของ OPC UA แปลงเป็นชนิดของ Tag (Int16 → INT, Float → REAL, …) ส่วน array และ struct แสดงในรายการแต่เพิ่มเป็น Tag ไม่ได้</li>
+    <li><b>Monitor ตามชื่อ:</b> Tag ที่มี <code>area: UA</code> และ <code>node: …</code> ทุก Tag แบบ UA ในแต่ละรอบอ่านด้วย OPC UA Read ครั้งละ 100 node ถ้า node ไหนหายไป จะเสียเฉพาะ Tag นั้น การเขียนใช้ชนิด OPC UA ตามชนิดของ Tag (INT → Int16, REAL → Float, …)</li>
+    <li><b>OPC UA ไม่ให้ absolute address:</b> การแปลงชื่อเป็น absolute address (Read as: absolute address และ Compare ของ Tag แบบ ISO-TCP) ใช้ชื่อที่ import ใน Scan PLC โดย source ของ DB คำนวณตามกฎ standard access (<code>symbols.go</code>, <code>layouter</code>) ส่วน tag table ให้ address มาโดยตรง</li>
+    <li><b>ไฟล์:</b> ชื่อที่ import → <code>plc-symbols.json</code>, certificate ของ OPC UA client → <code>opcua-client-cert.pem</code> / <code>opcua-client-key.pem</code> (application URI <code>urn:plcmonitor:client</code>) ทั้งหมดอยู่ข้างไฟล์ config</li>
+    <li><b>API:</b> <code>POST /api/opcua/browse</code> <code>{"endpoint","security","username","password"}</code>, <code>GET /api/opcua/browse</code> (ความคืบหน้าและรายการตัวแปร), <code>POST /api/opcua/read</code> <code>{"nodes":[…]}</code>, <code>POST /api/opcua/tagfile</code> (Tag → YAML), <code>/api/plcscan/symbols</code> สำหรับชื่อที่ import</li>
+    <li><b>ทดสอบโดยไม่มี PLC:</b> ในชุด test มี OPC UA server จำลองที่ทำงานเหมือน server ใน PLC สั่งรันด้วย <code>$env:PLC_UA_SERVE="4840"; go test -run TestUAServe -timeout 0</code> แล้ว browse ที่ <code>opc.tcp://127.0.0.1:4840</code> และใช้ UaExpert ตรวจดูว่า PLC จริงเปิดเผยอะไรบ้าง</li>
+  </ul>
+</section>
+
+<!-- ======================================================= EXPORT -->
+<section id="export">
+  <h2><span lang="en">Export settings window</span><span lang="th">หน้าต่าง Export settings</span></h2>
+  <p lang="en">Open it with the <b>Export</b> button at the top, or <b>File → Export → Export settings…</b>. Changes take effect when you press Apply or OK – no restart – and are saved in config.yaml.</p>
+  <p lang="th">เปิดได้จากปุ่ม <b>Export</b> ด้านบน หรือ <b>File → Export → Export settings…</b> การตั้งค่ามีผลทันทีเมื่อกด Apply หรือ OK ไม่ต้องปิดเปิดโปรแกรมใหม่ และจะถูกบันทึกลง config.yaml</p>
+  <figure>
+    <svg viewBox="0 0 900 330" role="img" aria-label="Export settings window">
+      <rect class="d-box" x="20" y="10" width="620" height="310" rx="10"/>
+      <text class="d-t" x="40" y="38" style="font-size:15px">Export settings</text>
+      <rect class="d-box" x="40" y="52" width="188" height="40" rx="6"/><text class="d-t" x="52" y="70">CSV file</text><text class="d-s" x="52" y="85">120 rows sent</text>
+      <rect class="d-box" x="236" y="52" width="188" height="40" rx="6"/><text class="d-t" x="248" y="70">InfluxDB  OK</text><text class="d-s" x="248" y="85">3 512 points sent</text>
+      <rect class="d-box" x="432" y="52" width="188" height="40" rx="6"/><text class="d-t" x="444" y="70">MQTT  CONNECTING</text><text class="d-s" x="444" y="85">connection refused</text>
+      <text class="d-s" x="50" y="114">CSV file</text><text class="d-t" x="130" y="114">InfluxDB</text><text class="d-s" x="214" y="114">MQTT</text>
+      <path class="d-line" d="M126 120 L192 120" style="stroke:var(--accent);stroke-width:3"/>
+      <rect class="d-box" x="40" y="132" width="580" height="30" rx="6"/><text class="d-s" x="52" y="152">☑ Send values to InfluxDB    Quick setup: [InfluxDB 2 on this PC] [InfluxDB 1.x] [InfluxDB 3 Core] …</text>
+      <rect class="d-box" x="40" y="170" width="280" height="28" rx="4"/><text class="d-s" x="50" y="189">Version: 2.x / Cloud</text>
+      <rect class="d-box" x="330" y="170" width="290" height="28" rx="4"/><text class="d-s" x="340" y="189">URL: http://192.168.1.20:8086</text>
+      <rect class="d-box" x="40" y="204" width="280" height="28" rx="4"/><text class="d-s" x="50" y="223">Organization · Bucket</text>
+      <rect class="d-box" x="330" y="204" width="290" height="28" rx="4"/><text class="d-s" x="340" y="223">API token ••••••••</text>
+      <rect class="d-soft" x="40" y="240" width="130" height="28" rx="6"/><text class="d-t" x="52" y="259">Test connection</text>
+      <text class="d-s" x="52" y="288">✔ Reach the server   ✔ Log in   ✖ Bucket "plc" does not exist  [Create bucket]</text>
+      <rect class="d-box" x="440" y="286" width="56" height="24" rx="4"/><text class="d-s" x="452" y="302">Apply</text>
+      <rect class="d-soft" x="504" y="286" width="56" height="24" rx="4"/><text class="d-s" x="522" y="302">OK</text>
+      <g><circle class="d-num" cx="650" cy="72" r="11"/><text class="d-numt" x="646" y="77">1</text><text class="d-s" x="668" y="70">Status of each exporter:</text><text class="d-s" x="668" y="85">OK / CONNECTING / ERROR + why</text></g>
+      <g><circle class="d-num" cx="650" cy="146" r="11"/><text class="d-numt" x="646" y="151">2</text><text class="d-s" x="668" y="144">Quick setup fills typical</text><text class="d-s" x="668" y="159">values for your installation</text></g>
+      <g><circle class="d-num" cx="650" cy="218" r="11"/><text class="d-numt" x="646" y="223">3</text><text class="d-s" x="668" y="216">Only the fields of the chosen</text><text class="d-s" x="668" y="231">version are shown</text></g>
+      <g><circle class="d-num" cx="650" cy="282" r="11"/><text class="d-numt" x="646" y="287">4</text><text class="d-s" x="668" y="280">Test before Apply: each step says</text><text class="d-s" x="668" y="295">what is wrong and offers a fix</text></g>
+    </svg>
+  </figure>
+  <p lang="en">Each tab also shows <b>exactly what will be written</b> using your real tags, and ready-to-copy commands and queries to check the data arrives. The <b>CSV file</b> tab has <i>Check file</i> (is the file writable, or locked by Excel?) and <i>Open folder</i>.</p>
+  <p lang="th">แต่ละแท็บยังแสดง <b>ตัวอย่างข้อมูลที่จะถูกส่งจริง</b> โดยใช้ tag ของคุณ พร้อมคำสั่งและ query ที่ copy ไปใช้ตรวจว่าข้อมูลไปถึงปลายทางได้ทันที แท็บ <b>CSV file</b> มีปุ่ม <i>Check file</i> (ตรวจว่าเขียนไฟล์ได้ หรือถูก Excel ล็อกอยู่) และ <i>Open folder</i></p>
+  <div class="note" lang="en">Settings with passwords and tokens can only be viewed and changed on the computer running PLC Monitor. They are stored as plain text in config.yaml – don't share that file.</div>
+  <div class="note" lang="th">การตั้งค่าที่มีรหัสผ่านและ token ดูและแก้ไขได้เฉพาะบนเครื่องที่รัน PLC Monitor เท่านั้น ค่าเหล่านี้ถูกเก็บเป็นข้อความธรรมดาใน config.yaml จึงไม่ควรแชร์ไฟล์นี้</div>
+</section>
+
+<!-- ======================================================= INFLUXDB -->
+<section id="influxdb">
+  <h2><span class="tag t-ix">InfluxDB</span> <span lang="en">Store history in InfluxDB</span><span lang="th">เก็บข้อมูลย้อนหลังใน InfluxDB</span></h2>
+  <p lang="en">InfluxDB is a time-series database: it keeps every value with its time stamp for months or years and answers queries fast. Grafana draws dashboards from it. PLC Monitor sends each change; all three major versions are supported:</p>
+  <p lang="th">InfluxDB คือฐานข้อมูลแบบ time-series เก็บทุกค่าพร้อมเวลาได้นานเป็นเดือนหรือเป็นปี และค้นหาข้อมูลได้เร็ว ใช้คู่กับ Grafana เพื่อทำ dashboard ได้ PLC Monitor ส่งทุกค่าที่เปลี่ยนไปเก็บ และรองรับทั้ง 3 เวอร์ชันหลัก:</p>
+  <table>
+    <tr><th></th><th>1.x</th><th>2.x / Cloud</th><th>3 Core / Enterprise</th></tr>
+    <tr><th lang="en">Default port</th><th lang="th">พอร์ตปกติ</th><td>8086</td><td>8086</td><td>8181</td></tr>
+    <tr><th lang="en">Data goes into</th><th lang="th">ข้อมูลเก็บใน</th><td>database (+ retention policy)</td><td>organization + bucket</td><td>database</td></tr>
+    <tr><th lang="en">Login</th><th lang="th">การล็อกอิน</th><td lang="en">username/password (if auth is on)</td><td lang="th">username/password (ถ้าเปิด auth)</td><td>API token</td><td>token</td></tr>
+    <tr><th lang="en">Query language</th><th lang="th">ภาษา query</th><td>InfluxQL</td><td>Flux (InfluxQL via DBRP)</td><td>SQL, InfluxQL</td></tr>
+  </table>
+  <figure>
+    <svg viewBox="0 0 900 150" role="img" aria-label="InfluxDB data path">
+      <rect class="d-soft" x="10" y="40" width="170" height="70" rx="10"/><text class="d-t" x="26" y="68">PLC Monitor</text><text class="d-s" x="26" y="88">collects changes</text>
+      <path class="d-line" d="M180 75 L360 75" marker-end="url(#ar)"/>
+      <text class="d-s" x="192" y="62">HTTP POST every 5 s</text><text class="d-m" x="192" y="96">plc,tag=Tank value=42.5</text>
+      <rect class="d-ix" x="360" y="34" width="190" height="82" rx="10"/><text class="d-t" x="376" y="62">InfluxDB</text><text class="d-s" x="376" y="82">database / bucket "plc"</text><text class="d-s" x="376" y="98">measurement "s7"</text>
+      <path class="d-line" d="M550 75 L690 75" marker-end="url(#ar)"/><text class="d-s" x="568" y="66">query</text>
+      <rect class="d-box" x="690" y="40" width="190" height="70" rx="10"/><text class="d-t" x="706" y="68">Grafana / Excel</text><text class="d-s" x="706" y="88">dashboards, reports</text>
+    </svg>
+  </figure>
+
+  <h3 id="influx-install"><span lang="en">1. Install InfluxDB</span><span lang="th">1. ติดตั้ง InfluxDB</span></h3>
+  <p lang="en">Already have a server? Skip to step 2. Otherwise the quickest way is Docker (Docker Desktop on Windows; the commands below are for PowerShell). Pick one version:</p>
+  <p lang="th">มีเซิร์ฟเวอร์อยู่แล้ว? ข้ามไปขั้นตอนที่ 2 ได้เลย ถ้ายังไม่มี วิธีที่เร็วที่สุดคือใช้ Docker (บน Windows ใช้ Docker Desktop คำสั่งด้านล่างใช้ใน PowerShell) เลือกมาหนึ่งเวอร์ชัน:</p>
+  <p><b>InfluxDB 2</b> <span lang="en">(recommended for new installations; creates org “my-org”, bucket “plc” and a token in one go):</span><span lang="th">(แนะนำสำหรับติดตั้งใหม่ คำสั่งนี้สร้าง org “my-org”, bucket “plc” และ token ให้ในครั้งเดียว):</span></p>
+<pre><code>docker run -d --name influxdb2 -p 8086:8086 -v influxdb2:/var/lib/influxdb2 `
+  -e DOCKER_INFLUXDB_INIT_MODE=setup `
+  -e DOCKER_INFLUXDB_INIT_USERNAME=admin -e DOCKER_INFLUXDB_INIT_PASSWORD=ChangeMe123 `
+  -e DOCKER_INFLUXDB_INIT_ORG=my-org -e DOCKER_INFLUXDB_INIT_BUCKET=plc `
+  -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-secret-token `
+  influxdb:2</code></pre>
+  <p lang="en">Then open <code>http://localhost:8086</code> and log in as admin. Without Docker: download the Windows zip from influxdata.com, run <code>influxd.exe</code>, open http://localhost:8086 and follow the setup page. The token is under <b>Load Data → API Tokens</b>.</p>
+  <p lang="th">จากนั้นเปิด <code>http://localhost:8086</code> แล้วล็อกอินด้วย admin ถ้าไม่ใช้ Docker: ดาวน์โหลดไฟล์ zip สำหรับ Windows จาก influxdata.com รัน <code>influxd.exe</code> แล้วเปิด http://localhost:8086 ทำตามหน้า setup ส่วน token อยู่ที่เมนู <b>Load Data → API Tokens</b></p>
+  <p><b>InfluxDB 1.8</b>:</p>
+<pre><code>docker run -d --name influxdb1 -p 8086:8086 -v influxdb1:/var/lib/influxdb influxdb:1.8
+docker exec influxdb1 influx -execute "CREATE DATABASE plc"</code></pre>
+  <p><b>InfluxDB 3 Core</b>:</p>
+<pre><code>docker run -d --name influxdb3 -p 8181:8181 -v influxdb3:/var/lib/influxdb3 influxdb:3-core `
+  influxdb3 serve --node-id node0 --object-store file --data-dir /var/lib/influxdb3
+docker exec influxdb3 influxdb3 create token --admin</code></pre>
+  <p lang="en">The last command prints the token – copy it now, it is shown only once.</p>
+  <p lang="th">คำสั่งสุดท้ายจะแสดง token ให้ copy เก็บไว้ทันที เพราะจะแสดงเพียงครั้งเดียว</p>
+  <div class="note warn" lang="en">InfluxDB on another computer: allow the port through its firewall, e.g. (PowerShell as administrator) <code>New-NetFirewallRule -DisplayName "InfluxDB" -Direction Inbound -Protocol TCP -LocalPort 8086 -Action Allow</code>.</div>
+  <div class="note warn" lang="th">ถ้า InfluxDB อยู่อีกเครื่อง ต้องเปิดพอร์ตใน firewall ของเครื่องนั้น เช่น (PowerShell แบบ administrator) <code>New-NetFirewallRule -DisplayName "InfluxDB" -Direction Inbound -Protocol TCP -LocalPort 8086 -Action Allow</code></div>
+
+  <h3 id="influx-setup"><span lang="en">2. Connect PLC Monitor</span><span lang="th">2. ตั้งค่าใน PLC Monitor</span></h3>
+  <ol class="steps" lang="en">
+    <li>Open <b>Export → InfluxDB</b>.</li>
+    <li>Press a <b>Quick setup</b> button (e.g. <i>InfluxDB 2 on this PC</i>), or choose the version and type the URL. Typing just an IP such as <code>192.168.1.20</code> becomes <code>http://192.168.1.20:8086</code>.</li>
+    <li>Fill in the fields shown for that version: v1 database (and username/password), v2 organization + bucket + token, v3 database + token.</li>
+    <li>Press <b>Test connection</b>. It checks, step by step: the server answers → the version matches (if not: <i>Use version N</i>) → the login works → the database/bucket exists (if not: pick one from the list, or <i>Create</i>).</li>
+    <li>Tick <b>Send values to InfluxDB</b> and press <b>OK</b>. The InfluxDB box at the top turns <b>OK</b> and counts the points sent.</li>
+  </ol>
+  <ol class="steps" lang="th">
+    <li>เปิด <b>Export → InfluxDB</b></li>
+    <li>กดปุ่ม <b>Quick setup</b> (เช่น <i>InfluxDB 2 on this PC</i>) หรือเลือกเวอร์ชันแล้วพิมพ์ URL เอง ถ้าพิมพ์แค่ IP เช่น <code>192.168.1.20</code> โปรแกรมจะเติมเป็น <code>http://192.168.1.20:8086</code> ให้</li>
+    <li>กรอกช่องที่แสดงตามเวอร์ชัน: v1 ใส่ database (และ username/password), v2 ใส่ organization + bucket + token, v3 ใส่ database + token</li>
+    <li>กด <b>Test connection</b> โปรแกรมจะตรวจทีละขั้น: เซิร์ฟเวอร์ตอบ → เวอร์ชันตรงกัน (ถ้าไม่ตรงจะมีปุ่ม <i>Use version N</i>) → ล็อกอินได้ → มี database/bucket อยู่จริง (ถ้าไม่มี เลือกจากรายการหรือกด <i>Create</i>)</li>
+    <li>ติ๊ก <b>Send values to InfluxDB</b> แล้วกด <b>OK</b> กล่อง InfluxDB ด้านบนจะเปลี่ยนเป็น <b>OK</b> และนับจำนวน point ที่ส่งไปแล้ว</li>
+  </ol>
+  <p lang="en">Equivalent config.yaml section (InfluxDB 2):</p>
+  <p lang="th">ถ้าเขียนใน config.yaml โดยตรง (InfluxDB 2):</p>
+<pre><code>export:
+    influxdb:
+        enabled: true
+        version: 2               # 1, 2 or 3
+        url: http://192.168.1.20:8086
+        org: my-org
+        bucket: plc
+        token: my-secret-token
+        measurement: plc
+        flush_interval: 5s</code></pre>
+
+  <h3 id="influx-query"><span lang="en">3. View the data</span><span lang="th">3. ดูข้อมูล</span></h3>
+  <p lang="en">Each change is one point: measurement <code>plc</code>, tags <code>tag</code> (the tag name), <code>address</code>, <code>type</code>, and field <code>value</code> (a number; BOOL is 0/1).</p>
+  <p lang="th">แต่ละครั้งที่ค่าเปลี่ยนจะเป็นหนึ่ง point: measurement <code>plc</code>, tag ของ InfluxDB คือ <code>tag</code> (ชื่อ tag), <code>address</code>, <code>type</code> และ field <code>value</code> (เป็นตัวเลข BOOL เป็น 0/1)</p>
+  <table>
+    <tr><th>1.x – InfluxQL</th><td><code>SELECT "value" FROM "plc" WHERE "tag"='Tank_Level' AND time &gt; now() - 1h</code></td></tr>
+    <tr><th>2.x – Flux</th><td><code>from(bucket:"plc") |&gt; range(start:-1h) |&gt; filter(fn:(r) =&gt; r._measurement=="plc" and r.tag=="Tank_Level")</code></td></tr>
+    <tr><th>3 – SQL</th><td><code>SELECT time, value FROM plc WHERE tag='Tank_Level' AND time &gt; now() - INTERVAL '1 hour'</code></td></tr>
+  </table>
+  <p lang="en"><b>Grafana</b>: Connections → Data sources → InfluxDB → choose the query language (InfluxQL for 1.x, Flux for 2.x, SQL for 3) → URL and database/bucket/token as above → <i>Save &amp; test</i>. In a panel use one of the queries above; for many tags group by <code>tag</code>.</p>
+  <p lang="th"><b>Grafana</b>: Connections → Data sources → InfluxDB → เลือกภาษา query (InfluxQL สำหรับ 1.x, Flux สำหรับ 2.x, SQL สำหรับ 3) → ใส่ URL และ database/bucket/token แบบเดียวกับด้านบน → <i>Save &amp; test</i> แล้วใช้ query ข้างบนใน panel ถ้าแสดงหลาย tag ให้ group by <code>tag</code></p>
+
+  <h3 id="influx-trouble"><span lang="en">Troubleshooting</span><span lang="th">แก้ปัญหา</span></h3>
+  <table>
+    <tr><th lang="en">Message</th><th lang="th">ข้อความ</th><th lang="en">Fix</th><th lang="th">วิธีแก้</th></tr>
+    <tr><td>connection refused</td><td lang="en">InfluxDB is not running, or wrong port (8086 vs 8181).</td><td lang="th">InfluxDB ไม่ได้รันอยู่ หรือพอร์ตผิด (8086 กับ 8181)</td></tr>
+    <tr><td>timeout</td><td lang="en">Wrong IP, or a firewall blocks the port.</td><td lang="th">IP ผิด หรือ firewall บล็อกพอร์ตอยู่</td></tr>
+    <tr><td>HTTP 401 / token rejected</td><td lang="en">Wrong or expired token / password; for 2.x the token needs write access to the bucket.</td><td lang="th">token หรือรหัสผ่านผิดหรือหมดอายุ สำหรับ 2.x token ต้องมีสิทธิ์เขียน bucket นั้น</td></tr>
+    <tr><td>HTTP 404</td><td lang="en">Bucket/organization/database not found, or the wrong version is selected (e.g. 1.x chosen for a 2.x server).</td><td lang="th">ไม่พบ bucket/organization/database หรือเลือกเวอร์ชันผิด (เช่น เลือก 1.x แต่เซิร์ฟเวอร์เป็น 2.x)</td></tr>
+    <tr><td>HTTP 400 field type conflict</td><td lang="en">The measurement already holds a field “value” of another type. Use another measurement name (e.g. <code>plc_values</code>).</td><td lang="th">measurement นี้มี field “value” ชนิดอื่นอยู่แล้ว ให้เปลี่ยนชื่อ measurement (เช่น <code>plc_values</code>)</td></tr>
+  </table>
+</section>
+
+<!-- ======================================================= MQTT -->
+<section id="mqtt">
+  <h2><span class="tag t-mq">MQTT</span> <span lang="en">Publish values with MQTT</span><span lang="th">ส่งค่าผ่าน MQTT</span></h2>
+  <p lang="en">MQTT is a light publish/subscribe protocol. PLC Monitor <b>publishes</b> each change to a <b>broker</b>; any number of programs <b>subscribe</b> to the topics they need – HMIs, Node-RED, Home Assistant, phone apps, SCADA – without touching the PLC.</p>
+  <p lang="th">MQTT เป็นโปรโตคอลแบบ publish/subscribe ที่เบา PLC Monitor <b>publish</b> ทุกค่าที่เปลี่ยนไปที่ <b>broker</b> แล้วโปรแกรมอื่น ๆ จะ <b>subscribe</b> เฉพาะ topic ที่ต้องการกี่โปรแกรมก็ได้ เช่น HMI, Node-RED, Home Assistant, แอปมือถือ, SCADA โดยไม่ต้องเชื่อมต่อ PLC โดยตรง</p>
+  <figure>
+    <svg viewBox="0 0 900 250" role="img" aria-label="MQTT publish subscribe">
+      <rect class="d-soft" x="10" y="80" width="170" height="80" rx="10"/><text class="d-t" x="26" y="108">PLC Monitor</text><text class="d-s" x="26" y="128">publisher</text><text class="d-s" x="26" y="144">client ID plcmonitor</text>
+      <path class="d-line" d="M180 120 L330 120" marker-end="url(#ar)"/><text class="d-s" x="196" y="110">publish</text>
+      <rect class="d-mq" x="330" y="40" width="230" height="170" rx="12"/>
+      <text class="d-t" x="346" y="66">MQTT broker</text><text class="d-s" x="346" y="84">Mosquitto · port 1883</text>
+      <text class="d-m" x="346" y="112">plcmonitor/</text>
+      <text class="d-m" x="362" y="130">├ Tank_Level  42.5</text>
+      <text class="d-m" x="362" y="148">├ Motor1_Running  true</text>
+      <text class="d-m" x="362" y="166">├ Pump_Speed  1450</text>
+      <text class="d-m" x="362" y="184">└ status  online</text>
+      <path class="d-line" d="M560 80 L690 50" marker-end="url(#ar)"/><path class="d-line" d="M560 125 L690 125" marker-end="url(#ar)"/><path class="d-line" d="M560 170 L690 200" marker-end="url(#ar)"/>
+      <text class="d-s" x="590" y="112">subscribe</text>
+      <rect class="d-box" x="690" y="26" width="190" height="46" rx="8"/><text class="d-t" x="704" y="47">HMI / SCADA</text><text class="d-m" x="704" y="63">plcmonitor/#</text>
+      <rect class="d-box" x="690" y="102" width="190" height="46" rx="8"/><text class="d-t" x="704" y="123">Node-RED</text><text class="d-m" x="704" y="139">plcmonitor/Tank_Level</text>
+      <rect class="d-box" x="690" y="178" width="190" height="46" rx="8"/><text class="d-t" x="704" y="199">Phone app</text><text class="d-m" x="704" y="215">plcmonitor/+</text>
+    </svg>
+    <figcaption lang="en">Topics are prefix/tag name. # subscribes to everything below, + to one level.</figcaption>
+    <figcaption lang="th">topic คือ prefix/ชื่อ tag เครื่องหมาย # คือ subscribe ทุกอย่างที่อยู่ใต้ topic นั้น ส่วน + คือหนึ่งระดับ</figcaption>
+  </figure>
+  <p lang="en">Payload, chosen in <b>Export → MQTT → Payload</b>:</p>
+  <p lang="th">รูปแบบข้อมูล (payload) เลือกได้ที่ <b>Export → MQTT → Payload</b>:</p>
+  <table>
+    <tr><th>JSON</th><td><code>{"value":42.5,"quality":"good","address":"DB1.DBD4","type":"REAL","ts":"2026-11-19T10:15:00.123+07:00"}</code></td></tr>
+    <tr><th lang="en">Value only</th><th lang="th">Value only (ค่าอย่างเดียว)</th><td><code>42.5</code> · <code>true</code> · <code>null</code> <span lang="en">(when the value is bad)</span><span lang="th">(เมื่อค่าใช้ไม่ได้)</span></td></tr>
+  </table>
+  <p lang="en"><code>plcmonitor/status</code> is <code>online</code> while PLC Monitor runs and becomes <code>offline</code> when it stops or loses the network (MQTT “last will”). <b>Retain</b> lets a new subscriber get the latest value immediately. <b>QoS 1</b> is a good default.</p>
+  <p lang="th"><code>plcmonitor/status</code> เป็น <code>online</code> ขณะที่ PLC Monitor ทำงาน และเปลี่ยนเป็น <code>offline</code> เมื่อโปรแกรมหยุดหรือหลุดจาก network (ใช้ MQTT “last will”) ถ้าเปิด <b>Retain</b> ผู้ subscribe ที่เข้ามาใหม่จะได้ค่าล่าสุดทันที แนะนำให้ใช้ <b>QoS 1</b> เป็นค่าเริ่มต้น</p>
+
+  <h3 id="mqtt-broker"><span lang="en">1. Install a broker (Mosquitto)</span><span lang="th">1. ติดตั้ง broker (Mosquitto)</span></h3>
+  <ol class="steps" lang="en">
+    <li>Download the Windows installer from mosquitto.org and install it (it installs a Windows service).</li>
+    <li>Mosquitto 2 only accepts connections from the same PC until you add a listener. Edit <code>C:\Program Files\mosquitto\mosquitto.conf</code> (as administrator):</li>
+  </ol>
+  <ol class="steps" lang="th">
+    <li>ดาวน์โหลดตัวติดตั้งสำหรับ Windows จาก mosquitto.org แล้วติดตั้ง (จะติดตั้งเป็น Windows service ให้อัตโนมัติ)</li>
+    <li>Mosquitto 2 รับการเชื่อมต่อจากเครื่องตัวเองเท่านั้น จนกว่าจะเพิ่ม listener ให้แก้ไฟล์ <code>C:\Program Files\mosquitto\mosquitto.conf</code> (เปิดแบบ administrator):</li>
+  </ol>
+<pre><code>listener 1883
+allow_anonymous false
+password_file C:\Program Files\mosquitto\passwd</code></pre>
+  <ol class="steps" lang="en" start="3" style="counter-reset:st 2">
+    <li>Create a user, open the firewall and restart the service (PowerShell as administrator):</li>
+  </ol>
+  <ol class="steps" lang="th" start="3" style="counter-reset:st 2">
+    <li>สร้าง user เปิด firewall แล้ว restart service (PowerShell แบบ administrator):</li>
+  </ol>
+<pre><code>cd "C:\Program Files\mosquitto"
+.\mosquitto_passwd -c passwd plcuser
+New-NetFirewallRule -DisplayName "MQTT" -Direction Inbound -Protocol TCP -LocalPort 1883 -Action Allow
+Restart-Service mosquitto</code></pre>
+  <p lang="en">Docker alternative: <code>docker run -d --name mosquitto -p 1883:1883 -v C:\mosquitto\config:/mosquitto/config eclipse-mosquitto</code> with the same mosquitto.conf in C:\mosquitto\config. For a first try on one PC, <code>allow_anonymous true</code> works too – don't leave it that way on a plant network.</p>
+  <p lang="th">ทางเลือกด้วย Docker: <code>docker run -d --name mosquitto -p 1883:1883 -v C:\mosquitto\config:/mosquitto/config eclipse-mosquitto</code> โดยวาง mosquitto.conf แบบเดียวกันไว้ที่ C:\mosquitto\config ถ้าแค่ลองบนเครื่องเดียว ใช้ <code>allow_anonymous true</code> ก็ได้ แต่ไม่ควรเปิดทิ้งไว้แบบนั้นในเครือข่ายโรงงาน</p>
+
+  <h3 id="mqtt-setup"><span lang="en">2. Connect PLC Monitor</span><span lang="th">2. ตั้งค่าใน PLC Monitor</span></h3>
+  <ol class="steps" lang="en">
+    <li>Open <b>Export → MQTT</b> and press a <b>Quick setup</b> button, or type the broker address. Just the IP (<code>192.168.1.10</code>) becomes <code>tcp://192.168.1.10:1883</code>.</li>
+    <li>Username and password if the broker needs them. Leave the Client ID as <code>plcmonitor</code> unless several PLC Monitors use the same broker – each needs its own ID.</li>
+    <li>Topic prefix (e.g. <code>plant1/line2</code>), payload, QoS and retain.</li>
+    <li><b>Test connection</b>: connects with a separate test ID, publishes to <code>prefix/_test</code>, checks it comes back, and lists the messages already on the broker under <code>prefix/#</code>.</li>
+    <li>Tick <b>Publish values to an MQTT broker</b> and press <b>OK</b>. The MQTT box at the top shows <b>OK</b> once connected.</li>
+  </ol>
+  <ol class="steps" lang="th">
+    <li>เปิด <b>Export → MQTT</b> แล้วกดปุ่ม <b>Quick setup</b> หรือพิมพ์ address ของ broker ถ้าพิมพ์แค่ IP (<code>192.168.1.10</code>) โปรแกรมจะเติมเป็น <code>tcp://192.168.1.10:1883</code> ให้</li>
+    <li>ใส่ username และ password ถ้า broker ต้องการ ช่อง Client ID ใช้ <code>plcmonitor</code> ได้เลย ยกเว้นมี PLC Monitor หลายเครื่องต่อ broker ตัวเดียวกัน ต้องตั้ง ID ไม่ให้ซ้ำกัน</li>
+    <li>ตั้ง topic prefix (เช่น <code>plant1/line2</code>), payload, QoS และ retain</li>
+    <li>กด <b>Test connection</b>: โปรแกรมจะเชื่อมต่อด้วย ID ทดสอบแยกต่างหาก publish ไปที่ <code>prefix/_test</code> ตรวจว่าได้รับกลับมา และแสดงข้อความที่มีอยู่ใน broker ใต้ <code>prefix/#</code></li>
+    <li>ติ๊ก <b>Publish values to an MQTT broker</b> แล้วกด <b>OK</b> กล่อง MQTT ด้านบนจะแสดง <b>OK</b> เมื่อเชื่อมต่อสำเร็จ</li>
+  </ol>
+<pre><code>export:
+    mqtt:
+        enabled: true
+        broker: tcp://192.168.1.10:1883   # ssl://host:8883, ws://host:9001
+        client_id: plcmonitor
+        username: plcuser
+        password: secret
+        topic_prefix: plant1/line2
+        qos: 1
+        retain: true
+        payload: json                     # json | value</code></pre>
+
+  <h3 id="mqtt-use"><span lang="en">3. Use the data</span><span lang="th">3. นำข้อมูลไปใช้</span></h3>
+  <p lang="en">Watch everything from a command prompt (comes with Mosquitto):</p>
+  <p lang="th">ดูข้อมูลทั้งหมดผ่าน command prompt (มาพร้อม Mosquitto):</p>
+<pre><code>mosquitto_sub -h 192.168.1.10 -u plcuser -P secret -t "plant1/line2/#" -v</code></pre>
+  <p lang="en"><b>Node-RED</b>: drag an <i>mqtt in</i> node, set the server and topic <code>plant1/line2/Tank_Level</code>, output “a parsed JSON object”, and connect it to a <i>gauge</i> or <i>debug</i> node; the number is <code>msg.payload.value</code>. With payload “value only” it is just <code>msg.payload</code>. Graphical viewers such as MQTT Explorer show the whole topic tree.</p>
+  <p lang="th"><b>Node-RED</b>: ลาก node <i>mqtt in</i> มาวาง ตั้ง server และ topic <code>plant1/line2/Tank_Level</code> เลือก output เป็น “a parsed JSON object” แล้วต่อเข้ากับ node <i>gauge</i> หรือ <i>debug</i> ค่าตัวเลขอยู่ที่ <code>msg.payload.value</code> ถ้าเลือก payload แบบ “value only” ค่าจะอยู่ที่ <code>msg.payload</code> โดยตรง ถ้าอยากดูแบบกราฟิก ใช้โปรแกรมอย่าง MQTT Explorer เพื่อดู topic ทั้งหมดเป็นแผนผังได้</p>
+
+  <h3 id="mqtt-trouble"><span lang="en">Troubleshooting</span><span lang="th">แก้ปัญหา</span></h3>
+  <table>
+    <tr><th lang="en">Message</th><th lang="th">ข้อความ</th><th lang="en">Fix</th><th lang="th">วิธีแก้</th></tr>
+    <tr><td>connection refused</td><td lang="en">Broker not running, wrong port, or Mosquitto 2 without a <code>listener 1883</code> line (accepts only localhost).</td><td lang="th">broker ไม่ได้รันอยู่ พอร์ตผิด หรือ Mosquitto 2 ยังไม่มีบรรทัด <code>listener 1883</code> (จะรับเฉพาะ localhost)</td></tr>
+    <tr><td>not Authorized / bad user name or password</td><td lang="en">Wrong username/password, or anonymous login is off.</td><td lang="th">username/password ผิด หรือ broker ปิดการล็อกอินแบบ anonymous</td></tr>
+    <tr><td lang="en">published but did not come back</td><td lang="th">publish แล้วแต่ไม่ได้รับกลับมา</td><td lang="en">The broker's ACL does not allow this user to publish or subscribe under the prefix.</td><td lang="th">ACL ของ broker ไม่อนุญาตให้ user นี้ publish หรือ subscribe ใต้ prefix นี้</td></tr>
+    <tr><td lang="en">keeps reconnecting</td><td lang="th">หลุดและเชื่อมต่อใหม่ซ้ำ ๆ</td><td lang="en">Another client uses the same Client ID – give each one its own.</td><td lang="th">มี client อื่นใช้ Client ID เดียวกัน ให้ตั้ง ID ไม่ซ้ำกัน</td></tr>
+    <tr><td>certificate / x509</td><td lang="en">TLS: the broker's certificate is not trusted. Use a proper certificate, or (tests only) tick “Accept any certificate”.</td><td lang="th">TLS: เครื่องนี้ไม่เชื่อถือ certificate ของ broker ให้ใช้ certificate ที่ถูกต้อง หรือติ๊ก “Accept any certificate” (สำหรับทดสอบเท่านั้น)</td></tr>
+  </table>
+</section>
+</main>
+</div>
+<script>
+// Language: English unless Thai was chosen before.
+function setLang(l) {
+  document.body.dataset.lang = l;
+  document.documentElement.lang = l;
+  document.querySelectorAll('.lang button[data-lang]').forEach(b => b.classList.toggle('on', b.dataset.lang === l));
+  try { localStorage.setItem('s7m.helpLang', l); } catch (e) {}
+}
+let lang = 'en';
+try { lang = localStorage.getItem('s7m.helpLang') || 'en'; } catch (e) {}
+setLang(lang === 'th' ? 'th' : 'en');
+document.querySelectorAll('.lang button[data-lang]').forEach(b => b.onclick = () => setLang(b.dataset.lang));
+
+// Highlight the section in view.
+const links = [...document.querySelectorAll('#toc a')];
+const targets = links.map(a => document.getElementById(a.hash.slice(1))).filter(Boolean);
+function onScroll() {
+  let cur = targets[0];
+  for (const t of targets) if (t.getBoundingClientRect().top < 120) cur = t;
+  links.forEach(a => a.classList.toggle('on', a.hash === '#' + cur.id));
+}
+document.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+// Close with the main window.
+setInterval(() => { if (window.opener && window.opener.closed) window.close(); }, 2000);
+</script>
+</body>
+</html>

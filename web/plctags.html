@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLC tags (OPC UA) – PLC Monitor</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="themes.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e5e7eb;
+          --good:#15803d; --bad:#b91c1c; --warn:#b45309; --accent:#2563eb; --accent-fg:#fff;
+          --code:#f3f4f6; --soft:#eef2ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#171b23; --fg:#e5e7eb; --muted:#9ca3af; --line:#2a303b;
+            --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --accent:#60a5fa; --accent-fg:#0f1218;
+            --code:#11151c; --soft:#1f2633; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+         display:flex; flex-direction:column; }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:10px 16px; }
+  h1 { font-size:17px; margin:0 0 8px; display:flex; align-items:center; gap:10px; }
+  h1 .spacer { flex:1; }
+  h1 small { font-weight:400; color:var(--muted); font-size:13px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  label { font-size:13px; color:var(--muted); display:inline-flex; align-items:center; gap:6px; }
+  label.check { color:var(--fg); }
+  input, select { padding:4px 8px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); font:inherit; }
+  input[type=checkbox] { margin:0; }
+  #endpoint { width:260px; } #user, #pass { width:120px; } #filter { width:220px; }
+  button { font:inherit; padding:5px 12px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; }
+  button:hover:not(:disabled) { border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); font-weight:600; }
+  button.small { padding:2px 8px; font-size:12px; }
+  .msg { font-size:13px; color:var(--muted); margin-top:6px; }
+  .msg.bad, .bad { color:var(--bad); } .msg.warn, .warn { color:var(--warn); } .ok { color:var(--good); }
+  .chips { display:flex; gap:4px; flex-wrap:wrap; }
+  .chip { border:1px solid var(--line); border-radius:999px; padding:1px 10px; font-size:12px; cursor:pointer; background:var(--card); }
+  .chip.on { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); }
+  .tablewrap { flex:1; overflow:auto; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th { position:sticky; top:0; background:var(--card); text-align:left; font-weight:600; color:var(--muted); font-size:12px; border-bottom:1px solid var(--line); padding:5px 8px; z-index:1; cursor:pointer; user-select:none; }
+  td { border-bottom:1px solid var(--line); padding:3px 8px; white-space:nowrap; }
+  td.name { font-weight:600; } td.mono, .mono { font-family:ui-monospace, Consolas, monospace; font-size:12px; }
+  td.val { text-align:right; font-family:ui-monospace, Consolas, monospace; }
+  td.cmt { color:var(--muted); font-size:12px; white-space:normal; min-width:140px; }
+  td.dim, tr.dim td { color:var(--muted); }
+  tr.picked td { background:var(--soft); }
+  .badge { display:inline-block; font-size:11px; padding:0 6px; border-radius:4px; background:var(--code); color:var(--muted); border:1px solid var(--line); }
+  .empty { padding:30px; color:var(--muted); text-align:center; }
+  footer { border-top:1px solid var(--line); background:var(--card); padding:8px 14px; }
+  dialog { border:1px solid var(--line); border-radius:10px; background:var(--card); color:var(--fg); padding:0; width:min(1000px, 96vw); max-height:92vh; }
+  dialog::backdrop { background:rgba(0,0,0,.35); }
+  .dlg { padding:14px 18px; display:flex; flex-direction:column; gap:10px; max-height:90vh; }
+  .dlg h2 { margin:0; font-size:16px; }
+  .dlg .tablewrap { max-height:60vh; border:1px solid var(--line); border-radius:6px; }
+  .diff { color:var(--warn); }
+  del { color:var(--bad); } ins { color:var(--good); text-decoration:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>PLC tags <small>over OPC UA – names straight from the PLC</small><span class="spacer"></span>
+    <button class="small" onclick="S7Themes.openPicker()" title="Colour theme of all PLC Monitor windows">Theme</button></h1>
+  <div class="row">
+    <label>Endpoint <input id="endpoint" placeholder="opc.tcp://192.168.0.1:4840" spellcheck="false"></label>
+    <label>Security <select id="security"><option value="none">None</option><option value="sign">Sign</option><option value="signandencrypt">Sign &amp; encrypt</option></select></label>
+    <label>User <input id="user" placeholder="anonymous" autocomplete="off"></label>
+    <label>Password <input id="pass" type="password" autocomplete="new-password"></label>
+    <button class="primary" id="btnBrowse">Read tag list from PLC</button>
+    <button id="btnStop" hidden>Stop</button>
+  </div>
+  <div class="msg" id="msg">Reads the names, data types and comments of all variables the PLC's OPC UA server publishes.</div>
+  <div class="row" style="margin-top:8px">
+    <input id="filter" type="search" placeholder="Filter by name or comment">
+    <div class="chips" id="folders"></div>
+    <label class="check"><input type="checkbox" id="onlyTags" checked> Only values that can be tags</label>
+    <label class="check"><input type="checkbox" id="live" checked> Live values</label>
+    <span style="flex:1"></span>
+    <button id="btnCompare" disabled title="Compare the tag list with the PLC">Compare / update…</button>
+    <button id="btnExport" disabled title="Save the list shown as a CSV file (opens in Excel)">Export CSV…</button>
+  </div>
+</header>
+<div class="tablewrap" id="tablewrap"><div class="empty">Press <b>Read tag list from PLC</b>.<br>
+  The PLC needs its OPC UA server switched on (PLC engineering software: CPU properties → OPC UA → Server → Activate OPC UA server).<br>
+  See Help → Tag names from the PLC.</div></div>
+<footer class="row">
+  <span id="pickCount">Nothing picked</span>
+  <span style="flex:1"></span>
+  <span class="msg" id="addMsg" style="margin:0"></span>
+  <label>Read as <select id="addAs">
+    <option value="ua">OPC UA (by name)</option>
+    <option value="s7">Absolute address (where known)</option>
+  </select></label>
+  <button id="btnSave" disabled title="Save the picked variables (or all shown) as a tag file, for File → Tag configuration → Open">Save as tag file…</button>
+  <button class="primary" id="btnAdd" disabled>Add as tags</button>
+</footer>
+
+<dialog id="cmpDlg"><div class="dlg">
+  <h2>Compare the tag list with the PLC</h2>
+  <div class="msg" style="margin:0" id="cmpSummary"></div>
+  <div class="row">
+    <label class="check"><input type="checkbox" id="cmpNames" checked> Update names</label>
+    <label class="check"><input type="checkbox" id="cmpTypes" checked> Update types</label>
+    <label class="check"><input type="checkbox" id="cmpDesc" checked> Update descriptions (comments)</label>
+    <span style="flex:1"></span>
+    <button class="small" id="cmpAll">Tick all</button><button class="small" id="cmpNone">Tick none</button>
+  </div>
+  <div class="tablewrap" id="cmpTable"></div>
+  <div class="row"><span class="msg" id="cmpMsg" style="margin:0"></span><span style="flex:1"></span>
+    <button id="cmpClose">Close</button><button class="primary" id="cmpApply">Apply ticked changes</button></div>
+</div></dialog>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const FOLDERS = [['', 'All'], ['I', 'Inputs'], ['Q', 'Outputs'], ['M', 'Memory'], ['DB', 'Data blocks'], ['iDB', 'Instance DBs'], ['other', 'Other']];
+const SIZE = { BOOL: 0, BYTE: 1, SINT: 1, USINT: 1, WORD: 2, UINT: 2, INT: 2, DWORD: 4, UDINT: 4, DINT: 4, REAL: 4, LREAL: 8 };
+let config = null, state = null, vars = [], folder = '', sortBy = 'name', sortDir = 1, polling = null;
+const picks = new Set(), values = new Map();
+
+async function api(method, path, body) {
+  const r = await fetch(path, { method, headers: body !== undefined ? { 'Content-Type': 'application/json' } : {}, body: body !== undefined ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+const proto = () => config?.network?.protocol || 's7';
+
+// ---- browsing ----
+async function loadState(first) {
+  state = await api('GET', 'api/opcua/browse');
+  if (first) {
+    const u = config?.network?.opcua || {};
+    // Opened from Topology for one device: plctags?endpoint=opc.tcp://…
+    const asked = new URLSearchParams(location.search).get('endpoint');
+    $('endpoint').value = asked || state.endpoint || u.endpoint || state.default_endpoint || '';
+    $('security').value = u.security || 'none';
+    $('user').value = u.username || '';
+    $('pass').placeholder = u.password_set ? '(saved)' : '';
+  }
+  $('btnBrowse').hidden = state.running; $('btnStop').hidden = !state.running;
+  const m = $('msg');
+  if (state.running) { m.className = 'msg'; m.textContent = `Reading the tag list… ${state.count} variables so far`; }
+  else if (state.error) { m.className = 'msg bad'; m.textContent = '✖ ' + state.error; }
+  else if (state.vars.length) {
+    m.className = 'msg';
+    const n = state.vars.filter(v => v.type).length;
+    m.textContent = `${state.vars.length} variables from ${state.endpoint}, ${n} can be tags. Read ${new Date(state.time).toLocaleTimeString()}.`;
+    if (state.hint) m.textContent += ' ⚠ ' + state.hint;
+  } else if (state.time && new Date(state.time).getFullYear() > 1) {
+    m.className = state.hint ? 'msg bad' : 'msg';
+    m.textContent = `No variables found on ${state.endpoint}.` + (state.hint ? ' ' + state.hint : '');
+  }
+  if (!state.running) {
+    vars = state.vars;
+    render();
+  }
+  $('btnCompare').disabled = $('btnExport').disabled = !vars.length;
+  if (state.running && !polling) polling = setInterval(() => loadState(), 400);
+  if (!state.running && polling) { clearInterval(polling); polling = null; }
+}
+$('btnBrowse').onclick = async () => {
+  try {
+    await api('POST', 'api/opcua/browse', { endpoint: $('endpoint').value.trim(), security: $('security').value,
+      username: $('user').value.trim(), password: $('pass').value });
+    loadState();
+  } catch (e) { $('msg').className = 'msg bad'; $('msg').textContent = '✖ ' + e.message; }
+};
+$('btnStop').onclick = () => api('DELETE', 'api/opcua/browse').then(() => loadState());
+
+// ---- table ----
+$('folders').innerHTML = FOLDERS.map(([k, l]) => `<span class="chip${k === folder ? ' on' : ''}" data-f="${k}">${l}</span>`).join('');
+$('folders').onclick = ev => {
+  const c = ev.target.closest('.chip'); if (!c) return;
+  folder = c.dataset.f;
+  $('folders').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c));
+  render();
+};
+$('filter').oninput = () => render();
+$('onlyTags').onchange = () => render();
+
+function shown() {
+  const q = $('filter').value.trim().toLowerCase(), only = $('onlyTags').checked;
+  const list = vars.filter(v => (!only || v.type) &&
+    (!folder || (folder === 'other' ? !['I', 'Q', 'M', 'DB', 'iDB'].includes(v.folder) : v.folder === folder)) &&
+    (!q || v.name.toLowerCase().includes(q) || (v.comment || '').toLowerCase().includes(q) || v.node.toLowerCase().includes(q)));
+  const key = v => sortBy === 'name' ? v.name.toLowerCase() : sortBy === 'type' ? v.data_type : sortBy === 'folder' ? v.folder : sortBy === 's7' ? (v.s7?.address || '~') : (v.comment || '~').toLowerCase();
+  return list.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0) * sortDir);
+}
+
+// The app's tags, to show which variables are monitored already.
+function tagFor(v) {
+  return (config?.tags || []).find(t => (t.area === 'UA' && t.node === v.node) ||
+    (v.s7 && t.area === v.s7.area && (t.db || 0) === (v.s7.db || 0) && t.offset === v.s7.offset && (t.type === 'BOOL') === (v.s7.type === 'BOOL') &&
+     (t.type !== 'BOOL' || t.bit === v.s7.bit)));
+}
+function fmtVal(x) {
+  if (!x) return '';
+  if (x.error) return '✖ ' + x.error;
+  const v = x.value;
+  if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+  if (typeof v === 'number') return Number.isInteger(v) ? String(v) : String(+v.toPrecision(7));
+  return v == null ? '' : String(v);
+}
+let shownList = [];
+function render() {
+  const wrap = $('tablewrap');
+  if (!vars.length) {
+    if (state?.hint) wrap.innerHTML = '<div class="empty">No tags to show – see the message above.<br>See Help → Tag names from the PLC.</div>';
+    return;
+  }
+  shownList = shown();
+  const max = 3000;
+  const rows = shownList.slice(0, max).map((v, i) => {
+    const t = tagFor(v), p = picks.has(v.node);
+    return `<tr data-i="${i}" class="${p ? 'picked' : ''}${v.type ? '' : ' dim'}">
+      <td>${v.type ? `<input type="checkbox" class="pk"${p ? ' checked' : ''}>` : ''}</td>
+      <td class="name">${esc(v.name)}${v.struct ? ' <span class="badge">struct</span>' : ''}${v.array ? ' <span class="badge">array</span>' : ''}</td>
+      <td>${esc(v.folder || '')}</td><td class="mono">${esc(v.data_type)}</td>
+      <td class="val" data-node="${esc(v.node)}">${esc(fmtVal(values.get(v.node)))}</td>
+      <td class="cmt">${esc(v.comment || '')}</td>
+      <td class="mono">${v.s7 ? esc(v.s7.address) : ''}</td>
+      <td class="dim">${t ? 'tag ' + esc(t.name) : ''}</td>
+      <td class="mono dim" title="${esc(v.node)}">${esc(v.node.length > 50 ? v.node.slice(0, 50) + '…' : v.node)}</td></tr>`;
+  });
+  const th = (k, l) => `<th data-sort="${k}">${l}${sortBy === k ? (sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`;
+  const top = wrap.scrollTop;
+  wrap.innerHTML = shownList.length ? `<table><thead><tr><th style="width:28px"><input type="checkbox" id="pickAll" title="Pick all shown"></th>
+    ${th('name', 'Name')}${th('folder', 'Area')}${th('type', 'Data type')}<th>Value</th>${th('comment', 'Comment')}${th('s7', 'Absolute address')}<th>In tag list</th><th>Node ID</th></tr></thead>
+    <tbody>${rows.join('')}</tbody></table>${shownList.length > max ? `<div class="empty">${shownList.length - max} more – use the filter</div>` : ''}`
+    : '<div class="empty">Nothing matches</div>';
+  wrap.scrollTop = top;
+  renderPicks();
+  readValues();
+}
+$('tablewrap').addEventListener('click', ev => {
+  const th = ev.target.closest('th[data-sort]');
+  if (th) { if (sortBy === th.dataset.sort) sortDir = -sortDir; else { sortBy = th.dataset.sort; sortDir = 1; } render(); return; }
+  if (ev.target.id === 'pickAll') {
+    const on = ev.target.checked;
+    shownList.filter(v => v.type).forEach(v => on ? picks.add(v.node) : picks.delete(v.node));
+    render(); return;
+  }
+  const tr = ev.target.closest('tr[data-i]'); if (!tr) return;
+  const v = shownList[+tr.dataset.i]; if (!v || !v.type) return;
+  if (picks.has(v.node)) picks.delete(v.node); else picks.add(v.node);
+  tr.classList.toggle('picked', picks.has(v.node));
+  const cb = tr.querySelector('.pk'); if (cb) cb.checked = picks.has(v.node);
+  renderPicks();
+});
+
+// Live values of the rows in view.
+let reading = false;
+async function readValues() {
+  if (reading || !$('live').checked || document.hidden || !vars.length || state?.running) return;
+  const cells = [...document.querySelectorAll('#tablewrap td.val[data-node]')];
+  const wrap = $('tablewrap').getBoundingClientRect();
+  const vis = cells.filter(c => { const r = c.getBoundingClientRect(); return r.bottom > wrap.top && r.top < wrap.bottom; }).slice(0, 300);
+  const nodes = vis.map(c => c.dataset.node).filter(n => vars.find(v => v.node === n && !v.struct));
+  if (!nodes.length) return;
+  reading = true;
+  try {
+    const res = await api('POST', 'api/opcua/read', { nodes });
+    nodes.forEach((n, i) => values.set(n, res[i]));
+    for (const c of vis) if (values.has(c.dataset.node)) c.textContent = fmtVal(values.get(c.dataset.node));
+  } catch (e) { /* the session may have closed: values stay as they were */ }
+  finally { reading = false; }
+}
+setInterval(readValues, 1000);
+$('tablewrap').addEventListener('scroll', () => { clearTimeout(window._rv); window._rv = setTimeout(readValues, 200); });
+
+// ---- picks → tags ----
+function renderPicks() {
+  const n = picks.size;
+  $('pickCount').textContent = n ? `${n} picked` : 'Nothing picked';
+  $('btnAdd').disabled = !n;
+  $('btnSave').disabled = !vars.length;
+  $('btnAdd').textContent = n ? `Add ${n} as tag${n > 1 ? 's' : ''}` : 'Add as tags';
+}
+// tagOf makes a tag from a variable, read over OPC UA or at its absolute address.
+function tagOf(v, how) {
+  if (how === 's7') {
+    if (!v.s7) return null;
+    return { name: v.name, area: v.s7.area, db: v.s7.db || 0, offset: v.s7.offset, bit: v.s7.bit || 0, type: v.s7.type, deadband: 0, description: v.comment || '' };
+  }
+  return { name: v.name, area: 'UA', node: v.node, db: 0, offset: 0, bit: 0, type: v.type, deadband: 0, description: v.comment || '' };
+}
+function uniqueNames(list, taken) {
+  for (const t of list) {
+    let n = t.name, i = 2;
+    while (taken.has(n)) n = `${t.name}_${i++}`;
+    taken.add(n); t.name = n;
+  }
+  return list;
+}
+function syncAddAs() {
+  // OPC UA tags are only read when the network protocol is OPC UA.
+  const p = proto(), sel = $('addAs');
+  sel.options[0].disabled = p !== 'opcua';
+  $('addAs').options[0].textContent = 'OPC UA (by name)' + (p !== 'opcua' ? ' – set Network to OPC UA first' : '');
+  $('addAs').options[1].disabled = p !== 's7';
+  if (sel.selectedOptions[0]?.disabled) sel.value = p === 'opcua' ? 'ua' : 's7';
+}
+$('btnAdd').onclick = async () => {
+  const how = $('addAs').value, msg = $('addMsg');
+  try {
+    config = await api('GET', 'api/config');
+    const chosen = vars.filter(v => picks.has(v.node));
+    const fresh = [], skipped = [];
+    for (const v of chosen) {
+      if (tagFor(v)) { skipped.push(v.name); continue; }
+      const t = tagOf(v, how);
+      if (t) fresh.push(t); else skipped.push(v.name);
+    }
+    uniqueNames(fresh, new Set(config.tags.map(t => t.name)));
+    if (fresh.length) await api('PUT', 'api/tags', [...config.tags, ...fresh]);
+    config = await api('GET', 'api/config');
+    picks.clear(); render();
+    msg.className = 'msg';
+    msg.textContent = `✔ ${fresh.length} tag${fresh.length === 1 ? '' : 's'} added` +
+      (skipped.length ? ` · ${skipped.length} skipped (already tags${how === 's7' ? ', or no absolute address known – import the names in Scan PLC' : ''})` : '');
+  } catch (e) { msg.className = 'msg bad'; msg.textContent = '✖ ' + e.message; }
+};
+
+// saveFile: the Windows Save as dialog in the desktop app, else a download.
+async function saveFile(name, text) {
+  const data = btoa(unescape(encodeURIComponent(text)));
+  try {
+    const r = await fetch('api/save-file', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, data }) });
+    if (r.ok) { const j = await r.json(); return j.cancelled ? null : (j.path || name); }
+  } catch (_) {}
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  return name;
+}
+$('btnSave').onclick = async () => {
+  const how = $('addAs').value; // a tag file may hold OPC UA tags for later, whatever the network is now
+  const list = (picks.size ? vars.filter(v => picks.has(v.node)) : shownList).filter(v => v.type);
+  const tags = uniqueNames(list.map(v => tagOf(v, how)).filter(Boolean), new Set());
+  const msg = $('addMsg');
+  if (!tags.length) { msg.className = 'msg warn'; msg.textContent = how === 's7' ? 'No absolute addresses known for these – choose Read as OPC UA, or import names in Scan PLC.' : 'Nothing to save.'; return; }
+  try {
+    const r = await api('POST', 'api/opcua/tagfile', tags);
+    const host = (state.endpoint || 'plc').replace(/^opc\.tcp:\/\//, '').replace(/[:/]/g, '_');
+    const where = await saveFile(`${host}.tags.yaml`, r.yaml);
+    if (where) { msg.className = 'msg'; msg.textContent = `✔ ${tags.length} tags saved to ${where}. Open it with File → Tag configuration → Open.`; }
+  } catch (e) { msg.className = 'msg bad'; msg.textContent = '✖ ' + e.message; }
+};
+$('btnExport').onclick = async () => {
+  const q = s => /[";\r\n]/.test(s) ? '"' + String(s).replace(/"/g, '""') + '"' : String(s ?? '');
+  const head = ['Name', 'Area', 'Data type', 'Tag type', 'Absolute address', 'Writable', 'Comment', 'Node ID', 'Value'];
+  const lines = [head.join(';'), ...shownList.map(v => [v.name, v.folder, v.data_type, v.type || '', v.s7?.address || '', v.writable ? 'yes' : 'no',
+    v.comment || '', v.node, fmtVal(values.get(v.node))].map(q).join(';'))];
+  const host = (state.endpoint || 'plc').replace(/^opc\.tcp:\/\//, '').replace(/[:/]/g, '_');
+  const where = await saveFile(`${host}-tags.csv`, '﻿' + lines.join('\r\n') + '\r\n');
+  if (where) { $('addMsg').className = 'msg'; $('addMsg').textContent = `✔ ${shownList.length} rows exported to ${where}`; }
+};
+
+// ---- compare / update ----
+let cmpRows = [];
+function compare() {
+  const byNode = new Map(vars.map(v => [v.node, v]));
+  const byS7 = new Map();
+  for (const v of vars) if (v.s7) byS7.set(`${v.s7.area}|${v.s7.db || 0}|${v.s7.offset}|${v.s7.type === 'BOOL' ? v.s7.bit : 'w' + SIZE[v.s7.type]}`, v);
+  const used = new Set(), rows = [];
+  for (const t of config.tags) {
+    let v = null;
+    if (t.area === 'UA') v = byNode.get(t.node);
+    else if (['DB', 'I', 'Q', 'M'].includes(t.area)) v = byS7.get(`${t.area}|${t.db || 0}|${t.offset}|${t.type === 'BOOL' ? t.bit : 'w' + SIZE[t.type]}`);
+    else continue; // Modbus tags have no PLC names
+    if (!v) {
+      if (t.area === 'UA') rows.push({ kind: 'missing', tag: t });
+      else rows.push({ kind: 'unknown', tag: t });
+      continue;
+    }
+    used.add(v.node);
+    const d = {};
+    if (t.name !== v.name) d.name = v.name;
+    const ptype = t.area === 'UA' ? v.type : v.s7?.type;
+    if (ptype && ptype !== t.type && !(SIZE[ptype] === SIZE[t.type] && t.area !== 'UA')) d.type = ptype;
+    if ((t.description || '') !== (v.comment || '') && v.comment) d.description = v.comment;
+    rows.push({ kind: Object.keys(d).length ? 'changed' : 'same', tag: t, v, d });
+  }
+  const fresh = vars.filter(v => v.type && !used.has(v.node) && !tagFor(v));
+  return { rows, fresh };
+}
+function openCompare() {
+  const { rows, fresh } = compare();
+  cmpRows = rows.filter(r => r.kind !== 'same');
+  const n = k => rows.filter(r => r.kind === k).length;
+  $('cmpSummary').innerHTML = `${rows.length} tags checked: <b class="ok">${n('same')} match</b>, <b class="warn">${n('changed')} differ</b>, ` +
+    `<b class="bad">${n('missing')} not in the PLC</b>` + (n('unknown') ? `, ${n('unknown')} ISO-TCP tags without a known PLC name` : '') +
+    `. ${fresh.length} PLC variables are not tags yet (add them from the list).`;
+  const cell = (old, nu) => nu === undefined ? esc(old) : `<del>${esc(old)}</del> → <ins>${esc(nu)}</ins>`;
+  $('cmpTable').innerHTML = cmpRows.length ? `<table><thead><tr><th></th><th>Tag</th><th>Address</th><th>Type</th><th>Description</th><th>Status</th></tr></thead><tbody>` +
+    cmpRows.map((r, i) => `<tr><td>${r.kind === 'changed' || r.kind === 'missing' ? `<input type="checkbox" class="ck" data-i="${i}" checked>` : ''}</td>
+      <td class="name">${cell(r.tag.name, r.d?.name)}</td><td class="mono">${esc(r.tag.area === 'UA' ? r.tag.node : addr(r.tag))}</td>
+      <td>${cell(r.tag.type, r.d?.type)}</td><td class="cmt">${cell(r.tag.description || '', r.d?.description)}</td>
+      <td>${{ changed: '<span class="diff">differs – update</span>', missing: '<span class="bad">not in the PLC – remove</span>', unknown: '<span class="dim">no PLC name known</span>' }[r.kind]}</td></tr>`).join('') +
+    '</tbody></table>' : '<div class="empty">✔ The tag list matches the PLC.</div>';
+  $('cmpMsg').textContent = '';
+  $('cmpDlg').showModal();
+}
+function addr(t) {
+  const sz = SIZE[t.type], l = { 1: 'B', 2: 'W', 4: 'D' }[sz];
+  if (t.area === 'DB') return t.type === 'BOOL' ? `DB${t.db}.DBX${t.offset}.${t.bit}` : `DB${t.db}.DB${l || 'X'}${t.offset}`;
+  return t.type === 'BOOL' ? `${t.area}${t.offset}.${t.bit}` : `${t.area}${l || ''}${t.offset}`;
+}
+$('btnCompare').onclick = async () => { config = await api('GET', 'api/config'); openCompare(); };
+$('cmpClose').onclick = () => $('cmpDlg').close();
+$('cmpAll').onclick = () => $('cmpTable').querySelectorAll('.ck').forEach(c => c.checked = true);
+$('cmpNone').onclick = () => $('cmpTable').querySelectorAll('.ck').forEach(c => c.checked = false);
+$('cmpApply').onclick = async () => {
+  const ticked = new Set([...$('cmpTable').querySelectorAll('.ck:checked')].map(c => cmpRows[+c.dataset.i]));
+  const uName = $('cmpNames').checked, uType = $('cmpTypes').checked, uDesc = $('cmpDesc').checked;
+  config = await api('GET', 'api/config');
+  const remove = new Set(), change = new Map();
+  for (const r of ticked) {
+    if (r.kind === 'missing') remove.add(r.tag.name);
+    if (r.kind === 'changed') change.set(r.tag.name, r.d);
+  }
+  const taken = new Set(config.tags.map(t => t.name));
+  let renamed = 0, edited = 0;
+  const list = config.tags.filter(t => !remove.has(t.name)).map(t => {
+    const d = change.get(t.name);
+    if (!d) return t;
+    const n = { ...t };
+    if (uType && d.type) n.type = d.type;
+    if (uDesc && d.description !== undefined) n.description = d.description;
+    if (uName && d.name && !taken.has(d.name)) { taken.delete(t.name); taken.add(d.name); n.name = d.name; renamed++; }
+    if (JSON.stringify(n) !== JSON.stringify(t)) edited++;
+    return n;
+  });
+  try {
+    await api('PUT', 'api/tags', list);
+    config = await api('GET', 'api/config');
+    render();
+    $('cmpMsg').className = 'msg ok';
+    $('cmpMsg').textContent = `✔ ${edited} tags updated (${renamed} renamed), ${remove.size} removed. Charts keep working only for tags that kept their name.`;
+    setTimeout(openCompare, 1500);
+  } catch (e) { $('cmpMsg').className = 'msg bad'; $('cmpMsg').textContent = '✖ ' + e.message; }
+};
+
+(async () => {
+  try { config = await api('GET', 'api/config'); } catch (_) {}
+  syncAddAs();
+  if (config && !config.can_write) { $('btnBrowse').disabled = true; $('msg').textContent = 'This dashboard is read-only.'; }
+  loadState(true).catch(e => { $('msg').className = 'msg bad'; $('msg').textContent = '✖ ' + e.message; });
+  setInterval(async () => { try { config = await api('GET', 'api/config'); syncAddAs(); } catch (_) {} }, 5000);
+})();
+</script>
+</body>
+</html>

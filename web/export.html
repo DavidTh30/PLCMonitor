@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Export settings – PLC Monitor</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="themes.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e5e7eb;
+          --good:#15803d; --bad:#b91c1c; --warn:#b45309; --accent:#2563eb; --accent-fg:#fff;
+          --code:#f3f4f6; --soft:#eef2ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#171b23; --fg:#e5e7eb; --muted:#9ca3af; --line:#2a303b;
+            --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --accent:#60a5fa; --accent-fg:#0f1218;
+            --code:#11151c; --soft:#1f2633; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:14px 18px 0; position:sticky; top:var(--s7tb, 0px); z-index:5; }
+  h1 { font-size:18px; margin:0 0 10px; display:flex; align-items:center; gap:10px; }
+  h1 .spacer { flex:1; }
+  .overview { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:6px; margin-bottom:8px; }
+  .ov { border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; background:var(--card); text-align:left; font:inherit; color:inherit; }
+  .ov:hover { border-color:var(--accent); }
+  .ov b { display:block; font-size:13px; }
+  .ov small { color:var(--muted); font-size:12px; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pill { display:inline-block; padding:0 8px; border-radius:999px; font-size:11px; font-weight:700; color:var(--on-badge, #fff); background:#64748b; vertical-align:1px; margin-left:4px; }
+  .pill.ok { background:var(--good); } .pill.error { background:var(--bad); } .pill.connecting { background:#d97706; }
+  @media (prefers-color-scheme: dark) { .pill.ok, .pill.error, .pill.connecting { color:var(--on-badge, #0f1218); } }
+  nav.tabs { display:flex; gap:2px; flex-wrap:wrap; }
+  nav.tabs .grp { align-self:center; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding:0 4px 0 10px; }
+  nav.tabs button { border:0; border-bottom:3px solid transparent; background:none; padding:6px 10px; font:inherit; color:var(--muted); cursor:pointer; border-radius:0; }
+  nav.tabs button.on { color:var(--fg); border-bottom-color:var(--accent); font-weight:600; }
+  main { padding:16px 18px 90px; max-width:900px; }
+  section[hidden] { display:none; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:14px; }
+  .card h3 { margin:0 0 10px; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .card h3 .spacer { flex:1; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; }
+  .full { grid-column:1 / -1; }
+  label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted); }
+  label.check { flex-direction:row; align-items:center; gap:8px; color:var(--fg); font-size:14px; }
+  label.check input { width:auto; margin:0; }
+  .switch { font-size:15px; font-weight:600; }
+  input, select { padding:6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); font:inherit; width:100%; }
+  input:invalid { border-color:var(--bad); }
+  .hint { font-size:12px; color:var(--muted); margin:0; }
+  .hint code, .snip code { font-family:ui-monospace, Consolas, monospace; }
+  button { font:inherit; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); font-weight:600; }
+  button.small { padding:2px 8px; font-size:12px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .pw { display:flex; gap:6px; } .pw input { flex:1; }
+  .presets { display:flex; gap:6px; flex-wrap:wrap; }
+  .presets button { font-size:12px; padding:3px 10px; border-radius:999px; background:var(--soft); }
+  .steps { list-style:none; margin:10px 0 0; padding:0; }
+  .steps li { padding:6px 0 6px 28px; position:relative; border-top:1px solid var(--line); font-size:13px; }
+  .steps li::before { position:absolute; left:4px; top:5px; font-weight:700; }
+  .steps li.ok::before { content:'✔'; color:var(--good); }
+  .steps li.fail::before { content:'✖'; color:var(--bad); }
+  .steps li.warn::before { content:'⚠'; color:var(--warn); }
+  .steps b { margin-right:6px; }
+  .testing { color:var(--muted); font-size:13px; margin-top:8px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .chip { border:1px solid var(--line); border-radius:999px; padding:1px 10px; font-size:12px; cursor:pointer; background:var(--soft); }
+  .chip.cur { border-color:var(--accent); font-weight:700; }
+  .snip { position:relative; margin:6px 0 10px; }
+  .snip pre { margin:0; background:var(--code); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font:12px/1.5 ui-monospace, Consolas, monospace; overflow-x:auto; white-space:pre; }
+  .snip button { position:absolute; top:4px; right:4px; }
+  .snip-title { font-size:12px; color:var(--muted); margin-top:4px; }
+  table.msgs { border-collapse:collapse; width:100%; font-size:12px; margin-top:8px; }
+  table.msgs td, table.msgs th { border-top:1px solid var(--line); padding:4px 6px; text-align:left; vertical-align:top; }
+  table.msgs td:first-child { font-family:ui-monospace, Consolas, monospace; white-space:nowrap; }
+  table.msgs td:last-child { font-family:ui-monospace, Consolas, monospace; word-break:break-all; }
+  .status-line { font-size:13px; margin:0 0 8px; }
+  .status-line .err { color:var(--bad); }
+  footer { position:fixed; left:0; right:0; bottom:0; background:var(--card); border-top:1px solid var(--line);
+           padding:10px 18px; display:flex; gap:8px; align-items:center; }
+  footer .msg { flex:1; font-size:13px; }
+  footer .msg.err { color:var(--bad); } footer .msg.ok { color:var(--good); }
+  pre.mini { margin:6px 0; background:var(--code); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font:12px/1.5 ui-monospace, Consolas, monospace; white-space:pre-wrap; }
+  .disabled-note { padding:30px; text-align:center; color:var(--muted); }
+  @media (max-width:640px) { .grid, .overview { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1><img src="favicon.png" width="22" height="22" alt=""> Export settings <span class="spacer"></span>
+    <button class="small" onclick="(window.open('dataview', 's7m-dataview', 'popup,width=1150,height=820') || {focus(){}}).focus()" title="See how the tags look in MQTT and InfluxDB">Data view…</button>
+    <button class="small" onclick="S7Themes.openPicker()" title="Colour theme of all PLC Monitor windows">Theme</button>
+    <button class="small" id="btnHelp" title="How to set up InfluxDB and MQTT">? Help</button></h1>
+  <div class="overview" id="overview"></div>
+  <nav class="tabs" id="tabs" hidden>
+    <button data-tab="csv">CSV file</button>
+    <button data-tab="influxdb">InfluxDB</button>
+    <button data-tab="mqtt">MQTT</button>
+  </nav>
+  <nav class="tabs" id="tabs2"></nav>
+</header>
+
+<main id="main">
+<form id="form" autocomplete="off" onsubmit="return false">
+
+<!-- ================= CSV ================= -->
+<section data-tab="csv">
+  <div class="card">
+    <h3><label class="check switch"><input type="checkbox" name="csv_enabled"> Write every change to a CSV file</label></h3>
+    <div class="grid">
+      <label class="full">File
+        <input name="csv_path" placeholder="changes.csv"></label>
+      <p class="hint full">A plain name is created next to the program (its config.yaml). Use a full path such as <code>D:\logs\plc-changes.csv</code> for another folder.
+        Rows are added at the end; Excel and LibreOffice open the file directly.</p>
+      <div class="row full">
+        <button type="button" data-test="csv">Check file</button>
+        <button type="button" id="btnCsvFolder">Open folder</button>
+      </div>
+    </div>
+    <div id="res-csv"></div>
+  </div>
+  <div class="card">
+    <h3>What is written</h3>
+    <p class="hint">One row each time a tag's value changes (and when it goes bad, e.g. the PLC is unplugged):</p>
+    <div class="snip"><pre id="csvPreview"></pre></div>
+    <p class="hint">Tip: Excel locks a file it has open, so PLC Monitor cannot add rows while it is open there. Open a copy, or use Excel's <i>Data → From Text/CSV</i>, which does not lock it.
+      For charts over time use the trend history files instead (File → Folders → Trend history folder).</p>
+  </div>
+</section>
+
+<!-- ================= InfluxDB ================= -->
+<section data-tab="influxdb">
+  <div class="card">
+    <h3><label class="check switch"><input type="checkbox" name="ix_enabled"> Send values to InfluxDB</label></h3>
+    <p class="hint" style="margin-bottom:8px">Quick setup:</p>
+    <div class="presets" id="ixPresets"></div>
+  </div>
+  <div class="card">
+    <h3>Server</h3>
+    <div class="grid">
+      <label>InfluxDB version
+        <select name="ix_version">
+          <option value="1">1.x (InfluxQL, database)</option>
+          <option value="2">2.x / Cloud (Flux, org + bucket + token)</option>
+          <option value="3">3 Core / Enterprise (SQL, database + token)</option>
+        </select></label>
+      <label>Server URL
+        <input name="ix_url" placeholder="http://192.168.1.20:8086"></label>
+      <p class="hint full" id="ixVerHint"></p>
+
+      <label class="v1 v3">Database<input name="ix_database" list="ixDbList" placeholder="plc"></label>
+      <label class="v1">Retention policy (optional)<input name="ix_rp" placeholder="(default)"></label>
+      <label class="v1">Username (optional)<input name="ix_user" placeholder="only if auth is on"></label>
+      <label class="v1">Password
+        <span class="pw"><input type="password" name="ix_pass"><button type="button" class="small" data-show="ix_pass">Show</button></span></label>
+
+      <label class="v2">Organization<input name="ix_org" placeholder="my-org"></label>
+      <label class="v2">Bucket<input name="ix_bucket" list="ixDbList" placeholder="plc"></label>
+      <label class="v2 v3 full">API token
+        <span class="pw"><input type="password" name="ix_token" placeholder="paste the token here"><button type="button" class="small" data-show="ix_token">Show</button></span></label>
+      <datalist id="ixDbList"></datalist>
+      <p class="hint full" id="ixTokenHint"></p>
+
+      <label>Measurement<input name="ix_measurement" placeholder="plc"></label>
+      <label>Send every<input name="ix_flush" placeholder="5s"></label>
+      <p class="hint full">Values are collected and sent in one request every few seconds. If the server is down they are kept (up to about 8 MB) and sent when it is back.</p>
+      <div class="row full">
+        <button type="button" class="primary" data-test="influxdb">Test connection</button>
+        <button type="button" id="btnIxCreate" hidden>Create</button>
+        <button type="button" id="btnIxVersion" hidden></button>
+      </div>
+    </div>
+    <div id="res-influxdb"></div>
+  </div>
+  <div class="card">
+    <h3>What is written</h3>
+    <p class="hint">Every change becomes one point. All tags share one measurement; the tag name is an InfluxDB tag, the number is the field <code>value</code> (BOOL is 0/1):</p>
+    <div class="snip"><pre id="ixPreview"></pre></div>
+    <h3 style="margin-top:12px">Read it back</h3>
+    <div id="ixQueries"></div>
+    <p class="hint">In Grafana: add an InfluxDB data source with the same URL and the query language shown above, then use the query in a panel.</p>
+  </div>
+</section>
+
+<!-- ================= MQTT ================= -->
+<section data-tab="mqtt">
+  <div class="card">
+    <h3><label class="check switch"><input type="checkbox" name="mq_enabled"> Publish values to an MQTT broker</label></h3>
+    <p class="hint" style="margin-bottom:8px">Quick setup:</p>
+    <div class="presets" id="mqPresets"></div>
+  </div>
+  <div class="card">
+    <h3>Broker</h3>
+    <div class="grid">
+      <label class="full">Broker address
+        <input name="mq_broker" placeholder="tcp://192.168.1.10:1883"></label>
+      <p class="hint full"><code>tcp://</code> normal (port 1883) · <code>ssl://</code> encrypted (8883) · <code>ws://</code> / <code>wss://</code> WebSocket (often 9001 / 8083 / 443). You can type just the IP; it becomes <code>tcp://IP:1883</code>.</p>
+      <label>Username (optional)<input name="mq_user"></label>
+      <label>Password
+        <span class="pw"><input type="password" name="mq_pass"><button type="button" class="small" data-show="mq_pass">Show</button></span></label>
+      <label>Client ID<input name="mq_client" placeholder="s7monitor"></label>
+      <label class="check" id="mqTlsBox" style="align-self:end"><input type="checkbox" name="mq_tls_insecure"> Accept any certificate (self-signed, testing only)</label>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Messages</h3>
+    <div class="grid">
+      <label>Topic prefix<input name="mq_prefix" placeholder="s7monitor"></label>
+      <label>Payload
+        <select name="mq_payload">
+          <option value="json">JSON – value, quality, address, type, time</option>
+          <option value="value">Value only – e.g. 42.5 or true</option>
+        </select></label>
+      <label>QoS
+        <select name="mq_qos">
+          <option value="0">0 – at most once (fastest)</option>
+          <option value="1">1 – at least once (recommended)</option>
+          <option value="2">2 – exactly once</option>
+        </select></label>
+      <label class="check" style="align-self:end"><input type="checkbox" name="mq_retain"> Retain (new subscribers get the last value at once)</label>
+      <div class="row full">
+        <button type="button" class="primary" data-test="mqtt">Test connection</button>
+        <span class="hint">Connects with a separate client ID, publishes to <code id="mqTestTopic"></code> and listens to <code id="mqSubTopic"></code>.</span>
+      </div>
+    </div>
+    <div id="res-mqtt"></div>
+  </div>
+  <div class="card">
+    <h3>What is published</h3>
+    <div class="snip"><pre id="mqPreview"></pre></div>
+    <h3 style="margin-top:12px">Watch it arrive</h3>
+    <div id="mqCmds"></div>
+  </div>
+</section>
+</form>
+</main>
+
+<footer>
+  <span class="msg" id="msg"></span>
+  <button id="btnClose">Close</button>
+  <button id="btnApply" disabled>Apply</button>
+  <button class="primary" id="btnOk">OK</button>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const F = $('form').elements;
+let baseline = '', loaded = null, tags = [], lastStatus = [];
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+function say(text, cls) { const m = $('msg'); m.textContent = text || ''; m.className = 'msg ' + (cls || ''); }
+
+// ---- the newer targets: their forms are made from this list ----
+// field: [key, label, placeholder, kind ('' text, 'pw', 'num', 'check', 'sel:a=A|b=B'), 'full']
+const PAYLOAD = 'sel:json=JSON – value, quality, address, type, time|value=Value only – e.g. 42.5 or true';
+const MORE = {
+  victoriametrics: { label: 'VictoriaMetrics', group: 'Databases', title: 'Send values to VictoriaMetrics', fields: [
+      ['url', 'Server URL', 'http://192.168.1.20:8428', '', 'full'], ['measurement', 'Metric name prefix', 'plc'],
+      ['flush_seconds', 'Send every (seconds)', '5', 'num'], ['username', 'Username (optional)'], ['password', 'Password', '', 'pw'],
+      ['token', 'Bearer token (optional, instead of username)', '', 'pw', 'full']],
+    hint: k => `Written as InfluxDB line protocol to <code>/write</code>. Each tag becomes the series <code>${esc(k.measurement || 'plc')}_value{tag="Tank_Level",address="DB1.DBD4",type="REAL"}</code>.
+      In Grafana add a <b>Prometheus</b> data source with the VictoriaMetrics URL and query e.g. <code>${esc(k.measurement || 'plc')}_value{tag="Tank_Level"}</code>.` },
+  questdb: { label: 'QuestDB', group: 'Databases', title: 'Send values to QuestDB', fields: [
+      ['url', 'Server URL (HTTP, web console port)', 'http://192.168.1.20:9000', '', 'full'], ['measurement', 'Table', 'plc_values'],
+      ['flush_seconds', 'Send every (seconds)', '5', 'num'], ['username', 'Username (optional)'], ['password', 'Password', '', 'pw'],
+      ['token', 'Token (optional)', '', 'pw', 'full']],
+    hint: k => `Written with the InfluxDB line protocol over HTTP (ILP, port 9000); the table is created by the first values, with the columns
+      <code>tag</code>, <code>address</code>, <code>type</code> (SYMBOL), <code>value</code> and <code>timestamp</code>.
+      Look at it in the QuestDB web console: <code>SELECT * FROM ${esc(k.measurement || 'plc_values')} LATEST ON timestamp PARTITION BY tag;</code>` },
+  timescaledb: { label: 'TimescaleDB', group: 'Databases', title: 'Store values in TimescaleDB / PostgreSQL', fields: [
+      ['dsn', 'Connection string', 'postgres://user:password@192.168.1.20:5432/plc?sslmode=disable', 'pw', 'full'],
+      ['table', 'Table', 'plc_values'], ['flush_seconds', 'Send every (seconds)', '5', 'num'],
+      ['create_table', 'Create the table (and hypertable) if it is missing', '', 'check', 'full']],
+    hint: k => `One row per value: <code>time TIMESTAMPTZ, tag TEXT, address TEXT, type TEXT, value DOUBLE PRECISION</code>, written in batches (COPY).
+      With the TimescaleDB extension the table becomes a hypertable; plain PostgreSQL works too. Query:
+      <code>SELECT time, value FROM ${esc(k.table || 'plc_values')} WHERE tag = 'Tank_Level' AND time &gt; now() - interval '1 hour' ORDER BY time;</code>` },
+  clickhouse: { label: 'ClickHouse', group: 'Databases', title: 'Store values in ClickHouse', fields: [
+      ['url', 'Server URL (HTTP interface)', 'http://192.168.1.20:8123', '', 'full'], ['database', 'Database', 'default'], ['table', 'Table', 'plc_values'],
+      ['username', 'Username', 'default'], ['password', 'Password', '', 'pw'], ['flush_seconds', 'Send every (seconds)', '5', 'num'],
+      ['create_table', 'Create the table if it is missing (MergeTree, ordered by tag, time)', '', 'check', 'full']],
+    hint: k => `Rows are inserted as <code>JSONEachRow</code> over HTTP: <code>time DateTime64(3,'UTC'), tag, address, type, value Float64</code>.
+      Query: <code>SELECT tag, argMax(value, time) FROM ${esc(k.database || 'default')}.${esc(k.table || 'plc_values')} GROUP BY tag</code>` },
+  amqp: { label: 'AMQP', group: 'Messaging', title: 'Publish values to an AMQP broker (RabbitMQ, …)', fields: [
+      ['url', 'Broker URL', 'amqp://user:password@192.168.1.10:5672/', 'pw', 'full'], ['exchange', 'Exchange', 'amq.topic'],
+      ['routing_prefix', 'Routing key prefix', 's7monitor'], ['payload', 'Payload', '', PAYLOAD],
+      ['persistent', 'Persistent messages (survive a broker restart, if the queue is durable)', '', 'check', 'full']],
+    hint: k => `Each change is published to exchange <code>${esc(k.exchange || 'amq.topic')}</code> with routing key <code>${esc(k.routing_prefix || 's7monitor')}.&lt;tag&gt;</code>.
+      Bind a queue with <code>${esc(k.routing_prefix || 's7monitor')}.#</code> to get every tag. RabbitMQ's user <i>guest</i> only works on the broker's own PC.` },
+  coap: { label: 'CoAP', group: 'Messaging', title: 'Send values to a CoAP server', fields: [
+      ['url', 'Server URL and path', 'coap://192.168.1.30:5683/s7monitor', '', 'full'], ['method', 'Method', '', 'sel:post=POST|put=PUT'],
+      ['payload', 'Payload', '', PAYLOAD], ['confirmable', 'Confirmable (wait for the server to acknowledge each message)', '', 'check', 'full']],
+    hint: k => `Each change goes to <code>${esc((k.url || 'coap://host:5683/s7monitor').replace(/\/+$/, ''))}/&lt;tag&gt;</code> over UDP, with Content-Format
+      ${k.payload === 'value' ? 'text/plain' : 'application/json'}. Non-confirmable is fastest; confirmable retries twice when no acknowledgement comes.` },
+  prometheus: { label: 'Prometheus', group: 'Servers', server: true, status: 'prometheus', title: 'Serve the values to Prometheus (/metrics)', fields: [
+      ['listen', 'Listen on', ':9273']],
+    hint: k => `Prometheus (or VictoriaMetrics, Grafana Agent) scrapes <code>http://${hostOf(k.listen || ':9273')}/metrics</code>:
+      <code>s7monitor_value{tag,address,type}</code>, <code>s7monitor_good</code> and <code>s7monitor_last_change_seconds</code>. In prometheus.yml:
+      <pre class="mini">scrape_configs:\n  - job_name: s7monitor\n    static_configs:\n      - targets: ['${hostOf(k.listen || ':9273')}']</pre>` },
+  grpc: { label: 'gRPC', group: 'Servers', server: true, status: 'grpc', title: 'Serve the values over gRPC', fields: [
+      ['listen', 'Listen on', ':50051']],
+    hint: k => `Service <code>s7monitor.v1.Monitor</code> with <b>List</b> (all current values) and <b>Subscribe</b> (current values, then every change, as a stream).
+      Server reflection is on, so tools find the API by themselves:
+      <pre class="mini">grpcurl -plaintext ${hostOf(k.listen || ':50051')} list\ngrpcurl -plaintext -d '{}' ${hostOf(k.listen || ':50051')} s7monitor.v1.Monitor/List\ngrpcurl -plaintext -d '{"tags":["Tank_Level"]}' ${hostOf(k.listen || ':50051')} s7monitor.v1.Monitor/Subscribe</pre>
+      <a href="api/export/grpc.proto" onclick="window.open(this.href, 's7m-proto', 'popup,width=720,height=760'); return false">monitor.proto</a> for generating clients (no TLS or login: use it on a trusted network).` },
+  opcua_server: { label: 'OPC UA server', group: 'Servers', server: true, status: 'opcua-server', title: 'Serve the values as an OPC UA server', fields: [
+      ['listen', 'Listen on', ':4840']],
+    hint: k => `OPC UA clients (UaExpert, SCADA, another PLC) connect to <code>opc.tcp://${hostOf(k.listen || ':4840')}</code> and find
+      every tag under <code>Objects/PLCMonitor</code> with the node ID <code>ns=1;s=&lt;tag name&gt;</code>, read-only, with its own data type and a Bad status when the read fails.
+      Security None, anonymous: use it on a trusted network.` },
+};
+const moreName = (k, f) => `${k}__${f}`;
+// hostOf: ':9273' is every address of this PC; '127.0.0.1:9273' is that one.
+const hostOf = l => /^:/.test(l) ? '&lt;this PC&gt;' + esc(l) : esc(l);
+(function renderMore() {
+  let html = '', group = '', tabs = '<span class="grp">Common</span><button data-tab="csv">CSV file</button><button data-tab="influxdb">InfluxDB</button><button data-tab="mqtt">MQTT</button>';
+  for (const [k, m] of Object.entries(MORE)) {
+    if (m.group !== group) { group = m.group; tabs += `<span class="grp">${group}</span>`; }
+    tabs += `<button data-tab="${k}">${m.label}</button>`;
+    const fields = m.fields.map(([f, label, ph = '', kind = '', full = '']) => {
+      const n = moreName(k, f), cls = full ? ' class="full"' : '';
+      if (kind === 'check') return `<label class="check full"><input type="checkbox" name="${n}"> ${label}</label>`;
+      if (kind.startsWith('sel:')) return `<label${cls}>${label}<select name="${n}">${kind.slice(4).split('|').map(o => { const [v, t] = o.split('='); return `<option value="${v}">${t}</option>`; }).join('')}</select></label>`;
+      if (kind === 'pw') return `<label${cls}>${label}<span class="pw"><input type="password" name="${n}" placeholder="${ph}"><button type="button" class="small" data-show="${n}">Show</button></span></label>`;
+      return `<label${cls}>${label}<input name="${n}" placeholder="${ph}"${kind === 'num' ? ' type="number" min="1" max="600"' : ''}></label>`;
+    }).join('');
+    html += `<section data-tab="${k}" hidden><div class="card">
+      <h3><label class="check switch"><input type="checkbox" name="${moreName(k, 'enabled')}"> ${m.title}</label></h3>
+      <div class="grid">${fields}<div class="row full"><button type="button" class="primary" data-test="${k}">${m.server ? 'Check' : 'Test connection'}</button></div></div>
+      <div id="res-${k}"></div></div>
+      <div class="card"><h3>What it looks like</h3><div class="hint" id="hint-${k}"></div></div></section>`;
+  }
+  $('tabs2').innerHTML = tabs;
+  $('form').insertAdjacentHTML('beforeend', html);
+})();
+function fillMore(e) {
+  for (const [k, m] of Object.entries(MORE)) {
+    const v = e[k] || {};
+    F[moreName(k, 'enabled')].checked = !!v.enabled;
+    for (const [f, , ph = '', kind = ''] of m.fields) {
+      const el = F[moreName(k, f)];
+      if (kind === 'check') el.checked = !!v[f];
+      else el.value = v[f] ?? (kind.startsWith('sel:') ? el.options[0].value : '');
+    }
+  }
+}
+function collectMore() {
+  const out = {};
+  for (const [k, m] of Object.entries(MORE)) {
+    const o = { enabled: F[moreName(k, 'enabled')].checked };
+    for (const [f, , ph = '', kind = ''] of m.fields) {
+      const el = F[moreName(k, f)];
+      o[f] = kind === 'check' ? el.checked : kind === 'num' ? (+el.value || 0) : kind === 'pw' ? el.value : el.value.trim();
+    }
+    out[k] = o;
+  }
+  return out;
+}
+function syncMore() {
+  const e = collectMore();
+  for (const [k, m] of Object.entries(MORE)) $('hint-' + k).innerHTML = m.hint(e[k]);
+}
+
+// ---- tabs ----
+function showTab(name) {
+  if (!['csv', 'influxdb', 'mqtt', ...Object.keys(MORE)].includes(name)) name = 'influxdb';
+  document.querySelectorAll('section[data-tab]').forEach(s => s.hidden = s.dataset.tab !== name);
+  document.querySelectorAll('#tabs button, #tabs2 button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
+}
+$('tabs').onclick = $('tabs2').onclick = e => { if (e.target.dataset.tab) showTab(e.target.dataset.tab); };
+window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+$('btnHelp').onclick = () => {
+  const tab = location.hash.slice(1) || 'influxdb';
+  const w = window.open('help#' + (tab === 'csv' ? 'export' : tab), 's7m-help', 'popup,width=980,height=860');
+  if (w) w.focus();
+};
+
+// ---- form <-> settings ----
+function fill(e) {
+  F.csv_enabled.checked = e.csv.enabled; F.csv_path.value = e.csv.path || '';
+  const ix = e.influxdb;
+  F.ix_enabled.checked = ix.enabled; F.ix_version.value = String(ix.version || 2); F.ix_url.value = ix.url || '';
+  F.ix_database.value = ix.database || ''; F.ix_rp.value = ix.retention_policy || '';
+  F.ix_user.value = ix.username || ''; F.ix_pass.value = ix.password || '';
+  F.ix_org.value = ix.org || ''; F.ix_bucket.value = ix.bucket || ''; F.ix_token.value = ix.token || '';
+  F.ix_measurement.value = ix.measurement || 'plc'; F.ix_flush.value = ix.flush_interval || '5s';
+  const mq = e.mqtt;
+  F.mq_enabled.checked = mq.enabled; F.mq_broker.value = mq.broker || ''; F.mq_user.value = mq.username || '';
+  F.mq_pass.value = mq.password || ''; F.mq_client.value = mq.client_id || 's7monitor';
+  F.mq_prefix.value = mq.topic_prefix || 's7monitor'; F.mq_qos.value = String(mq.qos || 0);
+  F.mq_retain.checked = mq.retain; F.mq_payload.value = mq.payload || 'json'; F.mq_tls_insecure.checked = !!mq.tls_insecure;
+  fillMore(e);
+  sync();
+}
+function collect() {
+  return {
+    csv: { enabled: F.csv_enabled.checked, path: F.csv_path.value.trim() },
+    influxdb: {
+      enabled: F.ix_enabled.checked, version: +F.ix_version.value, url: F.ix_url.value.trim(),
+      database: F.ix_database.value.trim(), retention_policy: F.ix_rp.value.trim(),
+      username: F.ix_user.value.trim(), password: F.ix_pass.value,
+      org: F.ix_org.value.trim(), bucket: F.ix_bucket.value.trim(), token: F.ix_token.value.trim(),
+      measurement: F.ix_measurement.value.trim() || 'plc', flush_interval: F.ix_flush.value.trim() || '5s',
+    },
+    mqtt: {
+      enabled: F.mq_enabled.checked, broker: F.mq_broker.value.trim(), client_id: F.mq_client.value.trim() || 's7monitor',
+      username: F.mq_user.value.trim(), password: F.mq_pass.value, topic_prefix: F.mq_prefix.value.trim() || 's7monitor',
+      qos: +F.mq_qos.value, retain: F.mq_retain.checked, payload: F.mq_payload.value, tls_insecure: F.mq_tls_insecure.checked,
+    },
+    ...collectMore(),
+  };
+}
+const dirty = () => JSON.stringify(collect()) !== baseline;
+
+// ---- helpers: URL clean-up ----
+function normInfluxURL() {
+  let v = F.ix_url.value.trim();
+  if (!v) return;
+  if (!/^https?:\/\//i.test(v)) v = 'http://' + v;
+  try {
+    const u = new URL(v);
+    if (!u.port && u.protocol === 'http:' && !/cloud2\.influxdata\.com$/.test(u.hostname)) u.port = F.ix_version.value === '3' ? '8181' : '8086';
+    v = u.origin + u.pathname.replace(/\/+$/, '');
+  } catch (e) {}
+  F.ix_url.value = v;
+}
+function normBroker() {
+  let v = F.mq_broker.value.trim();
+  if (!v) return;
+  if (!/^[a-z]+:\/\//i.test(v)) v = 'tcp://' + v;
+  const m = v.match(/^([a-z]+):\/\/([^/:]+|\[[^\]]+\])(:\d+)?(\/.*)?$/i);
+  if (m && !m[3]) {
+    const port = { tcp: 1883, mqtt: 1883, ssl: 8883, tls: 8883, mqtts: 8883, ws: 9001, wss: 443 }[m[1].toLowerCase()];
+    if (port) v = `${m[1]}://${m[2]}:${port}${m[4] || ''}`;
+  }
+  F.mq_broker.value = v;
+}
+F.ix_url.addEventListener('change', () => { normInfluxURL(); sync(); });
+F.mq_broker.addEventListener('change', () => { normBroker(); sync(); });
+F.ix_version.addEventListener('change', () => {
+  // Default ports follow the version (8086 for 1.x/2.x, 8181 for 3).
+  const v = F.ix_url.value.trim();
+  if (F.ix_version.value === '3') F.ix_url.value = v.replace(/:8086$/, ':8181');
+  else F.ix_url.value = v.replace(/:8181$/, ':8086');
+  if (F.ix_version.value === '3' && !F.ix_database.value && F.ix_bucket.value) F.ix_database.value = F.ix_bucket.value;
+  $('res-influxdb').innerHTML = '';
+});
+
+document.querySelectorAll('[data-show]').forEach(b => b.onclick = () => {
+  const i = F[b.dataset.show]; i.type = i.type === 'password' ? 'text' : 'password';
+  b.textContent = i.type === 'password' ? 'Show' : 'Hide';
+});
+
+const IX_PRESETS = [
+  ['InfluxDB 2 on this PC', { version: 2, url: 'http://localhost:8086', org: '', bucket: 'plc' }],
+  ['InfluxDB 1.x on this PC', { version: 1, url: 'http://localhost:8086', database: 'plc' }],
+  ['InfluxDB 3 Core on this PC', { version: 3, url: 'http://localhost:8181', database: 'plc' }],
+  ['InfluxDB on another computer', { url: 'http://192.168.1.20:8086' }],
+  ['InfluxDB Cloud', { version: 2, url: 'https://us-east-1-1.aws.cloud2.influxdata.com', bucket: 'plc' }],
+];
+$('ixPresets').innerHTML = IX_PRESETS.map((p, i) => `<button type="button" data-i="${i}">${esc(p[0])}</button>`).join('');
+$('ixPresets').onclick = e => {
+  const p = IX_PRESETS[e.target.dataset.i]; if (!p) return;
+  const v = p[1];
+  F.ix_enabled.checked = true;
+  if (v.version) F.ix_version.value = String(v.version);
+  if (v.url) F.ix_url.value = v.url;
+  if (v.database !== undefined) F.ix_database.value = F.ix_database.value || v.database;
+  if (v.bucket !== undefined) F.ix_bucket.value = F.ix_bucket.value || v.bucket;
+  $('res-influxdb').innerHTML = '';
+  sync();
+  if (p[0].includes('another')) { F.ix_url.focus(); F.ix_url.select(); say('Type the IP address of the InfluxDB computer, then press Test connection.'); }
+  else if (p[0].includes('Cloud')) say('Use the region URL shown in your InfluxDB Cloud account, your organization (e-mail or name) and an API token.');
+  else say('Fill in the token (if any) and press Test connection.');
+};
+
+const MQ_PRESETS = [
+  ['Mosquitto on this PC', { broker: 'tcp://localhost:1883' }],
+  ['Broker on another computer', { broker: 'tcp://192.168.1.10:1883' }],
+  ['Encrypted (TLS)', { broker: 'ssl://broker.example.com:8883' }],
+  ['WebSocket', { broker: 'ws://192.168.1.10:9001' }],
+  ['Public test broker', { broker: 'tcp://test.mosquitto.org:1883', public: true }],
+];
+$('mqPresets').innerHTML = MQ_PRESETS.map((p, i) => `<button type="button" data-i="${i}">${esc(p[0])}</button>`).join('');
+$('mqPresets').onclick = e => {
+  const p = MQ_PRESETS[e.target.dataset.i]; if (!p) return;
+  if (p[1].public && !confirm('test.mosquitto.org is a public broker: anyone on the internet can read what is published there.\n\nUse it only to try things out with test data. Continue?')) return;
+  F.mq_enabled.checked = true; F.mq_broker.value = p[1].broker;
+  if (p[1].public && F.mq_prefix.value === 's7monitor') F.mq_prefix.value = 's7monitor-' + Math.random().toString(36).slice(2, 7);
+  $('res-mqtt').innerHTML = '';
+  sync();
+  if (!p[0].includes('this PC') && !p[1].public) { F.mq_broker.focus(); say('Change the address to your broker, then press Test connection.'); }
+  else say('Press Test connection.');
+};
+
+// ---- live previews and examples ----
+function sampleTags() {
+  const list = tags.filter(t => t.good).slice(0, 3);
+  if (list.length) return list;
+  return [{ name: 'Tank_Level', address: 'DB1.DBD4', type: 'REAL', value: 42.5 }, { name: 'Motor1_Running', address: 'DB1.DBX0.0', type: 'BOOL', value: true }];
+}
+const escTag = s => String(s).replace(/([, =])/g, '\\$1');
+function snip(title, text) {
+  return `<div class="snip-title">${esc(title)}</div><div class="snip"><pre>${esc(text)}</pre><button type="button" class="small" data-copy>Copy</button></div>`;
+}
+document.addEventListener('click', e => {
+  if (e.target.matches('[data-copy]')) {
+    const t = e.target.previousElementSibling.textContent;
+    navigator.clipboard?.writeText(t).then(() => say('Copied.', 'ok'), () => say('Copy failed – select the text and press Ctrl+C.'));
+  }
+});
+function sync() {
+  const e = collect();
+  const ix = e.influxdb, mq = e.mqtt;
+  // InfluxDB: show the fields of the chosen version.
+  document.querySelectorAll('.v1,.v2,.v3').forEach(el => el.hidden = !el.classList.contains('v' + ix.version));
+  $('ixVerHint').innerHTML = {
+    1: 'InfluxDB 1.x: usually <code>http://host:8086</code>. Username and password only if authentication is turned on in influxdb.conf.',
+    2: 'InfluxDB 2.x: usually <code>http://host:8086</code>. Open that address in a browser to reach the InfluxDB web page.',
+    3: 'InfluxDB 3 Core / Enterprise: usually <code>http://host:8181</code>. The database is created by the first value written.',
+  }[ix.version];
+  $('ixTokenHint').innerHTML = ix.version === 2
+    ? 'Token: InfluxDB web page → <b>Load Data → API Tokens → Generate API Token</b> (a write token for the bucket is enough). Organization: shown at the top left of the web page.'
+    : ix.version === 3 ? 'Token: run <code>influxdb3 create token --admin</code> on the server (leave empty if it runs with <code>--without-auth</code>).' : '';
+  const now = Date.now();
+  $('ixPreview').textContent = sampleTags().map(t =>
+    `${ix.measurement.replace(/([, ])/g, '\\$1')},tag=${escTag(t.name)},address=${escTag(t.address)},type=${t.type} value=${t.type === 'BOOL' ? (t.value ? 1 : 0) : t.value} ${now}`).join('\n');
+  const t0 = sampleTags()[0].name, m = ix.measurement;
+  const target = ix.version === 2 ? ix.bucket || 'plc' : ix.database || 'plc';
+  $('ixQueries').innerHTML = {
+    1: snip('InfluxQL (influx CLI, Grafana with InfluxQL, Chronograf)', `USE "${target}"\nSELECT "value" FROM "${m}" WHERE "tag" = '${t0}' AND time > now() - 1h`),
+    2: snip('Flux (InfluxDB Data Explorer → Script Editor, or Grafana with Flux)',
+      `from(bucket: "${target}")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == "${m}" and r.tag == "${t0}")`),
+    3: snip('SQL (influxdb3 query, or Grafana with SQL / FlightSQL)',
+      `SELECT time, value FROM "${m}"\nWHERE tag = '${t0}' AND time > now() - INTERVAL '1 hour'\nORDER BY time`) +
+      snip('Command line on the server', `influxdb3 query --database ${target} "SELECT * FROM ${m} ORDER BY time DESC LIMIT 10"`),
+  }[ix.version];
+
+  // MQTT
+  const pre = mq.topic_prefix.replace(/^\/+|\/+$/g, '');
+  $('mqTestTopic').textContent = pre + '/_test'; $('mqSubTopic').textContent = pre + '/#';
+  $('mqTlsBox').hidden = !/^(ssl|tls|mqtts|wss):/i.test(mq.broker);
+  const ts = new Date().toISOString();
+  $('mqPreview').textContent = sampleTags().map(t => {
+    const val = mq.payload === 'value' ? String(t.type === 'BOOL' ? !!t.value : t.value)
+      : JSON.stringify({ value: t.value, quality: 'good', address: t.address, type: t.type, ts });
+    return `${pre}/${t.name}\n    ${val}`;
+  }).join('\n') + `\n${pre}/status\n    online   (offline when PLC Monitor stops or loses the connection)`;
+  let host = 'localhost', port = 1883, scheme = 'tcp';
+  const mm = mq.broker.match(/^([a-z]+):\/\/([^/:]+|\[[^\]]+\])(?::(\d+))?/i);
+  if (mm) { scheme = mm[1].toLowerCase(); host = mm[2]; port = mm[3] || port; }
+  const auth = mq.username ? ` -u ${mq.username} -P <password>` : '';
+  const tlsOpt = /^(ssl|tls|mqtts)$/.test(scheme) ? ' --capath /etc/ssl/certs' : '';
+  $('mqCmds').innerHTML =
+    snip('Mosquitto command line (all tags, with topic names)', `mosquitto_sub -h ${host} -p ${port}${auth}${tlsOpt} -t "${pre}/#" -v`) +
+    snip('One tag', `mosquitto_sub -h ${host} -p ${port}${auth}${tlsOpt} -t "${pre}/${t0}"`) +
+    `<p class="hint">Or use a viewer such as MQTT Explorer or MQTTX: connect to the same broker and subscribe to <code>${esc(pre)}/#</code>.
+     In Node-RED: an <b>mqtt in</b> node with topic <code>${esc(pre)}/${esc(t0)}</code>${mq.payload === 'json' ? ' and output “a parsed JSON object”; the number is <code>msg.payload.value</code>' : '; <code>msg.payload</code> is the value'}.</p>`;
+
+  // CSV
+  const sv = sampleTags()[0];
+  $('csvPreview').textContent = 'timestamp,tag,address,type,old,new,quality\n' +
+    `${ts},${sv.name},${sv.address},${sv.type},${sv.type === 'BOOL' ? 'FALSE' : '41.8'},${sv.type === 'BOOL' ? 'TRUE' : sv.value},good`;
+
+  syncMore();
+  $('btnApply').disabled = !dirty();
+  if (dirty()) say('Unsaved changes – press Apply or OK.');
+  else if ($('msg').textContent.startsWith('Unsaved')) say('');
+}
+$('form').addEventListener('input', sync);
+$('form').addEventListener('change', sync);
+
+// ---- test connection ----
+function renderResult(kind, r) {
+  const el = $('res-' + kind);
+  let h = '<ul class="steps">' + r.steps.map(s =>
+    `<li class="${s.ok ? (s.warn ? 'warn' : 'ok') : 'fail'}"><b>${esc(s.name)}</b>${esc(s.detail)}</li>`).join('') + '</ul>';
+  if (kind === 'influxdb') {
+    const cur = F.ix_version.value === '2' ? F.ix_bucket.value : F.ix_database.value;
+    if (r.databases?.length) {
+      h += `<div class="hint" style="margin-top:8px">${F.ix_version.value === '2' ? 'Buckets' : 'Databases'} on this server (click to use):</div><div class="chips">` +
+        r.databases.map(d => `<span class="chip${d === cur ? ' cur' : ''}" data-db="${esc(d)}">${esc(d)}</span>`).join('') + '</div>';
+      $('ixDbList').replaceChildren(...r.databases.map(d => new Option(d, d)));
+    }
+    const what = F.ix_version.value === '2' ? 'bucket' : 'database';
+    $('btnIxCreate').hidden = !r.missing || !cur;
+    $('btnIxCreate').textContent = `Create ${what} “${cur}”`;
+    const vb = $('btnIxVersion');
+    vb.hidden = !(r.version && String(r.version) !== F.ix_version.value);
+    vb.textContent = `Use version ${r.version}`; vb.dataset.v = r.version;
+  }
+  if (kind === 'mqtt' && r.messages?.length) {
+    h += `<div class="hint" style="margin-top:8px">Messages received on ${esc(F.mq_prefix.value || 's7monitor')}/#:</div><table class="msgs"><tbody>` +
+      r.messages.map(m => `<tr><td>${esc(m.topic)}${m.retained ? ' <span class="hint">(retained)</span>' : ''}${m.test ? ' <span class="hint">(test)</span>' : ''}</td><td>${esc(m.payload)}</td></tr>`).join('') + '</tbody></table>';
+  }
+  el.innerHTML = h;
+}
+document.querySelectorAll('[data-test]').forEach(b => b.onclick = async () => {
+  const kind = b.dataset.test;
+  if (kind === 'influxdb') normInfluxURL();
+  if (kind === 'mqtt') normBroker();
+  sync();
+  $('res-' + kind).innerHTML = '<div class="testing">Testing…</div>';
+  b.disabled = true;
+  try {
+    const r = await fetch('api/export/test/' + kind, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(collect()) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'HTTP ' + r.status);
+    renderResult(kind, j);
+    if (j.ok) say(`Test passed.${dirty() ? ' Press Apply or OK to use these settings.' : ''}`, 'ok');
+    else say('The test found a problem – see the ✖ line.', 'err');
+  } catch (e) {
+    $('res-' + kind).innerHTML = `<ul class="steps"><li class="fail">${esc(e.message)}</li></ul>`;
+  } finally { b.disabled = false; }
+});
+$('res-influxdb').addEventListener('click', e => {
+  const d = e.target.dataset.db; if (!d) return;
+  if (F.ix_version.value === '2') F.ix_bucket.value = d; else F.ix_database.value = d;
+  e.currentTarget.querySelectorAll('.chip').forEach(c => c.classList.toggle('cur', c.dataset.db === d));
+  $('btnIxCreate').hidden = true;
+  sync();
+});
+$('btnIxVersion').onclick = () => {
+  F.ix_version.value = $('btnIxVersion').dataset.v;
+  F.ix_version.dispatchEvent(new Event('change', { bubbles: true }));
+  $('btnIxVersion').hidden = true;
+  sync();
+  say('Version changed – press Test connection again.');
+};
+$('btnIxCreate').onclick = async () => {
+  const c = collect().influxdb;
+  const name = c.version === 2 ? c.bucket : c.database;
+  if (!confirm(`Create ${c.version === 2 ? 'bucket' : 'database'} “${name}” on ${c.url}?`)) return;
+  const r = await fetch('api/export/create/influxdb', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(c) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { say('Create failed: ' + (j.error || r.status), 'err'); return; }
+  say(`Created “${name}”.`, 'ok');
+  document.querySelector('[data-test="influxdb"]').click();
+};
+$('btnCsvFolder').onclick = async () => {
+  const r = await fetch('api/export/csv/folder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: F.csv_path.value }) });
+  if (!r.ok) say(((await r.json().catch(() => ({}))).error) || 'Could not open the folder', 'err');
+};
+
+// ---- status ----
+const LABEL = { csv: 'CSV file', influxdb: 'InfluxDB', mqtt: 'MQTT', ...Object.fromEntries(Object.entries(MORE).map(([k, v]) => [k, v.label])) };
+function renderStatus(list) {
+  lastStatus = list;
+  const e = loaded ? JSON.parse(baseline) : null;
+  const problem = list.find(s => s.name === 'export');
+  $('overview').innerHTML = ['csv', 'influxdb', 'mqtt', ...Object.keys(MORE)].map(k => {
+    const s = list.find(x => x.name === (MORE[k]?.status || k));
+    if (MORE[k] && !s && !(e && e[k]?.enabled)) return ''; // the newer targets only when used
+    const on = e && e[k].enabled;
+    let pill = '<span class="pill">OFF</span>', line = on ? 'starting…' : 'not enabled';
+    if (s) {
+      pill = `<span class="pill ${s.state}">${{ ok: 'OK', error: 'ERROR', connecting: 'CONNECTING' }[s.state] || s.state}</span>`;
+      line = s.last_error ? s.last_error : MORE[k]?.server ? s.target : `${s.sent} ${k === 'csv' ? 'rows' : k === 'mqtt' || k === 'amqp' || k === 'coap' ? 'messages' : 'points'} sent` +
+        (s.pending ? `, ${s.pending} waiting` : '') + (s.last_ok ? ` · last ${new Date(s.last_ok).toLocaleTimeString()}` : '');
+    } else if (on && problem) { pill = '<span class="pill error">ERROR</span>'; line = problem.last_error; }
+    return `<button type="button" class="ov" data-tab="${k}"><b>${LABEL[k]} ${pill}</b><small title="${esc(line)}">${esc(line)}</small></button>`;
+  }).join('');
+}
+$('overview').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) showTab(b.dataset.tab); };
+
+let failures = 0;
+async function poll() {
+  if (window.opener && window.opener.closed) { leaving = true; window.close(); return; }
+  try {
+    const [st, s] = await Promise.all([
+      fetch('api/export/status', { cache: 'no-store' }).then(r => r.json()),
+      fetch('api/state', { cache: 'no-store' }).then(r => r.json()),
+    ]);
+    failures = 0; tags = s.tags || [];
+    renderStatus(st);
+  } catch (e) {
+    if (++failures >= 2) { say('PLC Monitor is not running.', 'err'); if (window.opener) window.close(); }
+  }
+}
+
+// ---- load / apply ----
+async function load() {
+  const r = await fetch('api/export', { cache: 'no-store' });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    $('main').innerHTML = `<div class="disabled-note">${esc(j.error || 'Export settings are not available.')}</div>`;
+    document.querySelector('footer').hidden = true;
+    return false;
+  }
+  loaded = j;
+  fill(j.export);
+  baseline = JSON.stringify(collect());
+  renderStatus(j.status);
+  sync();
+  return true;
+}
+async function apply() {
+  normInfluxURL(); normBroker();
+  const body = collect();
+  const r = await fetch('api/export', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { say(j.error || 'HTTP ' + r.status, 'err'); return false; }
+  baseline = JSON.stringify(body);
+  sync();
+  say('Applied – exporting with the new settings (saved in config.yaml).', 'ok');
+  setTimeout(poll, 1500);
+  return true;
+}
+let leaving = false; // already asked; don't ask again on unload
+$('btnApply').onclick = apply;
+$('btnOk').onclick = async () => { if (!dirty() || await apply()) { leaving = true; window.close(); } };
+$('btnClose').onclick = () => {
+  if (dirty() && !confirm('Close without applying your changes?')) return;
+  leaving = true;
+  window.close();
+};
+window.addEventListener('beforeunload', e => { if (!leaving && loaded && dirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+showTab(location.hash.slice(1));
+load().then(ok => { if (ok) { poll(); setInterval(poll, 2000); } });
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data view – PLC Monitor</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="themes.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e5e7eb;
+          --good:#15803d; --bad:#b91c1c; --warn:#b45309; --accent:#2563eb; --accent-fg:#fff;
+          --code:#f3f4f6; --soft:#eef2ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#171b23; --fg:#e5e7eb; --muted:#9ca3af; --line:#2a303b;
+            --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --accent:#60a5fa; --accent-fg:#0f1218;
+            --code:#11151c; --soft:#1f2633; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+         display:flex; flex-direction:column; }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:10px 16px 0; }
+  h1 { font-size:17px; margin:0 0 6px; display:flex; align-items:center; gap:10px; }
+  h1 .spacer { flex:1; } h1 small { font-weight:400; color:var(--muted); font-size:13px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  nav.tabs { display:flex; gap:2px; margin-top:6px; flex-wrap:wrap; }
+  nav.tabs .grp { align-self:center; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding:0 4px 0 10px; }
+  nav.tabs button .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--good); margin-left:5px; vertical-align:1px; }
+  pre.v { margin:0; font:12px/1.45 ui-monospace, Consolas, monospace; white-space:pre-wrap; word-break:break-all; }
+  nav.tabs button { border:0; border-bottom:3px solid transparent; background:none; padding:7px 16px; font:inherit; color:var(--muted); cursor:pointer; border-radius:0; }
+  nav.tabs button.on { color:var(--fg); border-bottom-color:var(--accent); font-weight:600; }
+  input, select { padding:4px 8px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); font:inherit; }
+  button { font:inherit; padding:4px 12px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button.small { padding:2px 8px; font-size:12px; }
+  label { font-size:13px; color:var(--fg); display:inline-flex; align-items:center; gap:6px; }
+  .msg { font-size:13px; color:var(--muted); }
+  .bad { color:var(--bad); } .warn { color:var(--warn); } .ok { color:var(--good); }
+  main { flex:1; overflow:auto; padding:12px 16px 20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:12px; }
+  .card h3 { margin:0 0 8px; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .card h3 .spacer { flex:1; }
+  .info { display:grid; grid-template-columns:max-content 1fr; gap:2px 14px; font-size:13px; }
+  .info b { color:var(--muted); font-weight:500; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th { text-align:left; font-weight:600; color:var(--muted); font-size:12px; border-bottom:1px solid var(--line); padding:5px 8px; position:sticky; top:0; background:var(--card); }
+  td { border-bottom:1px solid var(--line); padding:4px 8px; vertical-align:top; }
+  td.name { font-weight:600; white-space:nowrap; }
+  .mono, td.mono { font-family:ui-monospace, Consolas, monospace; font-size:12px; word-break:break-all; }
+  td.val { text-align:right; font-family:ui-monospace, Consolas, monospace; white-space:nowrap; }
+  .badge { display:inline-block; font-size:11px; padding:0 6px; border-radius:4px; border:1px solid var(--line); color:var(--muted); background:var(--code); margin-left:4px; }
+  .fresh { animation:fresh 1.2s ease-out; }
+  @keyframes fresh { from { background:color-mix(in srgb, var(--good) 25%, transparent); } to { background:transparent; } }
+  pre.q { margin:0; background:var(--code); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font:12px/1.5 ui-monospace, Consolas, monospace; white-space:pre-wrap; }
+  .tablewrap { max-height:60vh; overflow:auto; border:1px solid var(--line); border-radius:6px; }
+  .empty { color:var(--muted); padding:16px; text-align:center; }
+  .k { color:var(--accent); } .s { color:var(--good); } .n { color:var(--warn); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Data view <small>how the tags look where they are sent</small><span class="spacer"></span>
+    <button class="small" id="btnExport" title="Change where the data goes">Export settings…</button>
+    <button class="small" onclick="S7Themes.openPicker()">Theme</button></h1>
+  <div class="row">
+    <input id="filter" type="search" placeholder="Filter tags" style="width:200px">
+    <label><input type="checkbox" id="live" checked> Live</label>
+    <span class="msg" id="msg"></span>
+  </div>
+  <nav class="tabs" id="tabs"><span class="grp">Common</span><button data-tab="mqtt" class="on">MQTT</button><button data-tab="influx">InfluxDB</button></nav>
+</header>
+<main>
+<section id="tab-mqtt">
+  <div class="card">
+    <h3>MQTT <span id="mqState"></span></h3>
+    <div class="info" id="mqInfo"></div>
+  </div>
+  <div class="card">
+    <h3>Every tag: what PLC Monitor publishes, and what the broker holds<span class="spacer"></span><span class="msg" id="mqBroker"></span></h3>
+    <div class="tablewrap" id="mqTable"></div>
+  </div>
+  <div class="card" id="mqOtherCard" hidden>
+    <h3>Other topics under the prefix</h3>
+    <div id="mqOther"></div>
+  </div>
+</section>
+<section id="tab-more" hidden>
+  <div class="card">
+    <h3 id="moTitle"></h3>
+    <div class="info" id="moInfo"></div>
+    <p class="msg" id="moNote" style="margin:8px 0 0"></p>
+  </div>
+  <div class="card">
+    <h3>Every tag: <span id="moWhat"></span></h3>
+    <div class="tablewrap" id="moTable"></div>
+  </div>
+</section>
+<section id="tab-influx" hidden>
+  <div class="card">
+    <h3>InfluxDB <span id="ixState"></span></h3>
+    <div class="info" id="ixInfo"></div>
+  </div>
+  <div class="card">
+    <h3>Every tag: the point PLC Monitor writes, and the last one in the database<span class="spacer"></span>
+      <span class="msg" id="ixDb"></span><button class="small" id="btnDb">Read from database</button></h3>
+    <div class="tablewrap" id="ixTable"></div>
+  </div>
+  <div class="card">
+    <h3>The query used <span class="badge" id="ixLang"></span><span class="spacer"></span><button class="small" id="btnCopyQ">Copy</button></h3>
+    <pre class="q" id="ixQuery"></pre>
+    <p class="msg">Paste it into Grafana, the InfluxDB UI or the <code>influx</code> CLI to see the same values. Each point has the tags <code>tag</code>, <code>address</code> and <code>type</code>, and one float field <code>value</code> (BOOL is 0 or 1).</p>
+  </div>
+</section>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let tab = 'mqtt', preview = null, broker = null, db = null, lastPayload = new Map();
+
+async function get(path) {
+  const r = await fetch(path, { cache: 'no-store' });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+const filtered = rows => { const q = $('filter').value.trim().toLowerCase(); return q ? rows.filter(r => r.tag.toLowerCase().includes(q)) : rows; };
+const ago = t => { const s = (Date.now() - new Date(t)) / 1000; return !isFinite(s) ? '' : s < 60 ? Math.max(0, s).toFixed(0) + ' s ago' : s < 3600 ? (s / 60).toFixed(0) + ' min ago' : new Date(t).toLocaleString(); };
+
+// JSON payloads in colour, for reading.
+function showPayload(p) {
+  try {
+    const j = JSON.parse(p);
+    if (j && typeof j === 'object') return '{' + Object.entries(j).map(([k, v]) =>
+      `<span class="k">"${esc(k)}"</span>:${typeof v === 'string' ? `<span class="s">"${esc(v)}"</span>` : `<span class="n">${esc(JSON.stringify(v))}</span>`}`).join(', ') + '}';
+  } catch (_) {}
+  return esc(p);
+}
+// The broker's copy matches what is sent if the value (and quality) agree; the timestamp may differ.
+function sameValue(sent, got) {
+  if (got === undefined) return false;
+  try { const a = JSON.parse(sent), b = JSON.parse(got); if (a && typeof a === 'object') return a.value === b.value && a.quality === b.quality; } catch (_) {}
+  return sent === got;
+}
+
+function renderMQTT() {
+  if (!preview) return;
+  const m = preview.mqtt;
+  $('mqState').innerHTML = m.enabled ? '<span class="badge ok">publishing</span>' : '<span class="badge warn">off – nothing is published</span>';
+  $('mqInfo').innerHTML = `<b>Broker</b><span class="mono">${esc(m.broker || '–')}</span>
+    <b>Topic</b><span class="mono">${esc(m.prefix)}/&lt;tag name&gt;</span>
+    <b>Payload</b><span>${m.payload === 'value' ? 'the value only, e.g. <span class="mono">42.5</span> or <span class="mono">true</span> (<span class="mono">null</span> when bad)' : 'JSON: value, quality, address, type, ts'}</span>
+    <b>QoS / retain</b><span>${m.qos} / ${m.retain ? 'yes – the broker keeps the last value of each topic' : 'no'}</span>
+    <b>Also</b><span><span class="mono">${esc(m.prefix)}/status</span> = online / offline (retained)</span>`;
+  const got = new Map((broker?.messages || []).map(x => [x.topic, x]));
+  const rows = filtered(preview.rows).map(r => {
+    const b = got.get(r.topic), match = b && sameValue(r.payload, b.payload);
+    const key = r.topic, changed = b && lastPayload.get(key) !== undefined && lastPayload.get(key) !== b.payload;
+    if (b) lastPayload.set(key, b.payload);
+    const side = !broker ? '' : !b ? '<span class="msg">nothing yet</span>'
+      : `<span class="mono">${showPayload(b.payload)}</span>${b.retained ? '<span class="badge">retained</span>' : ''}` +
+        `<div class="msg">${ago(b.time)} · ${b.count} msg${b.count > 1 ? 's' : ''}${match ? ' · <span class="ok">✔ same value</span>' : ''}</div>`;
+    return `<tr><td class="name">${esc(r.tag)}<div class="msg">${esc(r.address)} · ${esc(r.type)}</div></td>
+      <td class="val">${esc(r.value)}</td>
+      <td class="mono">${esc(r.topic)}</td>
+      <td class="mono">${showPayload(r.payload)}</td>
+      <td${changed ? ' class="fresh"' : ''}>${side}</td></tr>`;
+  });
+  $('mqTable').innerHTML = rows.length ? `<table><thead><tr><th>Tag</th><th>Value</th><th>Topic</th><th>Payload sent</th><th>On the broker now</th></tr></thead><tbody>${rows.join('')}</tbody></table>`
+    : '<div class="empty">No tags</div>';
+  const own = new Set(preview.rows.map(r => r.topic));
+  const other = (broker?.messages || []).filter(x => !own.has(x.topic));
+  $('mqOtherCard').hidden = !other.length;
+  $('mqOther').innerHTML = `<table><tbody>${other.map(x => `<tr><td class="mono">${esc(x.topic)}</td><td class="mono">${showPayload(x.payload)}${x.retained ? '<span class="badge">retained</span>' : ''}</td><td class="msg">${ago(x.time)}</td></tr>`).join('')}</tbody></table>`;
+  $('mqBroker').innerHTML = !broker ? '' : broker.error ? `<span class="bad">✖ ${esc(broker.error)}</span>`
+    : broker.connected ? `<span class="ok">● watching ${esc(broker.topic)}</span> on ${esc(broker.broker)}` : 'connecting…';
+}
+
+function renderInflux() {
+  if (!preview) return;
+  const x = preview.influx;
+  $('ixState').innerHTML = x.enabled ? '<span class="badge ok">writing</span>' : '<span class="badge warn">off – nothing is written</span>';
+  $('ixInfo').innerHTML = `<b>Server</b><span class="mono">${esc(x.url || '–')}</span>
+    <b>Version</b><span>InfluxDB ${x.version}</span>
+    <b>${x.version === 2 ? 'Bucket' : 'Database'}</b><span class="mono">${esc(x.target || '–')}</span>
+    <b>Measurement</b><span class="mono">${esc(x.measurement)}</span>
+    <b>Point</b><span class="mono">&lt;measurement&gt;,tag=&lt;name&gt;,address=&lt;address&gt;,type=&lt;type&gt; value=&lt;number&gt; &lt;time in ms&gt;</span>`;
+  const have = new Map((db?.rows || []).map(r => [r.tag, r]));
+  const rows = filtered(preview.rows).map(r => {
+    const d = have.get(r.tag);
+    const side = !db ? '' : !d ? '<span class="msg">no point in the last 30 days</span>'
+      : `<span class="mono">${esc(typeof d.value === 'number' ? +d.value.toPrecision(10) : d.value)}</span><div class="msg">${esc(d.time ? ago(d.time) : '')}</div>`;
+    return `<tr><td class="name">${esc(r.tag)}<div class="msg">${esc(r.address)} · ${esc(r.type)}</div></td>
+      <td class="val">${esc(r.value)}</td>
+      <td class="mono">${r.line ? esc(r.line) : '<span class="msg">no point (bad quality)</span>'}</td>
+      <td>${side}</td></tr>`;
+  });
+  $('ixTable').innerHTML = rows.length ? `<table><thead><tr><th>Tag</th><th>Value</th><th>Line written (line protocol)</th><th>Last in the database</th></tr></thead><tbody>${rows.join('')}</tbody></table>`
+    : '<div class="empty">No tags</div>';
+  if (db) {
+    $('ixLang').textContent = db.language;
+    $('ixQuery').textContent = db.query;
+    $('ixDb').innerHTML = db.error ? `<span class="bad">✖ ${esc(db.error)}</span>` : `<span class="ok">${db.rows.length} tag${db.rows.length === 1 ? '' : 's'} in the database</span> · read ${new Date().toLocaleTimeString()}`;
+  }
+}
+
+// ---- the newer targets ----
+let status = [], tabsMade = false;
+function makeTabs() {
+  if (tabsMade || !preview?.targets) return;
+  tabsMade = true;
+  let g = '', h = '';
+  for (const t of preview.targets) {
+    if (t.group !== g) { g = t.group; h += `<span class="grp">${esc(g)}</span>`; }
+    h += `<button data-tab="${t.key}">${esc(t.label)}<span class="dot" data-dot="${t.key}" hidden></span></button>`;
+  }
+  $('tabs').insertAdjacentHTML('beforeend', h);
+  if (location.hash.length > 1) $('tabs').querySelector(`[data-tab="${location.hash.slice(1)}"]`)?.click();
+}
+function renderMore() {
+  const t = preview?.targets?.find(x => x.key === tab);
+  if (!t) return;
+  const s = status.find(x => x.name === t.status);
+  const badge = !t.enabled ? '<span class="badge warn">off – shows what would be sent</span>'
+    : !s ? '<span class="badge">starting…</span>'
+    : s.last_error ? `<span class="badge bad">${esc(s.state)}</span>` : '<span class="badge ok">on</span>';
+  $('moTitle').innerHTML = esc(t.label) + ' ' + badge;
+  $('moInfo').innerHTML = t.info.map(([k, v]) => `<b>${esc(k)}</b><span class="mono">${esc(v || '–')}</span>`).join('') +
+    (s ? `<b>Status</b><span>${esc(s.last_error || s.target || '')}${s.sent ? ' · ' + s.sent + ' sent' : ''}${s.pending ? ' · ' + s.pending + ' waiting' : ''}</span>` : '');
+  $('moNote').innerHTML = t.enabled ? '' : 'Turn it on in <a href="#" id="moExport">Export settings</a> → ' + esc(t.label) + '.';
+  $('moWhat').textContent = t.what;
+  const rows = filtered(preview.rows).map(r => `<tr><td class="name">${esc(r.tag)}<div class="msg">${esc(r.address)} · ${esc(r.type)}</div></td>
+    <td class="val">${esc(r.value)}</td><td><pre class="v">${esc(r.more?.[t.key] || '')}</pre></td></tr>`);
+  $('moTable').innerHTML = rows.length ? `<table><thead><tr><th>Tag</th><th>Value</th><th>${esc(t.what)}</th></tr></thead><tbody>${rows.join('')}</tbody></table>`
+    : '<div class="empty">No tags</div>';
+}
+document.addEventListener('click', ev => { if (ev.target.id === 'moExport') { ev.preventDefault(); $('btnExport').click(); } });
+
+async function tick() {
+  if (document.hidden) return;
+  try {
+    preview = await get('api/export/preview');
+    makeTabs();
+    status = await get('api/export/status').catch(() => []);
+    for (const t of preview.targets || []) { const d = document.querySelector(`[data-dot="${t.key}"]`); if (d) d.hidden = !t.enabled; }
+    $('msg').textContent = '';
+    if (tab === 'mqtt') broker = await get('api/export/broker').catch(e => ({ error: e.message, messages: [] }));
+  } catch (e) { $('msg').innerHTML = `<span class="bad">✖ ${esc(e.message)}</span>`; }
+  tab === 'mqtt' ? renderMQTT() : tab === 'influx' ? renderInflux() : renderMore();
+}
+async function readDb() {
+  $('ixDb').textContent = 'reading…';
+  try { db = await get('api/export/database'); } catch (e) { db = { error: e.message, rows: [], query: '', language: '' }; }
+  renderInflux();
+}
+let dbTimer = 0;
+setInterval(() => {
+  if (!$('live').checked) return;
+  tick();
+  if (tab === 'influx' && ++dbTimer % 5 === 0) readDb();
+}, 1000);
+
+$('tabs').onclick = ev => {
+  const b = ev.target.closest('button[data-tab]'); if (!b) return;
+  tab = b.dataset.tab;
+  $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  $('tab-mqtt').hidden = tab !== 'mqtt'; $('tab-influx').hidden = tab !== 'influx'; $('tab-more').hidden = tab === 'mqtt' || tab === 'influx';
+  history.replaceState(null, '', '#' + tab);
+  if (tab === 'influx' && !db) readDb();
+  tick();
+};
+$('filter').oninput = () => (tab === 'mqtt' ? renderMQTT() : tab === 'influx' ? renderInflux() : renderMore());
+$('btnDb').onclick = readDb;
+$('btnCopyQ').onclick = () => navigator.clipboard.writeText($('ixQuery').textContent).then(() => { $('btnCopyQ').textContent = 'Copied'; setTimeout(() => $('btnCopyQ').textContent = 'Copy', 1500); });
+$('btnExport').onclick = () => { const w = window.open('export', 's7m-export', 'popup,width=820,height=900'); if (w) w.focus(); };
+if (location.hash === '#influx') $('tabs').querySelector('[data-tab=influx]').click();
+window.addEventListener('pagehide', () => { fetch('api/export/broker', { method: 'DELETE', keepalive: true }).catch(() => {}); });
+tick();
+</script>
+</body>
+</html>
