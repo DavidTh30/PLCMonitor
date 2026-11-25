@@ -12,6 +12,8 @@ import (
 	"net"
 	"syscall"
 	"time"
+
+	"golang.org/x/sys/unix"
 )
 
 const ethPAll = 0x0003 // ETH_P_ALL: also VLAN-tagged answers, filtered in dcpPayload
@@ -25,6 +27,7 @@ func init() {
 	dcpUnavailable = linuxNoPerm
 	dcpListAdapter = linuxAdapters
 	dcpOpen = linuxOpen
+	rawOpen = linuxOpenRaw
 }
 
 // rawAllowed tells whether this process may open a raw packet socket.
@@ -70,9 +73,14 @@ type rawLink struct {
 	fd    int
 	index int
 	mac   net.HardwareAddr
+	et    uint16 // the EtherType this link sends and receives
 }
 
-func linuxOpen(name string) (dcpLink, error) {
+func linuxOpen(name string) (dcpLink, error) { return linuxOpenRaw(name, dcpEtherType, false) }
+
+// linuxOpenRaw opens a link for frames of one EtherType. multicast: also
+// receive the LLDP multicast address (bridges do not forward it).
+func linuxOpenRaw(name string, et uint16, multicast bool) (dcpLink, error) {
 	ifi, err := net.InterfaceByName(name)
 	if err != nil {
 		return nil, fmt.Errorf("network adapter %q: %v", name, err)
@@ -91,13 +99,18 @@ func linuxOpen(name string) (dcpLink, error) {
 		syscall.Close(fd)
 		return nil, fmt.Errorf("bind to %s: %v", name, err)
 	}
-	return &rawLink{fd: fd, index: ifi.Index, mac: ifi.HardwareAddr}, nil
+	if multicast {
+		mr := unix.PacketMreq{Ifindex: int32(ifi.Index), Type: unix.PACKET_MR_MULTICAST, Alen: 6}
+		copy(mr.Address[:], lldpMulticast)
+		unix.SetsockoptPacketMreq(fd, unix.SOL_PACKET, unix.PACKET_ADD_MEMBERSHIP, &mr)
+	}
+	return &rawLink{fd: fd, index: ifi.Index, mac: ifi.HardwareAddr, et: et}, nil
 }
 
 func (l *rawLink) MAC() net.HardwareAddr { return l.mac }
 
 func (l *rawLink) Send(frame []byte) error {
-	sa := &syscall.SockaddrLinklayer{Protocol: htons(dcpEtherType), Ifindex: l.index, Halen: 6}
+	sa := &syscall.SockaddrLinklayer{Protocol: htons(l.et), Ifindex: l.index, Halen: 6}
 	copy(sa.Addr[:], frame[0:6])
 	if err := syscall.Sendto(l.fd, frame, 0, sa); err != nil {
 		return fmt.Errorf("send: %v", err)
@@ -128,7 +141,7 @@ func (l *rawLink) Recv(deadline time.Time) ([]byte, error) {
 		if ll, ok := from.(*syscall.SockaddrLinklayer); ok && ll.Pkttype == 4 { // PACKET_OUTGOING
 			continue
 		}
-		if _, _, ok := dcpPayload(buf[:n]); ok {
+		if _, _, ok := etherPayload(buf[:n], l.et); ok {
 			return append([]byte(nil), buf[:n]...), nil
 		}
 	}

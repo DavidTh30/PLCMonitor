@@ -43,6 +43,7 @@ simulator:
 web:
   listen: ":8080"           # dashboard address; "" disables it
   read_only: false          # true = no network/tag editing from the dashboard
+  theme: hmi-gray           # View → Theme (Follow Windows, Light, Dark, HMI Gray, …)
 
 # Exports can also be set up in the program: Export button or File → Export settings.
 export:
@@ -69,6 +70,14 @@ export:
     token: ""               # v2 and v3 (v1: username / password)
     measurement: s7
     flush_interval: 5s
+
+# How the window starts (changed in the program, then remembered here):
+# new charts in their own window, the button row folded (▴/▾ in the menu
+# bar), compact rows in the tag list (View → Row spacing).
+layout:
+  chart_place: window
+  header_folded: true
+  row_spacing: compact
 
 # Tags. area: DB, I (inputs), Q (outputs), M (markers).
 # type: BOOL, BYTE/USINT, SINT, WORD/UINT, INT, DWORD/UDINT, DINT, REAL, LREAL.

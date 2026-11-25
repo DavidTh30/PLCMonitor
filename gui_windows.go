@@ -58,9 +58,10 @@ func runWindow(url string, title func() string) error {
 		DataPath:  filepath.Join(os.Getenv("LOCALAPPDATA"), "PLCMonitor", "WebView2"),
 		AutoFocus: true,
 		WindowOptions: webview2.WindowOptions{
-			Title:  "PLC Monitor",
-			Width:  scale(1280),
-			Height: scale(820),
+			Title: "PLC Monitor",
+			// The first start; after that the window comes back as it was left.
+			Width:  scale(1000),
+			Height: scale(540),
 			Center: true,
 		},
 	})
@@ -74,6 +75,11 @@ func runWindow(url string, title func() string) error {
 	setWindowIcon(hwnd)
 	setupWindows(w)   // other windows open as windows of this program (gui_children.go)
 	customFrame(hwnd) // the page draws the title bar
+	// Size, position, maximized and zoom as the window was left (gui_winstate.go).
+	restoreWindowState(hwnd)
+	if appZoom != 1 {
+		setZoom(appZoom)
+	}
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -89,7 +95,9 @@ func runWindow(url string, title func() string) error {
 	nativeFileDialog = func(k FileKind, save bool, current string) (string, bool) {
 		res := make(chan [2]any, 1)
 		w.Dispatch(func() {
-			p, ok := fileDialog(hwnd, k, save, current)
+			owner := dialogOwner(hwnd)
+			p, ok := fileDialog(owner, k, save, current)
+			dialogDone(owner)
 			res <- [2]any{p, ok}
 		})
 		select {
@@ -112,11 +120,29 @@ func runWindow(url string, title func() string) error {
 		setTopmost(hwnd, true)
 		childTopmost = true
 	}
+	// Open dialog for other files (State graphics: .plcstate, .zip).
+	nativeOpenDialog = func(label string, exts []string) (string, bool) {
+		res := make(chan [2]any, 1)
+		w.Dispatch(func() {
+			owner := dialogOwner(hwnd)
+			p, ok := openAnyDialog(owner, label, exts)
+			dialogDone(owner)
+			res <- [2]any{p, ok}
+		})
+		select {
+		case r := <-res:
+			return r[0].(string), r[1].(bool)
+		case <-stop:
+			return "", false
+		}
+	}
 	// Save as dialog for exported pictures and documents (Topology export).
 	nativeSaveDialog = func(name, label, ext string) (string, bool) {
 		res := make(chan [2]any, 1)
 		w.Dispatch(func() {
-			p, ok := saveAsDialog(hwnd, name, label, ext)
+			owner := dialogOwner(hwnd)
+			p, ok := saveAsDialog(owner, name, label, ext)
+			dialogDone(owner)
 			res <- [2]any{p, ok}
 		})
 		select {
@@ -206,9 +232,9 @@ func fileDialog(owner uintptr, k FileKind, save bool, current string) (string, b
 	filter := fmt.Sprintf("%s (*%s)\x00*%s\x00YAML files (*.yaml;*.yml)\x00*.yaml;*.yml\x00All files (*.*)\x00*.*\x00", label, ext, ext)
 	if k == KindTags && !save {
 		// A PLC tag table or a data block source is imported as tags (see the page).
-		filter = fmt.Sprintf("%s, PLC tag table or block source (*%s;*.xlsx;*.xml;*.sdf;*.scl;*.db;*.udt)\x00*%s;*.xlsx;*.xml;*.sdf;*.scl;*.db;*.udt\x00", label, ext, ext) +
+		filter = fmt.Sprintf("%s, PLC tag table or block source (*%s;*.xlsx;*.xls;*.xml;*.sdf;*.scl;*.db;*.udt)\x00*%s;*.xlsx;*.xls;*.xml;*.sdf;*.scl;*.db;*.udt\x00", label, ext, ext) +
 			fmt.Sprintf("%s (*%s)\x00*%s\x00", label, ext, ext) +
-			"PLC tag table (*.xlsx;*.xml;*.sdf;*.csv)\x00*.xlsx;*.xml;*.sdf;*.csv\x00" +
+			"PLC tag table, register map, HMIEditERP (*.xlsx;*.xls;*.xml;*.sdf;*.csv)\x00*.xlsx;*.xls;*.xml;*.sdf;*.csv\x00" +
 			"Data block source (*.scl;*.db;*.udt)\x00*.scl;*.db;*.udt\x00" +
 			"YAML files (*.yaml;*.yml)\x00*.yaml;*.yml\x00All files (*.*)\x00*.*\x00"
 	}
@@ -253,6 +279,34 @@ func fileDialog(owner uintptr, k FileKind, save bool, current string) (string, b
 		path += ext
 	}
 	return path, true
+}
+
+// openAnyDialog asks for a file of the given extensions (".plcstate", ".zip"),
+// starting in Documents. It must run on the UI thread.
+func openAnyDialog(owner uintptr, label string, exts []string) (string, bool) {
+	const ofnNoChangeDir, ofnPathMustExist, ofnFileMustExist, ofnExplorer = 0x8, 0x800, 0x1000, 0x80000
+	pat := make([]string, len(exts))
+	for i, e := range exts {
+		pat[i] = "*" + e
+	}
+	p := strings.Join(pat, ";")
+	buf := make([]uint16, 4096)
+	dir, _ := windows.KnownFolderPath(windows.FOLDERID_Documents, 0)
+	ofn := &openFileName{
+		owner:       owner,
+		filter:      utf16z(fmt.Sprintf("%s (%s)\x00%s\x00All files (*.*)\x00*.*\x00", label, p, p)),
+		filterIndex: 1,
+		file:        &buf[0],
+		maxFile:     uint32(len(buf)),
+		initialDir:  utf16z(dir),
+		title:       utf16z("Open " + strings.ToLower(label)),
+		flags:       ofnExplorer | ofnNoChangeDir | ofnPathMustExist | ofnFileMustExist,
+	}
+	ofn.structSize = uint32(unsafe.Sizeof(*ofn))
+	if r, _, _ := procGetOpenFileNameW.Call(uintptr(unsafe.Pointer(ofn))); r == 0 {
+		return "", false
+	}
+	return windows.UTF16ToString(buf), true
 }
 
 // saveAsDialog asks where to save a file of one type, starting in Documents.
@@ -333,6 +387,35 @@ func setTopmost(hwnd uintptr, on bool) {
 func syncPopupsTopmost(on bool) {
 	popupWant.Store(on)
 	windows.EnumWindows(popupCallback, nil)
+}
+
+var procGetAncestor = user32.NewProc("GetAncestor")
+
+// dialogOwner is the window a file dialog belongs to: the window of this
+// program the user is working in (State graphics, Alarm messages, UDT tool …)
+// – not always the main window, which Windows would bring to the front when
+// the dialog closes, over the tool window.
+func dialogOwner(main uintptr) uintptr {
+	const gaRoot = 2
+	fg := windows.GetForegroundWindow()
+	if fg == 0 {
+		return main
+	}
+	var pid uint32
+	windows.GetWindowThreadProcessId(fg, &pid)
+	if int(pid) != os.Getpid() {
+		return main
+	}
+	if root, _, _ := procGetAncestor.Call(uintptr(fg), gaRoot); root != 0 {
+		return root
+	}
+	return uintptr(fg)
+}
+
+// dialogDone gives the window the dialog belonged to the focus back
+// (Save, Open or Cancel).
+func dialogDone(owner uintptr) {
+	procSetForegroundWindow.Call(owner)
 }
 
 // popupCallback is created once: Windows has a fixed number of callback slots.

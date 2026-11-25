@@ -55,6 +55,11 @@ const windowScript = `(() => {
   window.close = () => send({ op: 'close' });
   // __s7fit(h): make the window's inside h CSS pixels high (fits a form).
   window.__s7fit = h => send({ op: 'fit', v: String(Math.ceil(h)) });
+  // A file dropped where the page does not take it must not be opened or
+  // downloaded by WebView2 (pages that take files handle the drop themselves).
+  const files = e => [...((e.dataTransfer && e.dataTransfer.types) || [])].includes('Files');
+  window.addEventListener('dragover', e => { if (files(e)) e.preventDefault(); });
+  window.addEventListener('drop', e => { if (files(e)) e.preventDefault(); });
   const title = () => send({ op: 'title', v: document.title });
   document.addEventListener('DOMContentLoaded', () => {
     title();
@@ -154,6 +159,8 @@ func handleWindowMessage(from uintptr, raw string) {
 			h = mainHwnd
 		}
 		frameAction(h, m.Op)
+	case "zoom": // View → Zoom, the − / + in the menu bar: "+", "-", "0" (100 %), "?" (report)
+		zoomStep(m.V)
 	case "fit":
 		if from != 0 {
 			if h, err := strconv.Atoi(m.V); err == nil && h >= 100 {
@@ -247,6 +254,9 @@ func openChild(url, name, features string) {
 		s.PutIsStatusBarEnabled(false)
 	}
 	ch.Resize()
+	if appZoom != 1 { // the same zoom as the main window
+		putZoom(ch.GetController(), appZoom)
+	}
 	ch.Init(windowScript)
 	ch.Init(childBarScript)
 	ch.Navigate(url)
@@ -375,7 +385,7 @@ func tellMaximized(h uintptr) {
 }
 
 var mainFrameProc = windows.NewCallback(func(hwnd, msg, wp, lp uintptr) uintptr {
-	const wmNcCalcSize, wmSize = 0x0083, 0x0005
+	const wmNcCalcSize, wmSize, wmDestroy = 0x0083, 0x0005, 0x0002
 	switch msg {
 	case wmNcCalcSize:
 		if wp != 0 {
@@ -383,6 +393,8 @@ var mainFrameProc = windows.NewCallback(func(hwnd, msg, wp, lp uintptr) uintptr 
 		}
 	case wmSize:
 		defer tellMaximized(hwnd)
+	case wmDestroy:
+		saveWindowState(hwnd) // size, position, zoom for the next start
 	}
 	r, _, _ := procCallWindowProcW.Call(mainOrigProc, hwnd, msg, wp, lp)
 	return r

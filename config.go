@@ -83,6 +83,9 @@ type WebConfig struct {
 	Theme string `yaml:"theme,omitempty"`
 	// AlwaysOnTop keeps the desktop window above other windows (View menu).
 	AlwaysOnTop bool `yaml:"always_on_top,omitempty"`
+	// NoAutoConnect starts disconnected until Connect (Tools → Connect
+	// automatically at start, unticked). Default: connect at start.
+	NoAutoConnect bool `yaml:"no_auto_connect,omitempty"`
 }
 
 // HistoryConfig controls the trend history files used by the charts.
@@ -105,6 +108,13 @@ type LayoutConfig struct {
 	StatusItems []string `yaml:"status_items,omitempty" json:"status_items"`
 	// Columns are the tag table's shown columns (empty: all).
 	Columns []string `yaml:"columns,omitempty" json:"columns"`
+	// HeaderFolded: the button row under the menu bar is folded away.
+	HeaderFolded bool `yaml:"header_folded,omitempty" json:"header_folded"`
+	// TagTree: the tag list is shown as a tree; TreeClosed are its folded groups.
+	TagTree    bool     `yaml:"tag_tree,omitempty" json:"tag_tree"`
+	TreeClosed []string `yaml:"tree_closed,omitempty" json:"tree_closed"`
+	// RowSpacing of the tag list: compact, comfortable, or "" (normal).
+	RowSpacing string `yaml:"row_spacing,omitempty" json:"row_spacing"`
 }
 
 type ChartLayout struct {
@@ -134,6 +144,19 @@ func (l *LayoutConfig) validate() error {
 	}
 	if len(l.Columns) > 20 {
 		return fmt.Errorf("too many columns")
+	}
+	switch l.RowSpacing {
+	case "", "normal", "compact", "comfortable":
+	default:
+		return fmt.Errorf("row_spacing must be compact, normal or comfortable")
+	}
+	if len(l.TreeClosed) > 2000 {
+		return fmt.Errorf("too many folded groups")
+	}
+	for _, g := range l.TreeClosed {
+		if len(g) > 300 {
+			return fmt.Errorf("folded group name too long")
+		}
 	}
 	for _, s := range append(append([]string{}, l.StatusItems...), l.Columns...) {
 		if !layoutID.MatchString(s) {

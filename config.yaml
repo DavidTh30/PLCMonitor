@@ -1,6 +1,7 @@
 # plcmonitor configuration (last saved from the dashboard).
 # The original hand-written file, with comments, is in config.yaml.bak.
 
+network_file: C:\Users\PC\Desktop\plant.net.yaml
 protocol: s7
 plc:
     address: 192.168.1.1
@@ -117,6 +118,24 @@ export:
         listen: :4840
 layout:
     chart_place: window
+    header_folded: true
+    tag_tree: true
+    row_spacing: compact
 dcp:
     source: local
-tags: []
+tags:
+    - name: DB12.DBB0
+      area: DB
+      db: 12
+      offset: 0
+      type: BYTE
+    - name: DB12.DBB1
+      area: DB
+      db: 12
+      offset: 1
+      type: BYTE
+    - name: DB12.DBB2
+      area: DB
+      db: 12
+      offset: 2
+      type: BYTE

@@ -134,7 +134,8 @@ type writeReq struct {
 func NewMonitor(cfg *Config, dialFor func(*Config) Dialer, sinks *Dispatcher, path string) *Monitor {
 	m := &Monitor{dialFor: dialFor, sinks: sinks, path: path, reload: make(chan struct{}, 1),
 		writes: make(chan writeReq), jobs: make(chan connJob), gens: map[string]*generator{}}
-	m.status = Status{ReadOnly: cfg.Web.ReadOnly}
+	// Without auto connect the program starts disconnected, as after Disconnect.
+	m.status = Status{ReadOnly: cfg.Web.ReadOnly, Paused: cfg.Web.NoAutoConnect}
 	m.install(cfg)
 	m.loadBaselines()
 	return m

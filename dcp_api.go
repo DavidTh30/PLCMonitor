@@ -103,6 +103,8 @@ type dcpBackend interface {
 	Identify(adapter string, wait time.Duration) ([]DCPDevice, error)
 	Set(q dcpSetReq) error
 	Flash(adapter, mac string) error
+	LLDP(adapter string, wait time.Duration) ([]LLDPNeighbor, error)
+	Reset(adapter, mac, mode string) error
 }
 
 // localDCP sends the frames from this computer.
@@ -133,6 +135,18 @@ func (localDCP) Flash(adapter, mac string) error {
 		return errors.New("bad MAC address")
 	}
 	return dcpSet(adapter, m, []dcpBlock{signalBlock()})
+}
+
+func (localDCP) LLDP(adapter string, wait time.Duration) ([]LLDPNeighbor, error) {
+	return lldpListen(adapter, wait)
+}
+
+func (localDCP) Reset(adapter, mac, mode string) error {
+	m, err := net.ParseMAC(mac)
+	if err != nil || len(m) != 6 {
+		return errors.New("bad MAC address")
+	}
+	return dcpReset(adapter, m, mode)
 }
 
 // agentDCP passes the requests to a Linux agent (plcmonitor -dcp-agent).
@@ -216,6 +230,21 @@ func (a *agentDCP) Set(q dcpSetReq) error {
 
 func (a *agentDCP) Flash(adapter, mac string) error {
 	return a.call(http.MethodPost, "/api/dcp/flash", map[string]string{"adapter": adapter, "mac": mac}, nil)
+}
+
+func (a *agentDCP) LLDP(adapter string, wait time.Duration) ([]LLDPNeighbor, error) {
+	var r struct {
+		Neighbors []LLDPNeighbor `json:"neighbors"`
+	}
+	err := a.call(http.MethodPost, "/api/dcp/lldp", map[string]any{"adapter": adapter, "wait_ms": wait.Milliseconds()}, &r)
+	if err != nil && strings.Contains(err.Error(), "HTTP 404") {
+		err = errors.New("the Linux agent is older than this PLC Monitor: copy the new plcmonitor-linux file to it and run install-agent again")
+	}
+	return r.Neighbors, err
+}
+
+func (a *agentDCP) Reset(adapter, mac, mode string) error {
+	return a.call(http.MethodPost, "/api/dcp/reset", map[string]string{"adapter": adapter, "mac": mac, "mode": mode}, nil)
 }
 
 // dcpAccess decides who may do what; backend picks where DCP runs.
@@ -315,6 +344,62 @@ func dcpAPI(mux *http.ServeMux, a dcpAccess) {
 		if err == nil {
 			err = b.Flash(body.Adapter, body.MAC)
 		}
+		respond(w, err)
+	})
+	// LLDP: what the device or switch at the other end of the cable announces.
+	mux.HandleFunc("POST /api/dcp/lldp", func(w http.ResponseWriter, r *http.Request) {
+		if !a.query(w, r) {
+			return
+		}
+		var body struct {
+			Adapter string `json:"adapter"`
+			WaitMs  int    `json:"wait_ms"`
+		}
+		json.NewDecoder(r.Body).Decode(&body)
+		wait := time.Duration(body.WaitMs) * time.Millisecond
+		if wait < time.Second || wait > 35*time.Second {
+			wait = 6 * time.Second
+		}
+		b, err := a.backend()
+		var list []LLDPNeighbor
+		if err == nil {
+			list, err = b.LLDP(body.Adapter, wait)
+		}
+		if err != nil {
+			respond(w, err)
+			return
+		}
+		if list == nil {
+			list = []LLDPNeighbor{}
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"neighbors": list})
+	})
+	// Reset to factory settings: a change, like Set.
+	mux.HandleFunc("POST /api/dcp/reset", func(w http.ResponseWriter, r *http.Request) {
+		if !a.change(w, r) {
+			return
+		}
+		var body struct {
+			Adapter string `json:"adapter"`
+			MAC     string `json:"mac"`
+			Mode    string `json:"mode"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			respond(w, fmt.Errorf("bad JSON: %w", err))
+			return
+		}
+		if body.Mode == "" {
+			body.Mode = "communication"
+		}
+		b, err := a.backend()
+		if err == nil {
+			err = b.Reset(body.Adapter, body.MAC, body.Mode)
+		}
+		result := "done"
+		if err != nil {
+			result = "FAILED: " + err.Error()
+		}
+		log.Printf("DCP RESET %s via %s: mode %s (from %s) – %s", body.MAC, a.where, body.Mode, r.RemoteAddr, result)
 		respond(w, err)
 	})
 }

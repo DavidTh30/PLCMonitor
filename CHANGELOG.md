@@ -1,5 +1,269 @@
 # Changelog
 
+## 1.7.0
+
+### New
+
+- **IO test in the Topology window** (PROFINET device → details → **IO
+  test…**): connect as the device's IO controller without typing commands.
+  Inputs show as lamps per bit; outputs are switches per bit that work after
+  **Arm outputs…** (with a warning). State, frame counters and timing, and
+  the messages (alarms, module differences) are shown live. ✕ or Esc stops
+  the test and releases the device. If the window stops answering, the
+  outputs are disarmed after 3 s and the device is released after 15 s.
+  Modules (default: the p-net sample, DI 8 / DO 8), cycle time and ports are
+  remembered per device. Without Npcap the dialog offers *Download Npcap* /
+  *Check again*.
+- **Allow in firewall…** in the IO test: when Windows Firewall has no rule
+  for UDP 34964 (where the device answers), one click adds it – Windows asks
+  for administrator permission.
+
+## 1.6.0
+
+### New
+
+- **Topology upgrade**:
+  - **Click a device** for a details panel: IP with live ping (and a TTL
+    guess of the system), MAC address and maker, DNS name, whether this PC
+    can reach it, the neighbour-table state, open ports and what they are,
+    the PLC / Modbus / OPC UA identity, its PROFINET (DCP) data and what its
+    cable neighbour announces (LLDP) – everything known about it in one
+    place, with its actions (Monitor, PLC tags, Flash LED, Set IP / name,
+    open its web page, copy the details).
+  - **Other devices**: this PC's neighbour table (ARP), read through
+    Windows (GetIpNetTable2) or Linux – PCs, phones, routers, ESP32 boards
+    and everything else without an industrial port, per adapter, with the
+    maker from the MAC (or “private / random MAC”), the DNS name and a ping
+    to tell devices that are there from old entries. Also in the PNG / PDF.
+  - **PROFINET like PRONETA**: besides Find (DCP Identify, also without an
+    IP address), Set IP / name of station and Flash LED: **Cable neighbour
+    (LLDP)** – listens on an adapter for what the device or switch at the
+    other end of the cable announces (name of station, port, management
+    IP, link speed, PROFINET chassis MAC), also during “Scan all”; and
+    **Reset to factory settings** (DCP ResetToFactory: IP and name, or all
+    data; older devices get Factory reset) in the details panel. Through
+    the Linux agent too (agents need updating for LLDP and reset).
+  - **PROFINET IO test – first step** (console, not yet in the Topology
+    window): `plcmonitor pnio-test -ip <device>` connects to a PROFINET
+    device as IO controller (RT_CLASS_1, 32 ms by default), shows its inputs
+    and forces its outputs after `arm`. No GSDML yet: the module layout
+    defaults to the p-net sample (DI 8 / DO 8) and can be given with
+    `-slots`. Needs Npcap (Windows) or a raw socket (Linux), and UDP port
+    34964 open in the firewall. Not yet tried on a real device; design and
+    plan in docs/profinet-io-test.md.
+
+- **Alarm messages** (Tools → HMI → Alarm messages): a window to write and
+  try HMI alarm texts from tags.
+  - Each alarm: number, class (*fault*, *alarm*, *warning*, *info*), group,
+    tag, condition – *TRUE* / *FALSE* (Bool), *bit n* (alarm words), *> >= <
+    <= = <>* a limit, *outside* / *inside* a range – delay, acknowledge, and
+    a text with `{value}` `{tag}` `{limit}` `{min}` `{max}`. Drag tags from
+    the tag list to make alarms by type; **Samples** shows each kind.
+  - **Signals**: every tag of the alarms simulated (TRUE/FALSE button, bit
+    buttons, number / slider, toggle, ramp, sine, random) or read **live**.
+  - Running alarms: a banner with the most important waiting alarm, the
+    **Active** list (came / went / not acknowledged, **Ack** / **Ack all**)
+    and the **History** of came, went and ack.
+  - **Open / Save** (.plcalarm), **Import** and **Export** an alarm list as
+    CSV or Excel (ID, Class, Group, Tag, Condition, Delay ms, Ack, Text);
+    lists from other tools with *Bit*, *Limit*, *Message* columns are read too.
+- **State graphics library**: 📚 *Library…* with 123 ready graphics in 20
+  groups – LEDs, push buttons, relays, contactors, magnetic starters, motors,
+  pumps, blowers, levels, alarm messages, valves (also the flat bow-tie
+  valve), disconnect switches, circuit breakers, switches, selector
+  switches, DIP switches, timers (TON / TOF / TP / TONR, progress ring,
+  clock, countdown, hourglass …), flap valves (flap, damper, check flap,
+  slide gate …), diverter valves (Y, with position switches, plug, rotary)
+  and symbols (heater, heat exchanger, filter, cyclone, mixer, conveyors,
+  airlock, compressor, hopper, scale, photo eye, flow line, instruments) –
+  each with its states; *Use* it for the selected graphic or add it as a new
+  one.
+  - **With modes**: every graphic as Off (0) + Manual 1, Auto 2, Disable 3,
+    Enable 4, Alarm 5, Warning 6, Fault 7, Interlock 8, Lock 9 – in the
+    mode's colour with a letter badge; the mode colours can be changed (kept
+    in the .plcstate file). **+ Modes** does the same for any graphic.
+  - **🎨 Colours…** (for the graphic, or 🎨 on one state row): for all
+    states or only one, each colour of the SVG image(s) can be kept, get a
+    new colour, no colour, a pattern on it, colour + pattern or a coloured
+    pattern (diagonal, cross-hatch, lines, grid, dots, checker, zigzag), and
+    its own transparency; for the whole image line thickness, pattern size
+    and line, brightness, a glow in any colour and opacity – with a before /
+    after preview. Ctrl+Z undoes it.
+- **State graphics** (Tools → HMI → State graphics): a window to make and
+  try the images (PNG / SVG) that show a tag's state before they go into the
+  HMI – a lamp off / on / fault, a motor, a valve, a tank level.
+  - **Graphics** bound to tags: drag tags from the tag list onto it (a Bool
+    gets Off / On, a number level ranges) or pick the tag; name and size.
+  - **States**, checked from the top: *= value*, *from … to*, *bit n set*,
+    *anything else*; an image each (click, or drop PNG / SVG files – several
+    at once make a state each, `motor_2.png` → value 2), **Blink** for alarms.
+    **Samples**: lamp, motor, valve, tank level, status bits as SVG.
+  - **Try it**: the live tag value (PLC, simulator, or a signal generator on
+    the tag), or a **simulated signal** – a value or slider, a button per
+    state, step through the states, toggle 0/1, ramp, sine, random – at
+    1× / 2× / 4×, and every graphic at once under *All graphics*.
+  - **New / Open… / Save / Save as…** (.plcstate, Ctrl+O / Ctrl+S), the work
+    kept between starts; **Import** images or graphics from another set /
+    ZIP (a folder of images makes a graphic); **Export** a ZIP for the HMI
+    (every image as a file + states.csv), the set, or the shown image as it
+    is or as PNG.
+
+- **UDT tool** (File → PLC → UDT tool, or right-click tags → *Send to UDT
+  tool*): a small window to build a PLC data type (UDT) from the tags in use.
+  - **Drag tags** from the tag list onto it (several selected at once): each
+    becomes a member – name without the part they share (`Motor.Run` → `Run`),
+    data type, comment, and the address it came from.
+  - **Structures**: drag a member (⠿) **onto a Struct** to put it inside,
+    between rows to place it there (out of a group too); **→** puts it into
+    the Struct above, **←** takes it out; a Struct moves with its members.
+    Tags dropped on a Struct go inside it.
+  - **Edit**: name (dots make structures), data type (Bool, Int, Real,
+    `String[20]`, `Array[0..7] of Bool`, Struct …), comment; move rows by
+    dragging or ↑ ↓, insert, remove, + Struct, **Make arrays**
+    (`Alarms[0]` … `Alarms[7]` → `Alarms : Array[0..7] of Bool`), Sort by
+    address, Ctrl+Z.
+  - Live **layout** by the standard-access rules – each member's offset, the
+    size, and whether it matches where the tags are in the PLC (✓ / ⚠).
+  - **Import** a UDT sheet (.xlsx/.xls/.csv) or a TYPE / DATA_BLOCK from a
+    source (.udt/.scl/.db; a nested UDT is written out as a Struct) and edit it.
+  - **Export** as SCL (.udt / .scl – TYPE for Generate blocks from source) or
+    as a UDT sheet (.xlsx / .csv), or Copy SCL. The work is kept when the
+    window closes.
+
+- **Export → Tag list (.xlsx)** for PLC Monitor: every tag (DB, I, Q, M,
+  Modbus, OPC UA) with every field – Name, Address, Area, DB, Offset, Bit,
+  Type, Unit, Deadband, Description, Node. Nothing is left out; edit it in
+  Excel and bring it back with **Import → Tag list from PLC Monitor
+  (.xlsx / .csv)** (or drop it on the window): all fields come back.
+- **PLC data types (UDT) from a sheet (.xlsx, .xls, .csv):** one row per
+  member – *Name* (nested with dots: `Motor.Speed`), *Data Type* (Bool, Int,
+  Real, `Array[0..3] of Int`, Struct, …), optional *Offset* and *Comment*.
+  Without offsets the members are laid out by the standard-access rules, as
+  for a .udt source. Open or drop the file: the window asks for the **DB
+  number** and the **start byte** where the UDT is in the data block, and a
+  **tag prefix** (e.g. `Silo1` → `Silo1.Motor.Speed`), and for an **array of
+  the UDT** the number of elements and the first index: Motor, 3 from 1 →
+  `Motor[1].Run`, `Motor[2].Run`, `Motor[3].Run`, each element right after
+  the one before (its size rounded to an even byte).
+- **Save as SCL** in the Data blocks window: a UDT sheet becomes its
+  `TYPE "Motor_UDT"` and a data block that holds it at the start byte (spare
+  bytes before it) once or as `Array[1..3] of "Motor_UDT"` – the addresses
+  the window shows. For data blocks, the ticked members as a data block that
+  keeps their addresses. For External source files → Generate blocks from
+  source in the PLC engineering software.
+- **Data blocks window (UDT, SCL sources): members as a tree** – groups by
+  name with a box each, Expand all / Collapse all, each member with its
+  address worked out from the DB number and start byte. Untick what you
+  don't need. Start byte and tag prefix work for SCL data blocks too.
+- **Help → Example files:** ready-made spreadsheets (.xlsx) and SCL sources
+  for general variables (I, Q, M), a data block (struct + array) and a UDT
+  used as an array, each with **Copy** (paste into Excel or the PLC
+  engineering software) and **Save** (.xlsx / .csv / .scl). The spreadsheet
+  and SCL versions describe the same blocks; every example is tested to
+  import as the Help says.
+- **Tree view of the tag list** (🌲 Tree view next to the filter): tags
+  grouped by their names (`Motor_UDT.Alarms[0]` → Motor_UDT ▸ Alarms ▸ [0]),
+  with how many tags each group has and how many are not read. Click a group
+  to fold or unfold it, Ctrl/Shift+click to select its tags, **Expand all** /
+  **Collapse all**. It turns on by itself after adding a UDT or data block
+  from the Data blocks window. The choice and the folded groups are
+  remembered.
+
+### Changed
+
+- **Import preview:** every import into the tag list (PLC tag table,
+  register map, HMIEditERP, PLC Monitor tag list, CSV, dropped files) first
+  shows what it will do – **New** tags, **Changed** ones with old → new
+  (address, type, description), **Unchanged** ones, and the rows of the file
+  not imported with why. Filter by kind, untick tags, then *Import N tags*
+  or Cancel (nothing changes). UDTs and SCL data blocks keep their own
+  window (DB number, start byte, members).
+- **Insert tag before this…** (right-click a tag, or Shift+Ins) next to
+  Insert tag after this…: the new tag goes right above the selected one, its
+  address starting after the tag above.
+- **The window comes back as it was left** (desktop app): size, position,
+  maximized and zoom (kept in `%LOCALAPPDATA%\PLCMonitor\window.json`), and
+  the folded button row, Tree view and its folded groups (kept with the
+  layout in config.yaml). Before, they were kept in the browser storage,
+  which the desktop app loses at every start.
+- **New installations start with this look:** theme HMI Gray, the button
+  row folded, compact rows, charts in their own window, and a window of
+  1000 × 540 at 100 % zoom (config.sample.yaml; tags are not part of it).
+  Existing configurations keep their own settings.
+- **Spacing** (View → Spacing (buttons and tag list)): **Compact** (small
+  buttons like those in the rows, tight rows: the tag list starts about
+  90 px higher and shows about twice as many tags), **Normal** (the new
+  default) and **Comfortable** (the roomy look of before). It sizes the
+  button row, the toolbar above the list (now one line) and the rows.
+  Remembered in config.yaml; tag windows use it too.
+- **Zoom** without Ctrl+mouse wheel: **− 100 % +** at the right of the menu
+  bar, View → Zoom in / Zoom out / Zoom 100 %, Ctrl++ / Ctrl+− / Ctrl+0.
+  Every PLC Monitor window gets the same zoom; it is remembered.
+- **Fold the button row** (Disconnect, Always on top, Topology, Export,
+  Network settings, and the connection error) with ▴ at the right end of the
+  menu bar, ▾ to unfold; remembered. While folded, a red dot on the arrow
+  shows a connection error (its text on hover).
+- **Tools → Connection:** **Connect / Disconnect** (the same as the button –
+  there when the button row is folded) and **Connect automatically at
+  start** (on by default; unticked, PLC Monitor starts disconnected until
+  Connect; kept in config.yaml as `web.no_auto_connect`).
+- **Tools menu** in the menu bar (between File and View) instead of File →
+  PLC: *PLC* – Scan PLC, PLC tags (OPC UA), UDT tool; *Network* – Topology,
+  Network adapters, Windows network connections.
+- Desktop app: the name *PLC Monitor* and the connection (pill and address)
+  are no longer shown again under the title bar, which shows them already;
+  the connection error sits left of the buttons on the same row. The header
+  is about half as high. In a web browser they stay.
+- No empty band above the tag list when no chart is open (it was the space
+  kept for charts): the list starts right under the header.
+- **File → Export** is split by who reads the file: *For PLC Monitor – every
+  tag* (Tag list .xlsx / .csv), *For TIA Portal – I, Q, M only* (PLC tag
+  table .xlsx / .xml / .sdf, Data blocks as SCL source) and *For the HMI*
+  (HMIEditERP). The TIA file is saved as `…_TIA.xlsx`; when tags are left
+  out the message says where they can go instead.
+
+### Fixed
+
+- Topology (desktop app): the device details panel could not be closed – its
+  ✕ was hidden under the window's title bar. The panel now starts below it.
+
+## 1.5.0
+
+### New
+
+- **File → Export → HMI tag list for HMIEditERP (.xls):** the ISO-TCP tags
+  (I, Q, M and DB) as the Excel 97-2003 workbook HMIEditERP imports – sheet
+  *DSO_DX*, columns Name, Type, Address, ByteOrder, Extend1, Extend2, with
+  its address style: `Q0.0`, `MB0_B`, `IW0`, `MD0_D`, and for data blocks
+  *DBxDB* + width + DB number (2 digits) + byte (4 digits):
+  DB10.DBX1.2 → `DBxDB100001.2`, DB10.DBW1 → `DBxDBW100001`,
+  DB10.DBD1 → `DBxDBD100001_D` (Real too), DB3.DBB9 → `DBxDBB030009_B`.
+  Type is the width (X, B, W, D); Modbus, OPC UA, LReal tags and DB bytes
+  above 9999 are left out.
+- **Import of HMIEditERP tag lists (.xls):** File → Import → *PLC tag table /
+  register map / HMIEditERP* (or File → Open) reads Excel 97-2003 workbooks
+  and HMIEditERP's addresses. Types come back by width: X → Bool, B → Byte,
+  W → Word, D → DWord. `DBxDB100001.2` is DB10.DBX1.2; addresses without a
+  DB number (`DBxDBW0`) ask for the DB number once.
+- **Import says which rows were left out and why:** one row is named in the
+  message (*row 9 “Bad1”: bit 9 in DB10.DBX9.9 (0…7)*); more open a list
+  with row, name, address and reason (*Copy list* for a report). Notes in
+  the file such as *“… exported 2026-11-23”*, titles and empty lines are no
+  longer counted as skipped.
+- **Drag and drop:** drop a tag table, register map, HMIEditERP list or
+  block source on the window to import it (it showed a download before).
+  Files dropped on the other windows are no longer opened or downloaded.
+
+### Changed
+
+- **Import → PLC tag table / register map** also reads register maps of HMIs
+  and gateways (.xlsx / .csv): a *Key* / *Tag* column for the name, *Type*
+  (UINT16, INT32, FLOAT32, … too), *S7Address* with DB addresses
+  (`DB10.DBX0.0`, `DB10.DBW78`, `%DB3.DBD4` – tag tables gave only I, Q and
+  M before), *Description*, and *Area* + *Address* + *Bit* for Modbus
+  (COIL 100, HR 39), used when the network is Modbus. Rows with *Enabled* =
+  0 are left out. A *Scale* column is not applied (values are shown raw).
+
 ## 1.4.0
 
 ### New

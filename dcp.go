@@ -66,6 +66,9 @@ var (
 	dcpOpen        func(adapterID string) (dcpLink, error)
 	dcpListAdapter func() ([]DCPAdapter, error)
 	dcpUnavailable = "PROFINET device functions need Windows (with Npcap) or Linux"
+	// rawOpen opens a link for another EtherType (LLDP); multicast also
+	// receives link-local multicast frames.
+	rawOpen func(adapterID string, etherType uint16, multicast bool) (dcpLink, error)
 )
 
 // ---- frames ----
@@ -143,7 +146,10 @@ func qualifier(permanent bool) uint16 {
 
 // dcpPayload returns the sender and the DCP part of an Ethernet frame
 // (with or without a VLAN tag).
-func dcpPayload(pkt []byte) (net.HardwareAddr, []byte, bool) {
+func dcpPayload(pkt []byte) (net.HardwareAddr, []byte, bool) { return etherPayload(pkt, dcpEtherType) }
+
+// etherPayload returns the sender and the payload of a frame of EtherType et.
+func etherPayload(pkt []byte, want uint16) (net.HardwareAddr, []byte, bool) {
 	if len(pkt) < 14 {
 		return nil, nil, false
 	}
@@ -154,7 +160,7 @@ func dcpPayload(pkt []byte) (net.HardwareAddr, []byte, bool) {
 		}
 		et, off = binary.BigEndian.Uint16(pkt[16:18]), 18
 	}
-	if et != dcpEtherType {
+	if et != want {
 		return nil, nil, false
 	}
 	return net.HardwareAddr(pkt[6:12]), pkt[off:], true
@@ -255,7 +261,7 @@ func parseSetResponse(pkt []byte, mac net.HardwareAddr, xid uint32) (bool, error
 	dcpBlocks(p[12:12+n], func(opt, sub byte, data []byte, info uint16) {
 		// Response block (5/4): the block info is option + suboption, data[0] the error.
 		if opt == 0x05 && sub == 0x04 && len(data) >= 1 && data[0] != 0 {
-			what := map[uint16]string{0x0102: "IP address", 0x0202: "name of station", 0x0503: "flash LED"}[info]
+			what := map[uint16]string{0x0102: "IP address", 0x0202: "name of station", 0x0503: "flash LED", 0x0505: "factory reset", 0x0506: "reset to factory"}[info]
 			if what == "" {
 				what = fmt.Sprintf("option %d/%d", info>>8, info&0xff)
 			}

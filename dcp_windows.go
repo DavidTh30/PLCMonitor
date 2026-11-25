@@ -23,6 +23,7 @@ import (
 
 type wpcap struct {
 	findAllDevs, freeAllDevs, openLive, close, sendPacket, nextEx, compile, setFilter, freeCode, getErr uintptr
+	setMinToCopy                                                                                        uintptr // optional (PROFINET IO test)
 }
 
 var (
@@ -69,6 +70,9 @@ func loadPcap() (*wpcap, error) {
 		}
 		*dst = p
 	}
+	if p, err := windows.GetProcAddress(h, "pcap_setmintocopy"); err == nil {
+		l.setMinToCopy = p
+	}
 	pcapLib = l
 	return l, nil
 }
@@ -110,7 +114,7 @@ func init() {
 			return err
 		}
 		dcpMu.Lock()
-		dcpListAdapter, dcpOpen = npcapAdapters, npcapOpen
+		dcpListAdapter, dcpOpen, rawOpen, rtOpen = npcapAdapters, npcapOpen, npcapOpenRaw, npcapOpenRT
 		dcpMu.Unlock()
 		return nil
 	}
@@ -188,6 +192,26 @@ type npcapLink struct {
 }
 
 func npcapOpen(adapterID string) (dcpLink, error) {
+	return npcapOpenRaw(adapterID, dcpEtherType, false)
+}
+
+// npcapOpenRaw opens a link for frames of one EtherType. multicast: listen
+// promiscuously, so link-local multicast (LLDP) reaches us too.
+func npcapOpenRaw(adapterID string, et uint16, multicast bool) (dcpLink, error) {
+	// Only frames of this EtherType (also VLAN-tagged ones) reach us.
+	filter := fmt.Sprintf("ether proto 0x%04x or (vlan and ether proto 0x%04x)", et, et)
+	return npcapOpenFilter(adapterID, filter, multicast, 100, false)
+}
+
+// npcapOpenRT opens a link for PROFINET cyclic data from one device: no
+// buffering in the driver (mintocopy 0) and a 1 ms read timeout, so inputs
+// arrive when they are on the wire, not in batches.
+func npcapOpenRT(adapterID string, peer net.HardwareAddr) (dcpLink, error) {
+	filter := fmt.Sprintf("(ether proto 0x8892 or (vlan and ether proto 0x8892)) and ether src %s", peer)
+	return npcapOpenFilter(adapterID, filter, false, 1, true)
+}
+
+func npcapOpenFilter(adapterID, filterText string, multicast bool, timeoutMs int, immediate bool) (dcpLink, error) {
 	l, err := loadPcap()
 	if err != nil {
 		return nil, err
@@ -208,14 +232,20 @@ func npcapOpen(adapterID string) (dcpLink, error) {
 	mac, _ := net.ParseMAC(ad.MAC)
 	dev, _ := windows.BytePtrFromString(adapterID)
 	errbuf := make([]byte, 512)
-	// snaplen 1518, not promiscuous, 100 ms read timeout.
-	h, _, _ := syscall.SyscallN(l.openLive, uintptr(unsafe.Pointer(dev)), 1518, 0, 100, uintptr(unsafe.Pointer(&errbuf[0])))
+	// snaplen 1518, promiscuous only for multicast listening, 100 ms read timeout.
+	promisc := uintptr(0)
+	if multicast {
+		promisc = 1
+	}
+	h, _, _ := syscall.SyscallN(l.openLive, uintptr(unsafe.Pointer(dev)), 1518, promisc, uintptr(timeoutMs), uintptr(unsafe.Pointer(&errbuf[0])))
 	if h == 0 {
 		return nil, fmt.Errorf("open %s: %s", ad.Name, cstr(&errbuf[0]))
 	}
 	link := &npcapLink{l: l, h: h, mac: mac}
-	// Only DCP frames (also VLAN-tagged ones) reach us.
-	filter, _ := windows.BytePtrFromString("ether proto 0x8892 or (vlan and ether proto 0x8892)")
+	if immediate && l.setMinToCopy != 0 {
+		syscall.SyscallN(l.setMinToCopy, h, 0)
+	}
+	filter, _ := windows.BytePtrFromString(filterText)
 	var prog bpfProgram
 	if r, _, _ := syscall.SyscallN(l.compile, h, uintptr(unsafe.Pointer(&prog)), uintptr(unsafe.Pointer(filter)), 1, 0xffffffff); int32(r) == 0 {
 		syscall.SyscallN(l.setFilter, h, uintptr(unsafe.Pointer(&prog)))

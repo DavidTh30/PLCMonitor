@@ -47,6 +47,14 @@ func main() {
 		}
 		return
 	}
+	// "plcmonitor pnio-test -ip …": PROFINET IO test from the console.
+	if len(os.Args) > 1 && os.Args[1] == "pnio-test" {
+		if err := runPNIOTest(os.Args[2:]); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
 	cfgPath := flag.String("config", "", "path to the YAML config file (default: config.yaml; next to the .exe for the desktop app)")
 	simulate := flag.Bool("simulate", false, "use the built-in PLC simulator (overrides config)")
 	listen := flag.String("listen", "", "web dashboard address, e.g. :8080 (overrides config)")
