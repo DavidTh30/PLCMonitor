@@ -47,6 +47,26 @@ var dataViewHTML []byte
 //go:embed web/netadapters.html
 var netAdaptersHTML []byte
 
+// The UDT tool window (build a UDT from tags, edit it, export it).
+//
+//go:embed web/udttool.html
+var udtToolHTML []byte
+
+// The State graphics window (tag state → PNG / SVG image, tried live).
+//
+//go:embed web/stategfx.html
+var stateGfxHTML []byte
+
+// The library of ready-made state graphics (SVG drawings).
+//
+//go:embed web/stategfx-lib.js
+var stateGfxLibJS []byte
+
+// The Alarm messages window (alarm texts from tag values, tried live).
+//
+//go:embed web/alarms.html
+var alarmsHTML []byte
+
 // themesJS holds the colour themes and the theme picker, used by every page.
 //
 //go:embed web/themes.js
@@ -195,13 +215,18 @@ func NewWebHandler(m *Monitor, readOnly bool) http.Handler {
 		w.Header().Set("Cache-Control", "no-cache") // a new version of the program shows its new pages
 		w.Write(indexHTML)
 	})
-	for path, page := range map[string][]byte{"/export": exportHTML, "/help": helpHTML, "/plcscan": plcScanHTML, "/plctags": plcTagsHTML, "/dataview": dataViewHTML, "/netadapters": netAdaptersHTML} {
+	for path, page := range map[string][]byte{"/export": exportHTML, "/help": helpHTML, "/plcscan": plcScanHTML, "/plctags": plcTagsHTML, "/dataview": dataViewHTML, "/netadapters": netAdaptersHTML, "/udttool": udtToolHTML, "/stategfx": stateGfxHTML, "/alarms": alarmsHTML} {
 		mux.HandleFunc("GET "+path, func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			w.Header().Set("Cache-Control", "no-cache")
 			w.Write(page)
 		})
 	}
+	mux.HandleFunc("GET /stategfx-lib.js", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Write(stateGfxLibJS)
+	})
 	// themes.js starts with the theme saved in config.yaml, so every window
 	// opens in it without a flash, even when localStorage is empty.
 	mux.HandleFunc("GET /themes.js", func(w http.ResponseWriter, r *http.Request) {
@@ -304,6 +329,25 @@ func NewWebHandler(m *Monitor, readOnly bool) http.Handler {
 		}
 		respond(w, nil)
 	})
+	// Tools → Connect automatically at start: {"on": true|false}, saved in config.yaml.
+	mux.HandleFunc("PUT /api/ui/autoconnect", func(w http.ResponseWriter, r *http.Request) {
+		if !isLoopback(r) || readOnly || r.Header.Get("Content-Type") != "application/json" {
+			writeJSON(w, http.StatusForbidden, apiError{"only on the computer running PLC Monitor"})
+			return
+		}
+		var body struct {
+			On bool `json:"on"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1024)).Decode(&body); err != nil {
+			respond(w, errors.New(`body must be {"on": true|false}`))
+			return
+		}
+		if m.Config().Web.NoAutoConnect == body.On {
+			respond(w, m.Update(func(c *Config) error { c.Web.NoAutoConnect = !body.On; return nil }))
+			return
+		}
+		respond(w, nil)
+	})
 	mux.HandleFunc("GET /favicon.png", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/png")
 		w.Header().Set("Cache-Control", "max-age=86400")
@@ -334,9 +378,10 @@ func NewWebHandler(m *Monitor, readOnly bool) http.Handler {
 			HistoryFiles  bool            `json:"history_files"`
 			CanPin        bool            `json:"can_pin"` // desktop app: Always on top available
 			AlwaysOnTop   bool            `json:"always_on_top"`
+			AutoConnect   bool            `json:"auto_connect"` // connect at start (Tools menu)
 		}{networkOf(c), tags, c.Simulate, readOnly, nativeFileDialog != nil, isLoopback(r) && !readOnly, isLoopback(r),
 			!readOnly && (isLoopback(r) || c.Web.AllowRemoteWrite), m.Trend != nil,
-			setAlwaysOnTop != nil && isLoopback(r), c.Web.AlwaysOnTop})
+			setAlwaysOnTop != nil && isLoopback(r), c.Web.AlwaysOnTop, !c.Web.NoAutoConnect})
 	})
 	mux.HandleFunc("GET /api/serialports", func(w http.ResponseWriter, r *http.Request) {
 		ports := serialPorts()
@@ -614,6 +659,7 @@ func NewWebHandler(m *Monitor, readOnly bool) http.Handler {
 			Name string `json:"name"`
 			Data []byte `json:"data"` // base64
 			Path string `json:"path"` // or a file on this computer (File → Open dialog)
+			DB   int    `json:"db"`   // the DB number for DBx… addresses (HMIEditERP)
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			respond(w, fmt.Errorf("bad JSON: %w", err))
@@ -641,11 +687,35 @@ func NewWebHandler(m *Monitor, readOnly bool) http.Handler {
 			}
 			body.Name = filepath.Base(body.Path)
 		}
-		tags, skipped, err := TIATags(body.Name, body.Data)
-		if err != nil {
-			respond(w, err)
+		// A PLC Monitor tag list (every field): imported as it is.
+		if tags, skipped, ok, err := TagListImport(body.Name, body.Data); ok {
+			if err != nil {
+				writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error(), "skipped": skipped})
+				return
+			}
+			writeJSON(w, http.StatusOK, map[string]any{"tags": tags, "skipped": skipped, "full": true})
 			return
 		}
+		// A UDT written as a sheet: the page asks for the DB number and start byte.
+		if blocks, ok, err := UDTSheet(body.Name, body.Data); ok {
+			if err != nil {
+				respond(w, err)
+				return
+			}
+			writeJSON(w, http.StatusOK, map[string]any{"source": blocks, "udt": true})
+			return
+		}
+		tags, skipped, err := TagTableImport(body.Name, body.Data, m.Config().Protocol, body.DB)
+		var need NeedDBError
+		if errors.As(err, &need) { // the page asks for the DB number and sends the file again
+			writeJSON(w, http.StatusOK, map[string]any{"need_db": need.Count})
+			return
+		}
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error(), "skipped": skipped})
+			return
+		}
+		// skipped: each row left out, with where it is and why.
 		writeJSON(w, http.StatusOK, map[string]any{"tags": tags, "skipped": skipped})
 	})
 	// A block source (.scl/.db/.udt) as data blocks with their variables as
@@ -710,10 +780,54 @@ func NewWebHandler(m *Monitor, readOnly bool) http.Handler {
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"data": data, "count": n, "skipped": skipped})
 	})
+	// Save as SCL from the Data blocks window: a UDT with a data block that
+	// holds it (start byte, array), or the given DB tags as flat data blocks.
+	mux.HandleFunc("POST /api/tags/scl", func(w http.ResponseWriter, r *http.Request) {
+		var body struct {
+			UDT    string         `json:"udt"`
+			Type   string         `json:"type"`
+			DBName string         `json:"db_name"`
+			Member string         `json:"member"`
+			Start  int            `json:"start"`
+			Count  int            `json:"count"`
+			From   int            `json:"from"`
+			Tags   []Tag          `json:"tags"`
+			Names  map[int]string `json:"names"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 8<<20)).Decode(&body); err != nil {
+			respond(w, fmt.Errorf("bad JSON: %w", err))
+			return
+		}
+		if body.UDT != "" {
+			src, err := UDTDataBlockSCL(body.UDT, body.Type, body.DBName, body.Member, body.Start, body.Count, body.From)
+			if err != nil {
+				respond(w, err)
+				return
+			}
+			writeJSON(w, http.StatusOK, map[string]any{"data": []byte(strings.ReplaceAll(src, "\n", "\r\n")), "udt": true})
+			return
+		}
+		data, n, skipped, err := TagsToSCL(body.Tags, body.Names)
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error(), "skipped": skipped})
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"data": data, "count": n, "skipped": skipped})
+	})
 	// The tag list as a TIA Portal PLC tag table: ?format=xlsx|xml. The file
 	// comes back as base64 with how many tags it holds and which were left out.
 	mux.HandleFunc("GET /api/tags/tia", func(w http.ResponseWriter, r *http.Request) {
-		data, n, skipped, err := TIAExport(m.Config().Tags, r.URL.Query().Get("format"))
+		var data []byte
+		var n int
+		var skipped []TIASkipped
+		var err error
+		if f := r.URL.Query().Get("format"); f == "hmi" { // HMIEditERP tag list (.xls)
+			data, n, skipped, err = HMIExport(m.Config().Tags)
+		} else if f == "list" { // PLC Monitor tag list (.xlsx): every tag, every field
+			data, n, err = TagListXLSX(m.Config().Tags)
+		} else {
+			data, n, skipped, err = TIAExport(m.Config().Tags, f)
+		}
 		if err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error(), "skipped": skipped})
 			return
@@ -898,9 +1012,10 @@ func NewWebHandler(m *Monitor, readOnly bool) http.Handler {
 		}
 		ext := strings.ToLower(filepath.Ext(body.Name))
 		label := map[string]string{".png": "PNG picture", ".jpg": "JPG picture", ".pdf": "PDF document", ".csv": "CSV file", ".yaml": "Tag configuration",
-			".xlsx": "PLC tag table (Excel)", ".xml": "PLC tag table (XML)", ".sdf": "PLC tag table (SDF)", ".scl": "SCL source"}[ext]
+			".xlsx": "Excel workbook", ".xml": "PLC tag table (XML)", ".sdf": "PLC tag table (SDF)", ".scl": "SCL source", ".xls": "HMI tag list (Excel 97-2003)",
+			".svg": "SVG picture", ".zip": "ZIP archive", ".plcstate": "State graphics", ".udt": "UDT source", ".plcalarm": "Alarm messages"}[ext]
 		if label == "" || strings.ContainsAny(body.Name, `\/:*?"<>|`) {
-			respond(w, errors.New("only .png, .jpg, .pdf, .csv, .yaml, .xlsx, .xml, .sdf and .scl files with a plain file name"))
+			respond(w, errors.New("only .png, .jpg, .pdf, .csv, .yaml, .xlsx, .xls, .xml, .sdf and .scl files with a plain file name"))
 			return
 		}
 		path, ok := nativeSaveDialog(body.Name, label, ext)
@@ -920,8 +1035,19 @@ func NewWebHandler(m *Monitor, readOnly bool) http.Handler {
 	})
 	// PROFINET DCP: find devices, set IP / name of station, flash LED.
 	dcpRoutes(mux, m, local, readOnly, localJSON)
+	// PROFINET IO test (Topology → device details → IO test…).
+	pnioRoutes(mux, readOnly, localJSON)
 	// This PC's network adapters: list, add/remove an address, enable/disable.
 	netAdapterRoutes(mux, readOnly)
+	neighborRoutes(mux)
+	// Example files for the Help page.
+	helpRoutes(mux)
+	// The UDT tool window.
+	udtRoutes(mux)
+	// The State graphics window.
+	stateRoutes(mux, readOnly)
+	// The Alarm messages window.
+	alarmRoutes(mux, readOnly)
 	exportViewRoutes(mux, m) // Data view: what MQTT and InfluxDB get
 	exportRoutes(mux, m, func(w http.ResponseWriter, r *http.Request) bool {
 		if !isLoopback(r) {
@@ -1240,6 +1366,9 @@ var (
 
 // nativeSaveDialog asks where to save an exported file (desktop build only).
 var nativeSaveDialog func(name, label, ext string) (string, bool)
+
+// nativeOpenDialog asks for a file with one of exts (desktop build; nil elsewhere).
+var nativeOpenDialog func(label string, exts []string) (string, bool)
 
 // nativeFileDialog shows an Open (save=false) or Save As dialog and returns
 // the chosen path. It is set by the desktop build; nil elsewhere.

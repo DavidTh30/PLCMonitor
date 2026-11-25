@@ -12,6 +12,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -128,6 +129,17 @@ var tiaXLSXHead = []string{"Name", "Path", "Data Type", "Logical Address", "Comm
 // tiaXLSX writes a workbook with the sheet "PLC Tags" (shared strings, as
 // Excel and TIA Portal write it).
 func tiaXLSX(rows []TIARow) ([]byte, error) {
+	table := [][]any{}
+	for _, r := range rows {
+		table = append(table, []any{r.Name, "Default tag table", r.DataType, r.Address, r.Comment, "True", "True", "True", "", ""})
+	}
+	return xlsxWorkbook("PLC Tags", tiaXLSXHead, table, []float64{32, 20, 16, 16, 40})
+}
+
+// xlsxWorkbook writes a workbook with one sheet: a heading row (bold, kept
+// at the top) and rows of strings and numbers (int, float64). widths are
+// the first columns' widths in characters.
+func xlsxWorkbook(sheetName string, head []string, rows [][]any, widths []float64) ([]byte, error) {
 	var strs []string
 	idx := map[string]int{}
 	str := func(s string) int {
@@ -143,26 +155,52 @@ func tiaXLSX(rows []TIARow) ([]byte, error) {
 		xml.EscapeText(&b, []byte(s))
 		return b.String()
 	}
-	col := func(i int) string { return string(rune('A' + i)) }
+	col := func(i int) string {
+		if i < 26 {
+			return string(rune('A' + i))
+		}
+		return string(rune('A'+i/26-1)) + string(rune('A'+i%26))
+	}
 
 	var sheet bytes.Buffer
 	sheet.WriteString(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` + "\n" +
 		`<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
-		`<cols><col min="1" max="1" width="32" customWidth="1"/><col min="2" max="2" width="20" customWidth="1"/>` +
-		`<col min="3" max="4" width="16" customWidth="1"/><col min="5" max="5" width="40" customWidth="1"/></cols><sheetData>`)
-	cells := func(n int, vals []string) {
+		`<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>`)
+	if len(widths) > 0 {
+		sheet.WriteString(`<cols>`)
+		for i, w := range widths {
+			fmt.Fprintf(&sheet, `<col min="%d" max="%d" width="%g" customWidth="1"/>`, i+1, i+1, w)
+		}
+		sheet.WriteString(`</cols>`)
+	}
+	sheet.WriteString(`<sheetData>`)
+	cells := func(n int, vals []any, style int) {
 		fmt.Fprintf(&sheet, `<row r="%d">`, n)
 		for i, v := range vals {
-			if v == "" {
-				continue
+			s := ""
+			if style > 0 {
+				s = fmt.Sprintf(` s="%d"`, style)
 			}
-			fmt.Fprintf(&sheet, `<c r="%s%d" t="s"><v>%d</v></c>`, col(i), n, str(v))
+			switch x := v.(type) {
+			case string:
+				if x != "" {
+					fmt.Fprintf(&sheet, `<c r="%s%d" t="s"%s><v>%d</v></c>`, col(i), n, s, str(x))
+				}
+			case int:
+				fmt.Fprintf(&sheet, `<c r="%s%d"%s><v>%d</v></c>`, col(i), n, s, x)
+			case float64:
+				fmt.Fprintf(&sheet, `<c r="%s%d"%s><v>%s</v></c>`, col(i), n, s, strconv.FormatFloat(x, 'g', -1, 64))
+			}
 		}
 		sheet.WriteString(`</row>`)
 	}
-	cells(1, tiaXLSXHead)
+	hv := make([]any, len(head))
+	for i, h := range head {
+		hv[i] = h
+	}
+	cells(1, hv, 1)
 	for i, r := range rows {
-		cells(i+2, []string{r.Name, "Default tag table", r.DataType, r.Address, r.Comment, "True", "True", "True", "", ""})
+		cells(i+2, r, 0)
 	}
 	sheet.WriteString(`</sheetData></worksheet>`)
 
@@ -190,7 +228,7 @@ func tiaXLSX(rows []TIARow) ([]byte, error) {
 			`</Relationships>`},
 		{"xl/workbook.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` + "\n" +
 			`<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
-			`<sheets><sheet name="PLC Tags" sheetId="1" r:id="rId1"/></sheets></workbook>`},
+			`<sheets><sheet name="` + esc(sheetName) + `" sheetId="1" r:id="rId1"/></sheets></workbook>`},
 		{"xl/_rels/workbook.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` + "\n" +
 			`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
 			`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>` +
@@ -199,11 +237,11 @@ func tiaXLSX(rows []TIARow) ([]byte, error) {
 			`</Relationships>`},
 		{"xl/styles.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` + "\n" +
 			`<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
-			`<fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>` +
+			`<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>` +
 			`<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>` +
 			`<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>` +
 			`<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
-			`<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>` +
+			`<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs>` +
 			`</styleSheet>`},
 		{"xl/worksheets/sheet1.xml", sheet.String()},
 		{"xl/sharedStrings.xml", ss.String()},

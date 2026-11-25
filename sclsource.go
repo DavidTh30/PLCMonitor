@@ -38,6 +38,46 @@ type SourceBlock struct {
 	Note      string `json:"note,omitempty"`
 	Tags      []Tag  `json:"tags"`
 	Other     int    `json:"other"` // variables that can't be tags (String, pointers, …)
+	// UDT: a UDT sheet's type as SCL (TYPE "Name" … END_TYPE), for Save as SCL.
+	UDT string `json:"udt,omitempty"`
+}
+
+// UDTDataBlockSCL writes a UDT's type and a data block that holds it at
+// start (bytes before it are a Byte array), once or as Array[from..from+count-1].
+// The members keep the addresses the Data blocks window showed.
+func UDTDataBlockSCL(udt, typeName, dbName, member string, start, count, from int) (string, error) {
+	if !strings.Contains(udt, "END_TYPE") || typeName == "" {
+		return "", errors.New("no UDT to write")
+	}
+	if start < 0 || start%2 != 0 {
+		return "", errors.New("the start byte must be even")
+	}
+	quote := func(s string) string {
+		if sclIdentRe.MatchString(s) {
+			return s
+		}
+		return `"` + strings.ReplaceAll(s, `"`, "'") + `"`
+	}
+	if dbName == "" {
+		dbName = typeName + "_DB"
+	}
+	if member == "" {
+		member = typeName
+	}
+	var b strings.Builder
+	b.WriteString("// Written by PLC Monitor " + version + "\n")
+	b.WriteString(strings.TrimRight(udt, "\n") + "\n\n")
+	fmt.Fprintf(&b, "DATA_BLOCK \"%s\"\n{ S7_Optimized_Access := 'FALSE' }\nVERSION : 0.1\nNON_RETAIN\n   STRUCT\n", strings.ReplaceAll(dbName, `"`, "'"))
+	if start > 0 {
+		fmt.Fprintf(&b, "      Spare_0 : Array[0..%d] of Byte;   // bytes before the UDT\n", start-1)
+	}
+	if count > 1 {
+		fmt.Fprintf(&b, "      %s : Array[%d..%d] of \"%s\";\n", quote(member), from, from+count-1, typeName)
+	} else {
+		fmt.Fprintf(&b, "      %s : \"%s\";\n", quote(member), typeName)
+	}
+	b.WriteString("   END_STRUCT;\n\nBEGIN\nEND_DATA_BLOCK\n")
+	return b.String(), nil
 }
 
 // SourceTags reads a block source. dbNum gives known DB numbers by block

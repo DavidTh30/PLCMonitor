@@ -1159,7 +1159,7 @@ back.
 
 ### Scan PLC: data blocks to tags
 
-**File → PLC → Scan PLC for data blocks / tags…** opens a window that finds what
+**Tools → Scan PLC for data blocks / tags…** opens a window that finds what
 the PLC lets PLC Monitor read, shows the bytes, and turns the ones you pick
 into tags. It works on ISO-TCP connections (and the simulator), and only reads:
 monitoring goes on while it runs.
@@ -1285,7 +1285,7 @@ PUT/GET only carries bytes, so the PLC never sends the names you gave your
 tags. 1500-series CPUs and 1200-series CPUs (firmware 4.4+) have an **OPC UA
 server** that
 publishes every variable by its symbolic name, including optimized data
-blocks. **File → PLC → PLC tags (OPC UA)…** uses it:
+blocks. **Tools → PLC tags (OPC UA)…** uses it:
 
 - **Read tag list from PLC** browses the server (endpoint
   `opc.tcp://<PLC IP>:4840`, security None / Sign / Sign & encrypt, anonymous

@@ -24,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,8 +34,9 @@ import (
 
 // Symbol is one variable with its absolute address.
 type Symbol struct {
-	Name     string `json:"name"` // path inside the block, e.g. Motor.Speed or Arr[3]
-	Area     string `json:"area"` // DB, M, I or Q
+	Name     string `json:"name"`         // path inside the block, e.g. Motor.Speed or Arr[3]
+	Area     string `json:"area"`         // DB, M, I or Q (tag tables: also COIL, DI, IR, HR)
+	DB       int    `json:"db,omitempty"` // tag tables: the DB of a DB address (DB10.DBW4)
 	Offset   int    `json:"offset"`
 	Bit      int    `json:"bit"`
 	Size     int    `json:"size"`           // bytes (0 for BOOL)
@@ -820,78 +822,236 @@ func (l *layouter) place(name string, t *symType, comment string, depth int) err
 
 // ---- tag tables ----
 
-var plcAddrRe = regexp.MustCompile(`^%?\s*([IEQAM])\s*([XBWD]?)\s*(\d+)(?:\.(\d))?`)
+var (
+	plcAddrRe = regexp.MustCompile(`^%?\s*([IEQAM])\s*([XBWD]?)\s*(\d+)(?:\.(\d))?`)
+	// DB10.DBX0.0, DB10.DBW78, %DB3.DBD4 – also "DB10,X0.0" style is not used.
+	dbAddrRe = regexp.MustCompile(`^%?\s*DB\s*(\d+)\s*\.\s*DB([XBWD])\s*(\d+)(?:\.(\d))?$`)
+	// HMIEditERP: DBxDB100001.2, DBxDBW100078, DBxDBD100004_D (DB number, then the byte
+	// offset in 4 digits); DBxDBW0 when the DB is not set; also DB10DBW78.
+	hmiDBRe = regexp.MustCompile(`^DB(\d+|X)DB([BWD]?)(\d+)(?:\.(\d))?(?:_[BWD])?$`)
+	// A Modbus address made by tableRows from Area / Address / Bit columns: HR39, COIL100, HR5.3.
+	mbAddrRe = regexp.MustCompile(`^(COIL|DI|IR|HR)(\d+)(?:\.(\d+))?$`)
+)
 
-// tagTableSymbols turns rows (name, data type, address, comment) into symbols.
-func tagTableSymbols(rows [][4]string) []Symbol {
+// typeAlias: data type names of other tools (HMI register maps, gateways).
+var typeAlias = map[string]string{
+	"BIT": "BOOL", "BOOLEAN": "BOOL", "UINT8": "USINT", "INT8": "SINT",
+	"UINT16": "UINT", "INT16": "INT", "UINT32": "UDINT", "INT32": "DINT",
+	"FLOAT": "REAL", "FLOAT32": "REAL", "SINGLE": "REAL", "FLOAT64": "LREAL", "DOUBLE": "LREAL",
+	// HMIEditERP: the width only.
+	"X": "BOOL", "B": "BYTE", "W": "WORD", "D": "DWORD",
+}
+
+// tagRow is one row of a tag table: name, data type, address, comment,
+// where it is in the file ("row 12", "line 3", "tag 5") and, when the file
+// turns the row off (Enabled = 0), why.
+type tagRow [6]string
+
+const (
+	trName = iota
+	trType
+	trAddr
+	trComment
+	trWhere
+	trOff
+)
+
+// tagTableSymbols turns rows into symbols; rows that can't be one are left out.
+func tagTableSymbols(rows []tagRow) []Symbol {
 	var out []Symbol
 	for _, r := range rows {
-		m := plcAddrRe.FindStringSubmatch(strings.ToUpper(strings.TrimSpace(r[2])))
-		if m == nil || strings.TrimSpace(r[0]) == "" {
-			continue
+		if s, why := tagRowSymbol(r); why == "" {
+			out = append(out, s)
 		}
-		area := map[string]string{"I": "I", "E": "I", "Q": "Q", "A": "Q", "M": "M"}[m[1]]
-		off, _ := strconv.Atoi(m[3])
-		dt := strings.ToUpper(strings.TrimSpace(r[1]))
-		s := Symbol{Name: strings.TrimSpace(r[0]), Area: area, Offset: off, DataType: strings.TrimSpace(r[1]), Comment: strings.TrimSpace(r[3])}
-		if m[4] != "" { // a bit address
-			s.Bit, _ = strconv.Atoi(m[4])
+	}
+	return out
+}
+
+// tagRowSymbol reads one row; why says what is wrong with it.
+func tagRowSymbol(r tagRow) (s Symbol, why string) {
+	raw := strings.TrimSpace(r[trAddr])
+	addr := strings.ToUpper(raw)
+	name := strings.TrimSpace(r[trName])
+	dt := strings.ToUpper(strings.TrimSpace(r[trType]))
+	dataType := strings.TrimSpace(r[trType])
+	if a, ok := typeAlias[dt]; ok {
+		dt, dataType = a, a
+	}
+	switch {
+	case r[trOff] != "":
+		return s, r[trOff]
+	case name == "":
+		return s, "no name"
+	case addr == "":
+		return s, "no address"
+	}
+	{
+		if m := mbAddrRe.FindStringSubmatch(addr); m != nil { // Modbus
+			s := Symbol{Name: name, Area: m[1], DataType: dataType, Comment: strings.TrimSpace(r[trComment])}
+			s.Offset, _ = strconv.Atoi(m[2])
+			switch {
+			case m[1] == "COIL" || m[1] == "DI":
+				s.Type, s.DataType = "BOOL", "Bool"
+			case m[3] != "":
+				if s.Bit, _ = strconv.Atoi(m[3]); s.Bit > 15 {
+					return s, "bit " + m[3] + " of a register (0…15)"
+				}
+				s.Type = "BOOL"
+			default:
+				if s.Type = tagTypeOf[dt]; s.Type == "" || s.Type == "BOOL" {
+					s.Type = "WORD"
+				}
+				s.Size = elemSize[dt]
+			}
+			return s, ""
+		}
+		var width, bit string
+		if m := dbAddrRe.FindStringSubmatch(addr); m != nil {
+			s.DB, _ = strconv.Atoi(m[1])
+			s.Area, width, bit = "DB", m[2], m[4]
+			s.Offset, _ = strconv.Atoi(m[3])
+			if s.DB < 1 {
+				return s, "DB number 0 in " + raw
+			}
+			if width == "X" && bit == "" {
+				return s, raw + " has no bit number (DBX0.0)"
+			}
+		} else if m := hmiDBRe.FindStringSubmatch(addr); m != nil {
+			s.Area, width, bit = "DB", m[2], m[4]
+			s.Offset, _ = strconv.Atoi(m[3])
+			if s.DB, _ = strconv.Atoi(m[1]); m[1] == "X" {
+				if n := m[3]; len(n) > 4 { // DBxDB100001.2: DB 10, byte 1 (the last 4 digits)
+					s.DB, _ = strconv.Atoi(n[:len(n)-4])
+					s.Offset, _ = strconv.Atoi(n[len(n)-4:])
+				} else {
+					s.DB = -1 // DB number not set in the file: asked for on import
+				}
+			}
+			if s.DB == 0 {
+				return s, "DB number 0 in " + raw
+			}
+			if width == "" && bit == "" {
+				return s, raw + " has no bit number"
+			}
+		} else if m := plcAddrRe.FindStringSubmatch(addr); m != nil {
+			s.Area = map[string]string{"I": "I", "E": "I", "Q": "Q", "A": "Q", "M": "M"}[m[1]]
+			width, bit = m[2], m[4]
+			s.Offset, _ = strconv.Atoi(m[3])
+		} else {
+			return s, "address " + raw + " not understood (e.g. %M0.0, %IW2, DB10.DBW4)"
+		}
+		s.Name, s.DataType, s.Comment = name, dataType, strings.TrimSpace(r[trComment])
+		if bit != "" { // a bit address
+			s.Bit, _ = strconv.Atoi(bit)
 			if s.Bit > 7 {
-				continue
+				return s, "bit " + bit + " in " + raw + " (0…7)"
 			}
 			s.Type = "BOOL"
 		} else {
 			s.Type = tagTypeOf[dt]
 			s.Size = elemSize[dt]
 			if s.Type == "" || s.Size == 0 { // type unknown: go by the address width
-				s.Size = map[string]int{"": 1, "X": 1, "B": 1, "W": 2, "D": 4}[m[2]]
+				s.Size = map[string]int{"": 1, "X": 1, "B": 1, "W": 2, "D": 4}[width]
 				s.Type = map[int]string{1: "BYTE", 2: "WORD", 4: "DWORD"}[s.Size]
 			}
 		}
-		out = append(out, s)
+		return s, ""
 	}
-	return out
 }
 
 // tableRows finds the name, data type, address and comment columns by their
-// headings (TIA Portal: Name, Data Type, Logical Address, Comment).
-func tableRows(rows [][]string) ([][4]string, error) {
-	col := [4]int{-1, -1, -1, -1}
+// headings (TIA Portal: Name, Data Type, Logical Address, Comment). It also
+// reads register maps of HMIs and gateways: Key / Tag, Type, S7Address,
+// Description, and Area + Address + Bit for Modbus (COIL 100, HR 39). With
+// modbus set, rows that have a Modbus area and address are read as Modbus
+// (address "HR39"), the others by their PLC address. A row whose Enabled
+// column says 0 / false / no is left out.
+func tableRows(rows [][]string, modbus bool) ([]tagRow, error) {
+	const (
+		cName = iota
+		cType
+		cAddr    // PLC address (Logical Address, S7Address, …)
+		cComment // Comment, Description
+		cAny     // a column just called Address
+		cArea    // Modbus area (COIL, HR, …)
+		cBit
+		cEnabled
+		nCols
+	)
+	var col [nCols]int
+	reset := func() {
+		for k := range col {
+			col[k] = -1
+		}
+	}
+	reset()
 	head := -1
 	for i, r := range rows {
 		for j, c := range r {
-			switch strings.ToLower(strings.TrimSpace(c)) {
-			case "name", "symbol":
-				col[0] = j
-			case "data type", "datatype", "data_type", "type":
-				col[1] = j
-			case "logical address", "address", "logicaladdress":
-				col[2] = j
-			case "comment":
-				col[3] = j
+			h := strings.NewReplacer(" ", "", "_", "", "-", "").Replace(strings.ToLower(strings.TrimSpace(c)))
+			set := func(k int) {
+				if col[k] < 0 {
+					col[k] = j
+				}
+			}
+			switch h {
+			case "name", "symbol", "key", "tag", "tagname", "variable", "symbolname":
+				set(cName)
+			case "datatype", "type":
+				set(cType)
+			case "logicaladdress", "s7address", "plcaddress", "absoluteaddress", "operand":
+				set(cAddr)
+			case "address":
+				set(cAny)
+			case "comment", "description", "desc", "remark":
+				set(cComment)
+			case "area", "registertype", "table":
+				set(cArea)
+			case "bit":
+				set(cBit)
+			case "enabled", "enable", "active":
+				set(cEnabled)
 			}
 		}
-		if col[0] >= 0 && col[2] >= 0 {
+		if col[cName] >= 0 && (col[cAddr] >= 0 || col[cAny] >= 0) {
 			head = i
 			break
 		}
-		col = [4]int{-1, -1, -1, -1}
+		reset()
 		if i > 20 {
 			break
 		}
 	}
 	if head < 0 {
-		return nil, errors.New("no 'Name' and 'Logical Address' columns found (export the PLC tag table from the PLC engineering software)")
+		return nil, errors.New("no 'Name' and 'Logical Address' columns found (export the PLC tag table from the PLC engineering software; " +
+			"register maps need a Name / Key / Tag column and an Address / S7Address column)")
 	}
-	var out [][4]string
-	for _, r := range rows[head+1:] {
-		var x [4]string
-		for k, c := range col {
-			if c >= 0 && c < len(r) {
-				x[k] = r[c]
+	cell := func(r []string, k int) string {
+		if c := col[k]; c >= 0 && c < len(r) {
+			return strings.TrimSpace(r[c])
+		}
+		return ""
+	}
+	var out []tagRow
+	for i, r := range rows[head+1:] {
+		off := ""
+		switch v := cell(r, cEnabled); strings.ToLower(v) {
+		case "0", "false", "no", "n", "off":
+			off = "turned off in the file (Enabled = " + v + ")"
+		}
+		addr := cell(r, cAddr)
+		if addr == "" && col[cArea] < 0 {
+			addr = cell(r, cAny) // a plain Address column holds the PLC address
+		}
+		if area, _ := parseArea(cell(r, cArea)); area.Protocol() == ProtoModbus && cell(r, cAny) != "" && (modbus || addr == "") {
+			if n, err := strconv.Atoi(cell(r, cAny)); err == nil && n >= 0 {
+				addr = map[Area]string{AreaCoil: "COIL", AreaDI: "DI", AreaIR: "IR", AreaHR: "HR"}[area] + strconv.Itoa(n)
+				if b, err := strconv.Atoi(cell(r, cBit)); err == nil && b >= 0 {
+					addr += "." + strconv.Itoa(b)
+				}
 			}
 		}
-		out = append(out, x)
+		out = append(out, tagRow{cell(r, cName), cell(r, cType), addr, cell(r, cComment), "row " + strconv.Itoa(head+2+i), off})
 	}
 	return out, nil
 }
@@ -948,6 +1108,7 @@ func xlsxRows(data []byte) ([][]string, error) {
 	}
 	var ws struct {
 		Rows []struct {
+			N int `xml:"r,attr"` // row number (1-based); empty rows are not written
 			C []struct {
 				R  string `xml:"r,attr"`
 				T  string `xml:"t,attr"`
@@ -963,6 +1124,10 @@ func xlsxRows(data []byte) ([][]string, error) {
 	}
 	var rows [][]string
 	for _, r := range ws.Rows {
+		// rows[i] is the sheet's row i+1, so messages can name the row.
+		for r.N > len(rows)+1 && r.N < 1<<20 {
+			rows = append(rows, nil)
+		}
 		var row []string
 		for _, c := range r.C {
 			col := 0
@@ -1002,7 +1167,7 @@ func xlsxRows(data []byte) ([][]string, error) {
 //     remark="…">Name</Tag>…), also from STEP 7 V5 / older TIA versions;
 //   - TIA Openness (<SW.Tags.PlcTag> with Name, DataTypeName and
 //     LogicalAddress, and the comment as a MultilingualText).
-func xmlTagRows(data []byte) ([][4]string, error) {
+func xmlTagRows(data []byte) ([]tagRow, error) {
 	d := xml.NewDecoder(bytes.NewReader(bytes.TrimPrefix(data, []byte("\xEF\xBB\xBF"))))
 	d.CharsetReader = func(label string, in io.Reader) (io.Reader, error) {
 		if l := strings.ToLower(label); l == "utf-8" || l == "utf8" || l == "us-ascii" {
@@ -1011,10 +1176,10 @@ func xmlTagRows(data []byte) ([][4]string, error) {
 		return nil, fmt.Errorf("character set %q is not supported (export as UTF-8)", label)
 	}
 	var (
-		rows    [][4]string
-		path    []string   // open elements
-		cur     *[4]string // the tag being read
-		curAt   int        // depth of its element
+		rows    []tagRow
+		path    []string // open elements
+		cur     *tagRow  // the tag being read
+		curAt   int      // depth of its element
 		text    strings.Builder
 		comment bool // inside its Comment text
 		root    string
@@ -1047,9 +1212,9 @@ func xmlTagRows(data []byte) ([][4]string, error) {
 			text.Reset()
 			switch {
 			case cur == nil && n == "Tag":
-				cur, curAt = &[4]string{"", attr(t, "type", "datatype"), attr(t, "addr", "address", "logicaladdress"), attr(t, "remark", "comment")}, len(path)
+				cur, curAt = &tagRow{"", attr(t, "type", "datatype"), attr(t, "addr", "address", "logicaladdress"), attr(t, "remark", "comment")}, len(path)
 			case cur == nil && n == "SW.Tags.PlcTag":
-				cur, curAt = &[4]string{}, len(path)
+				cur, curAt = &tagRow{}, len(path)
 			case cur != nil && n == "MultilingualText":
 				comment = attr(t, "CompositionName") == "Comment"
 			}
@@ -1064,6 +1229,7 @@ func xmlTagRows(data []byte) ([][4]string, error) {
 					if n == "Tag" {
 						cur[0] = s
 					}
+					cur[trWhere] = "tag " + strconv.Itoa(len(rows)+1)
 					rows = append(rows, *cur)
 					cur = nil
 				case len(path) == curAt+2 && path[curAt] == "AttributeList":
@@ -1096,19 +1262,19 @@ func xmlTagRows(data []byte) ([][4]string, error) {
 // sdfTagRows reads a PLC tag table in the .sdf form (one quoted line per
 // tag, no heading): name, address, data type, accessible from HMI, visible
 // in HMI, retain, comment, …, writable from HMI.
-func sdfTagRows(data []byte) ([][4]string, error) {
+func sdfTagRows(data []byte) ([]tagRow, error) {
 	r := csv.NewReader(bytes.NewReader(bytes.TrimPrefix(data, []byte("\xEF\xBB\xBF"))))
 	r.FieldsPerRecord, r.LazyQuotes = -1, true
 	recs, err := r.ReadAll()
 	if err != nil {
 		return nil, fmt.Errorf("not a valid .sdf file: %w", err)
 	}
-	var rows [][4]string
-	for _, f := range recs {
+	var rows []tagRow
+	for i, f := range recs {
 		if len(f) < 3 {
 			continue
 		}
-		row := [4]string{f[0], f[2], f[1], ""}
+		row := tagRow{f[0], f[2], f[1], "", "line " + strconv.Itoa(i+1)}
 		if len(f) > 6 {
 			row[3] = f[6]
 		}
@@ -1340,31 +1506,48 @@ func (s *SymbolStore) rebuildLocked() {
 // isTagTable tells a PLC tag table file from a block source by its extension.
 func isTagTable(name string) bool {
 	switch strings.ToLower(filepath.Ext(name)) {
-	case ".xlsx", ".xml", ".sdf", ".csv", ".tsv":
+	case ".xlsx", ".xls", ".xml", ".sdf", ".csv", ".tsv":
 		return true
 	}
 	return false
 }
 
+// NeedDBError: the tag table has DB addresses without a DB number
+// (HMIEditERP's DBxDBW0); the import is repeated with the number to use.
+type NeedDBError struct{ Count int }
+
+func (e NeedDBError) Error() string {
+	return fmt.Sprintf("%d tags have a DB address without a DB number (DBx…): give the DB number", e.Count)
+}
+
 // tagTableRows reads a PLC tag table (.xlsx, .xml, .csv or .tsv) as rows of
 // name, data type, address and comment.
-func tagTableRows(name string, data []byte) ([][4]string, error) {
-	var rows [][]string
-	var err error
+func tagTableRows(name string, data []byte, modbus bool) ([]tagRow, error) {
 	switch strings.ToLower(filepath.Ext(name)) {
 	case ".xml":
 		return xmlTagRows(data)
 	case ".sdf":
 		return sdfTagRows(data)
-	case ".xlsx":
-		rows, err = xlsxRows(data)
-	default:
-		rows, err = csvRows(data)
 	}
+	rows, err := sheetRows(name, data)
 	if err != nil {
 		return nil, err
 	}
-	return tableRows(rows)
+	return tableRows(rows, modbus)
+}
+
+// sheetRows reads the cells of an .xlsx, .xls, .csv or .tsv file (nil for
+// other files).
+func sheetRows(name string, data []byte) ([][]string, error) {
+	switch strings.ToLower(filepath.Ext(name)) {
+	case ".xlsx":
+		return xlsxRows(data)
+	case ".xls":
+		return xlsRows(data)
+	case ".csv", ".tsv", ".txt":
+		return csvRows(data)
+	}
+	return nil, nil
 }
 
 // TIATags turns a PLC tag table exported from TIA Portal into tags of the
@@ -1372,24 +1555,73 @@ func tagTableRows(name string, data []byte) ([][4]string, error) {
 // address or with a type that can't be a tag (String, DTL, …) are counted
 // in skipped.
 func TIATags(name string, data []byte) (tags []Tag, skipped int, err error) {
+	return TagTableTags(name, data, ProtoS7)
+}
+
+// TagTableTags is TIATags for the network's protocol: a register map with
+// both a PLC address and Modbus columns gives Modbus tags when the network
+// is Modbus. DB addresses (DB10.DBX0.0, DB10.DBW78) become DB tags.
+func TagTableTags(name string, data []byte, protocol string) (tags []Tag, skipped int, err error) {
+	return TagTableTagsDB(name, data, protocol, 0)
+}
+
+// TagTableTagsDB is TagTableTags with the DB number for addresses that have
+// none (HMIEditERP's DBxDBW0); 0 asks for it with a NeedDBError.
+func TagTableTagsDB(name string, data []byte, protocol string, dbx int) (tags []Tag, skipped int, err error) {
+	tags, sk, err := TagTableImport(name, data, protocol, dbx)
+	return tags, len(sk), err
+}
+
+// SkippedRow is a row of a tag table that did not become a tag, and why.
+type SkippedRow struct {
+	Where   string `json:"where"` // row 12, line 3, tag 5
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Reason  string `json:"reason"`
+}
+
+// TagTableImport is TagTableTagsDB with each row that was left out. Rows
+// with neither an address nor a data type – titles, notes such as "exported
+// on …", empty lines – are not tags and are not listed.
+func TagTableImport(name string, data []byte, protocol string, dbx int) (tags []Tag, skipped []SkippedRow, err error) {
 	if !isTagTable(name) {
-		return nil, 0, errors.New("choose a PLC tag table exported from the PLC engineering software (.xlsx, .xml or .sdf; .csv also works)")
+		return nil, nil, errors.New("choose a PLC tag table exported from the PLC engineering software (.xlsx, .xml or .sdf; .csv also works)")
 	}
-	rows, err := tagTableRows(name, data)
+	rows, err := tagTableRows(name, data, protocol == ProtoModbus)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, err
 	}
-	for _, s := range tagTableSymbols(rows) {
-		// A type given but unknown (String, DTL, Time, …): its bytes are not
-		// a WORD or DWORD to show, so it is left out.
-		if s.Type == "" || s.Type != "BOOL" && s.DataType != "" && tagTypeOf[strings.ToUpper(s.DataType)] == "" {
+	need := 0
+	for _, r := range rows {
+		if strings.TrimSpace(r[trAddr]) == "" && strings.TrimSpace(r[trType]) == "" && r[trOff] == "" {
+			continue // a note or an empty line, not a tag
+		}
+		skip := func(why string) {
+			skipped = append(skipped, SkippedRow{r[trWhere], strings.TrimSpace(r[trName]), strings.TrimSpace(r[trAddr]), why})
+		}
+		s, why := tagRowSymbol(r)
+		switch {
+		case why != "":
+			skip(why)
+			continue
+		case s.Type == "" || s.Type != "BOOL" && s.DataType != "" && tagTypeOf[strings.ToUpper(s.DataType)] == "":
+			// A type given but unknown (String, DTL, Time, …): its bytes are
+			// not a WORD or DWORD to show.
+			skip("data type " + s.DataType + " can't be a tag (only Bool, Byte, Word, Int, DWord, DInt, Real, …)")
 			continue
 		}
-		tags = append(tags, Tag{Name: s.Name, Area: s.Area, Offset: s.Offset, Bit: s.Bit, Type: s.Type, Description: s.Comment})
+		if s.Area == "DB" && s.DB < 0 {
+			if s.DB = dbx; dbx < 1 {
+				need++
+			}
+		}
+		tags = append(tags, Tag{Name: s.Name, Area: s.Area, DB: s.DB, Offset: s.Offset, Bit: s.Bit, Type: s.Type, Description: s.Comment})
 	}
-	skipped = len(rows) - len(tags)
+	if need > 0 {
+		return nil, nil, NeedDBError{need}
+	}
 	if len(tags) == 0 {
-		return nil, skipped, errors.New("the tag table has no tags with an I, Q or M address")
+		return nil, skipped, errors.New("the tag table has no tags with a PLC address (I, Q, M, DB10.DBX0.0, …)")
 	}
 	return tags, skipped, nil
 }
@@ -1412,12 +1644,13 @@ func parseFiles(files []symFile, dbNum map[string]int) ([]SymBlock, []string, er
 	}
 	for _, f := range files {
 		if isTagTable(f.Name) {
-			tr, err := tagTableRows(f.Name, f.Data)
+			tr, err := tagTableRows(f.Name, f.Data, false)
 			if err != nil {
 				fail(f.Name, err)
 				continue
 			}
-			syms := tagTableSymbols(tr)
+			// Names for Scan PLC: the I, Q and M areas (DB names come from DB sources).
+			syms := slices.DeleteFunc(tagTableSymbols(tr), func(s Symbol) bool { return s.Area == "DB" })
 			b := SymBlock{Name: strings.TrimSuffix(f.Name, filepath.Ext(f.Name)), Kind: "tags", File: f.Name, Symbols: syms}
 			if len(syms) == 0 {
 				b.Note = "no tags with an address found"
