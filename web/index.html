@@ -51,6 +51,8 @@
                background:var(--card); border:1px solid var(--line); border-radius:6px;
                box-shadow:0 8px 24px rgb(0 0 0 / .16); display:none; }
   .menu.open > .menu-list { display:block; }
+  #toolsMenu > .menu-list { min-width:340px; }
+  #toolsMenu > .menu-list button { white-space:nowrap; }
   .menu-list h3 { margin:6px 12px 2px; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
   .menu-list button { display:flex; justify-content:space-between; width:100%; border:0; border-radius:0;
                       background:none; padding:5px 12px 5px 22px; text-align:left; }
@@ -71,6 +73,7 @@
   .menu-list .mi { display:none; font-style:normal; width:26px; margin-left:-14px; flex:none; text-align:center;
                    font:14px "Segoe Fluent Icons", "Segoe MDL2 Assets"; color:var(--muted); }
   body.win-icons .menu-list .mi { display:inline-block; }
+  .menu-list .chk { display:inline-block; width:26px; margin-left:-14px; text-align:center; color:var(--accent); font-weight:700; }
   .menu-list .sub { position:relative; }
   .menu-list .sub-btn .arrow { font-style:normal; color:var(--muted); font-size:15px; line-height:1; margin-left:16px; }
   .menu-list .sub:hover > .sub-btn, .menu-list .sub.open > .sub-btn { background:var(--menu-hover); }
@@ -89,11 +92,29 @@
   .pin.on { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); font-weight:600; }
   .pin.on .pin-icon { filter:none; opacity:1; }
   .files { margin-left:auto; display:flex; gap:16px; color:var(--muted); font-size:12px; }
+  .zoom { display:inline-flex; margin-left:12px; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .zoom button { border:0; background:var(--card); color:var(--fg); font:inherit; font-size:12px; height:22px; padding:0 8px; cursor:pointer; }
+  .zoom button + button { border-left:1px solid var(--line); }
+  .zoom button:hover { background:var(--menu-hover, var(--soft)); }
+  #zoomPct { min-width:44px; color:var(--muted); }
+  /* Fold / unfold the header (button row) – the arrow in the menu bar. */
+  .head-toggle { margin-left:10px; width:26px; height:22px; padding:0; border:1px solid var(--line); border-radius:6px; background:var(--card);
+                 color:var(--muted); font-size:12px; line-height:1; cursor:pointer; position:relative; }
+  .head-toggle:hover { color:var(--fg); border-color:var(--accent); }
+  body.head-folded header { display:none; }
+  body.head-folded .head-toggle { color:var(--accent); border-color:var(--accent); }
+  /* Folded with a connection error: a red dot on the arrow. */
+  body.head-folded.has-error .head-toggle::after { content:''; position:absolute; top:-3px; right:-3px; width:8px; height:8px; border-radius:50%;
+                                                   background:var(--bad); border:2px solid var(--card); }
   .files b { color:var(--fg); font-weight:500; }
   .dirty::after { content:" ●"; color:var(--accent); }
 
   header { padding:14px 16px; display:flex; flex-wrap:wrap; gap:10px 24px; align-items:center;
            border-bottom:1px solid var(--line); background:var(--card); }
+  body.with-titlebar header > h1, body.with-titlebar header > #link, body.with-titlebar header > #target { display:none; }
+  body.with-titlebar header { padding:8px 16px; flex-wrap:nowrap; }
+  /* The error goes where the name was: left of the buttons, one line. */
+  body.with-titlebar header > #error { order:-1; width:auto; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   h1 { font-size:18px; margin:0; }
   .pill { padding:2px 10px; border-radius:999px; font-weight:600; font-size:12px; color:var(--on-badge, #fff); }
   .on { background:var(--good); } .off { background:var(--bad); } .paused { background:#64748b; }
@@ -101,7 +122,7 @@
   .meta { color:var(--muted); font-size:13px; }
   .err { color:var(--bad); font-size:13px; width:100%; }
   .spacer { flex:1; }
-  main { padding:16px; }
+  main { padding:10px 16px 16px; }
   .toolbar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; align-items:center; }
   input, select { padding:6px 10px; border:1px solid var(--line); border-radius:6px; background:var(--card);
           color:var(--fg); font:inherit; }
@@ -123,6 +144,41 @@
   td.tagerr { color:var(--bad); }
   tr.bad td.val { color:var(--bad); }
   /* selected rows (click, Ctrl+click, Shift+click) */
+  /* Row spacing of the tag list (View → Row spacing): Normal by default, Compact and
+     Comfortable (the old, roomy look). Only the tag list; dialogs keep theirs. */
+  #headRow th { padding:6px 12px; }
+  #rows td { padding:4px 12px; }
+  #rows tr.tgrp td { padding-top:3px; padding-bottom:3px; }
+  #rows .mod-in { padding:2px 7px; }
+  #rows button.icon { padding:1px 8px; }
+  body.rows-compact #headRow th { padding:3px 10px; }
+  body.rows-compact #rows td { padding:1px 10px; }
+  body.rows-compact #rows tr.tgrp td { padding-top:1px; padding-bottom:1px; }
+  body.rows-compact #rows .mod-in { padding:0 6px; font-size:12px; }
+  body.rows-compact #rows button.icon { padding:0 7px; font-size:12px; }
+  body.rows-compact #rows .mod-go { padding:0 6px; }
+  body.rows-comfortable #headRow th, body.rows-comfortable #rows td { padding:8px 12px; }
+  body.rows-comfortable #rows tr.tgrp td { padding-top:5px; padding-bottom:5px; }
+  body.rows-comfortable #rows .mod-in { padding:3px 7px; }
+  body.rows-comfortable #rows button.icon { padding:2px 8px; }
+  /* The same setting sizes the button row (header) and the toolbar above the
+     list: Normal and Compact make them as small as the buttons in the rows. */
+  body:not(.rows-comfortable) main { padding:6px 14px 12px; }
+  body:not(.rows-comfortable).with-titlebar header { padding:4px 14px; }
+  body:not(.rows-comfortable) .head-actions { gap:6px; }
+  body:not(.rows-comfortable) header .head-actions button,
+  body:not(.rows-comfortable) .toolbar button { padding:2px 10px; font-size:13px; }
+  body:not(.rows-comfortable) .toolbar { gap:6px; margin-bottom:6px; }
+  body:not(.rows-comfortable) #filter { padding:2px 8px; max-width:260px; flex:1 1 160px; }
+  body:not(.rows-comfortable) header #error { font-size:12.5px; }
+  body.rows-compact main { padding:4px 10px 8px; }
+  body.rows-compact.with-titlebar header { padding:2px 10px; }
+  body.rows-compact .head-actions { gap:4px; }
+  body.rows-compact header .head-actions button,
+  body.rows-compact .toolbar button { padding:1px 8px; font-size:12px; }
+  body.rows-compact .toolbar { gap:4px; margin-bottom:4px; }
+  body.rows-compact #filter { padding:1px 7px; font-size:12px; max-width:220px; }
+  body.rows-compact header #error { font-size:12px; }
   #rows td { user-select:none; }
   #rows tr.sel td { background:color-mix(in srgb, var(--accent) 16%, var(--card)); }
   #rows tr.sel:hover td { background:color-mix(in srgb, var(--accent) 22%, var(--card)); }
@@ -186,6 +242,7 @@
 
   /* charts */
   #charts { display:grid; grid-template-columns:repeat(auto-fill, minmax(460px, 1fr)); gap:12px; margin-bottom:12px; }
+  body:not(.panel-chart) #charts:empty { display:none; } /* no charts: no empty band above the tag list */
   @media (max-width:520px) { #charts { grid-template-columns:1fr; } }
   .chart { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 12px 8px; position:relative; }
   .chart-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
@@ -220,6 +277,38 @@
                text-align:center; color:var(--muted); font-size:13px; }
   body.dragging-tag #chartDrop { display:block; }
   #chartDrop.over { border-color:var(--accent); color:var(--fg); background:var(--menu-hover); }
+  #dlgSkipped { width:min(760px, 94vw); }
+  #dlgPreview { width:min(1100px, 96vw); }
+  .pv-sum { display:flex; flex-wrap:wrap; gap:6px; }
+  .pv-chip { font:inherit; font-size:12.5px; padding:2px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; }
+  .pv-chip.on { border-color:var(--accent); background:color-mix(in srgb, var(--accent) 14%, var(--card)); font-weight:600; }
+  .pv-chip.pv-skip { cursor:default; color:var(--bad); border-color:color-mix(in srgb, var(--bad) 40%, var(--line)); }
+  .pv-wrap { max-height:min(55vh, 520px); }
+  .pv-table td { white-space:nowrap; } .pv-table td:last-child { white-space:normal; min-width:180px; }
+  .pv-table td.mono { font-family:ui-monospace, Consolas, monospace; font-size:12px; }
+  .pv-st { display:inline-block; font-size:11px; font-weight:700; padding:0 7px; border-radius:4px; }
+  .pv-st.pv-new { color:var(--good); background:color-mix(in srgb, var(--good) 14%, transparent); }
+  .pv-st.pv-chg { color:var(--warn, #b45309); background:color-mix(in srgb, var(--warn, #b45309) 14%, transparent); }
+  .pv-st.pv-same { color:var(--muted); background:color-mix(in srgb, var(--muted) 14%, transparent); }
+  .pv-old { color:var(--muted); text-decoration:line-through; }
+  tr.pv-off td:not(:first-child) { opacity:.5; }
+  .pv-skipped summary { cursor:pointer; color:var(--bad); font-size:13px; }
+  .pv-warn { border-left-color:var(--warn, #b45309); }
+  tr.tgrp td { background:color-mix(in srgb, var(--accent) 6%, var(--card)); cursor:pointer; user-select:none; padding-top:5px; padding-bottom:5px; }
+  tr.tgrp:hover td { background:color-mix(in srgb, var(--accent) 12%, var(--card)); }
+  tr.tgrp.sel td { background:color-mix(in srgb, var(--accent) 20%, var(--card)); }
+  .tgrp-in { display:inline-flex; align-items:center; gap:8px; }
+  .tgrp-arrow { width:14px; color:var(--accent); font-size:12px; }
+  .tgrp-cnt { color:var(--muted); font-size:12px; font-weight:400; }
+  .tgrp-bad { color:var(--bad); }
+  #btnTree.active { background:var(--accent); border-color:var(--accent); color:var(--accent-fg, #fff); }
+  #skRows td:last-child { white-space:normal; min-width:220px; }
+  #fileDrop { position:fixed; inset:10px; z-index:9000; pointer-events:none; border:3px dashed var(--accent); border-radius:14px;
+              background:color-mix(in srgb, var(--accent) 10%, color-mix(in srgb, var(--bg) 80%, transparent));
+              display:flex; align-items:center; justify-content:center; text-align:center; }
+  #fileDrop div { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 26px; box-shadow:0 10px 30px rgba(0,0,0,.18); }
+  #fileDrop b { display:block; font-size:18px; margin-bottom:4px; color:var(--accent); }
+  #fileDrop span { color:var(--muted); font-size:13px; }
   body.panel-chart #chartDrop { display:none !important; }
   .legend { display:flex; flex-wrap:wrap; gap:4px 6px; align-items:center; margin-top:5px; font-size:12px; }
   .lg { display:inline-flex; align-items:center; gap:5px; border:1px solid var(--line); border-radius:999px; padding:0 2px 0 8px; cursor:pointer; user-select:none; }
@@ -249,6 +338,25 @@
   .src-table input[type=number] { width:90px; padding:3px 6px; }
   .src-table td.ok { color:var(--good); } .src-table td.warn { color:var(--bad); }
   .src-table .sub { color:var(--muted); font-size:12px; white-space:normal; }
+  .src-table input.src-pre { width:160px; padding:3px 6px; }
+  .src-table input.src-start { width:70px; }
+  .src-table td.src-arr input { width:62px; margin-right:4px; }
+  .src-table td.src-arr .sub { white-space:nowrap; }
+  #dlgSource { width:min(1100px, 96vw); }
+  .src-tree-head { grid-column:1 / -1; display:flex; align-items:center; gap:8px; margin-top:6px; font-size:13px; }
+  .src-tree-head .sub { color:var(--muted); font-size:12px; }
+  .src-tree { grid-column:1 / -1; max-height:min(40vh, 360px); overflow:auto; border:1px solid var(--line); border-radius:6px; padding:6px 8px; font-size:13px; }
+  .src-tree details { margin-left:14px; } .src-tree > details { margin-left:0; }
+  .src-tree summary { cursor:pointer; padding:2px 0; list-style:none; display:flex; align-items:center; gap:6px; }
+  .src-tree summary::-webkit-details-marker { display:none; }
+  .src-tree summary::before { content:'▸'; width:12px; color:var(--muted); }
+  .src-tree details[open] > summary::before { content:'▾'; }
+  .src-tree summary .cnt, .src-tree .leaf .ty { color:var(--muted); font-size:12px; }
+  .src-tree .leaf { display:flex; flex-direction:row; align-items:center; gap:8px; padding:1px 0 1px 32px; color:var(--fg); font-size:13px; margin:0; }
+  .src-tree input[type=checkbox] { width:auto; margin:0; flex:none; }
+  .src-tree .leaf .ad { font-family:ui-monospace,Consolas,monospace; font-size:12px; color:var(--accent); min-width:120px; }
+  .src-tree .leaf .cm { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .src-tree .leaf.unpicked { opacity:.5; }
 
   /* a chart in its own window (?panel=chart&id=…) */
   body.panel-chart > nav, body.panel-chart > header, body.panel-chart .toolbar, body.panel-chart .wrap { display:none; }
@@ -358,6 +466,70 @@
   .ua-head code { font-weight:400; font-size:12px; }
   .ok-line { color:var(--good); font-size:13px; }
   .no-link { color:var(--bad); }
+  /* Topology: click a device for its details */
+  .tree .dev[data-key] { cursor:pointer; transition:border-color .1s, box-shadow .1s; }
+  .tree .dev[data-key]:hover { border-color:color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  .tree .dev.picked { border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+  .kind.other-dev { background:#64748b; } .kind.lldp { background:#0369a1; } .kind.router { background:#9333ea; }
+  .alive { font-size:11px; font-weight:700; padding:0 7px; border-radius:999px; border:1px solid currentColor; }
+  .alive.yes { color:var(--good); } .alive.no { color:var(--muted); } .alive.wait { color:var(--warn, #b45309); }
+  .tree .other .dev { min-width:250px; }
+  .tree .dev.gone { opacity:.6; }
+  .net-tools { display:inline-flex; gap:6px; margin-left:8px; vertical-align:middle; }
+  .net-tools button { padding:1px 8px; font-size:11.5px; }
+  /* top: below the desktop app's own title bar in child windows (#s7tb sets --s7tb) */
+  #topoDetail { position:fixed; top:var(--s7tb, 0px); right:0; bottom:0; width:min(440px, 94vw); background:var(--card); border-left:1px solid var(--line);
+    box-shadow:-10px 0 30px rgba(0,0,0,.18); z-index:40; display:flex; flex-direction:column; }
+  #topoDetail[hidden] { display:none; }
+  .td-head { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--line); }
+  .td-head h3 { margin:0; font-size:16px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .td-body { flex:1; overflow:auto; padding:8px 14px 16px; font-size:13px; }
+  .td-sec { margin-top:10px; }
+  .td-sec h4 { margin:0 0 4px; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+  .td-sec dl { display:grid; grid-template-columns:auto 1fr; gap:3px 12px; margin:0; }
+  .td-sec dt { color:var(--muted); white-space:nowrap; } .td-sec dd { margin:0; word-break:break-word; }
+  .td-sec code { font-family:ui-monospace, Consolas, monospace; font-size:12px; }
+  .td-acts { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .td-acts a.btn { display:inline-flex; align-items:center; padding:4px 10px; border:1px solid var(--line); border-radius:6px; color:inherit; text-decoration:none; font-size:13px; }
+  .td-acts a.btn:hover { border-color:var(--accent); }
+  #tdClose { border:0; background:none; font-size:16px; cursor:pointer; color:var(--muted); padding:2px 6px; }
+  .td-note { color:var(--muted); font-size:12px; margin-top:6px; }
+  .td-danger { margin-top:14px; padding-top:10px; border-top:1px dashed var(--line); }
+  .td-danger button { color:var(--bad); }
+  /* PROFINET IO test dialog */
+  #dlgIO { width:min(660px, calc(100vw - 32px)); }
+  .io-wrap { padding:16px 20px 18px; display:flex; flex-direction:column; gap:10px; }
+  .io-head { display:flex; align-items:center; gap:8px; }
+  .io-head h2 { margin:0; font-size:16px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .io-sub { font-size:12px; color:var(--muted); margin-top:-6px; }
+  .io-grid { display:grid; grid-template-columns:minmax(0, 1fr) 110px 80px; gap:10px 12px; }
+  @media (max-width:520px) { .io-grid { grid-template-columns:1fr 1fr; } .io-grid label:first-child { grid-column:1 / -1; } }
+  #dlgIO .td-note code { overflow-wrap:anywhere; }
+  .io-grid label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--muted); }
+  .io-msg { font-size:12px; margin:0; padding:8px 10px; border-radius:6px; line-height:1.45;
+            background:color-mix(in srgb, #f59e0b 14%, transparent); }
+  .io-msg.urgent { background:color-mix(in srgb, var(--bad) 16%, transparent); }
+  .io-msg button { margin-left:6px; }
+  .io-err { color:var(--bad); font-size:13px; margin:0; }
+  .io-acts { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .io-state { font-size:13px; } .io-state b.ok { color:var(--good); } .io-state b.bad { color:var(--bad); }
+  .io-stats { font-size:11.5px; color:var(--muted); }
+  .io-sec h4 { margin:4px 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
+               display:flex; align-items:center; gap:10px; }
+  .io-sec h4 button { text-transform:none; letter-spacing:0; }
+  .io-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:4px 0; }
+  .io-lbl { min-width:58px; font-size:12px; color:var(--muted); }
+  .io-byte { display:inline-flex; gap:3px; }
+  .io-bit { width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background:var(--bg); color:var(--muted);
+            display:inline-flex; align-items:center; justify-content:center; font-size:10px; padding:0; }
+  .io-bit.on { background:var(--good); border-color:var(--good); color:#fff; }
+  button.io-bit { cursor:pointer; } button.io-bit.on { background:#d97706; border-color:#d97706; }
+  button.io-bit:disabled { opacity:.45; cursor:not-allowed; }
+  .io-hex { font-family:ui-monospace, Consolas, monospace; font-size:12px; }
+  .io-tag { font-size:11px; padding:1px 7px; border-radius:9px; border:1px solid currentColor; }
+  .io-tag.ok { color:var(--good); } .io-tag.bad { color:var(--bad); } .io-tag.off { color:var(--muted); }
+  #ioLog { max-height:150px; overflow:auto; font:11.5px/1.4 ui-monospace, Consolas, monospace; margin:4px 0 0; white-space:pre-wrap;
+           background:var(--bg); padding:6px 8px; border-radius:6px; }
   .panel-status { grid-column:1 / -1; font-size:12px; color:var(--muted); margin:-4px 0 0; }
 
   /* write / generator window */
@@ -437,42 +609,35 @@
         <button class="sub-btn" aria-haspopup="true"><span><i class="mi">&#xE896;</i>Import</span><i class="arrow">›</i></button>
         <div class="menu-list sub-list" role="menu">
           <h3>Into the tag list</h3>
-          <button id="menuImportTIA" title="Adds the I, Q and M tags of a PLC tag table exported from the PLC engineering software, with their names and comments"><span>PLC tag table (.xlsx / .xml / .sdf)…</span></button>
+          <button id="menuImportTIA" title="Adds the tags of a PLC tag table exported from the PLC engineering software (I, Q, M), or of an HMI / gateway register map (Name or Key, Type, S7Address like DB10.DBW4, Description; Area + Address for Modbus), with their names and comments"><span>PLC tag table / register map / HMIEditERP (.xlsx / .xls / .xml / .sdf / .csv)…</span></button>
           <button id="menuImportSource" title="The data blocks of a source generated from the PLC's blocks (also instance DBs of function blocks): their variables as tags"><span>Data blocks from SCL source (.scl / .db / .udt)…</span></button>
-          <button id="menuImportCSV" title="A tag list saved with Export → Tag list as CSV, or edited in Excel (columns name, area, db, offset, bit, type, …)"><span>Tag list from CSV (Excel)…</span></button>
+          <button id="menuImportCSV" title="A tag list saved with Export → Tag list (.xlsx or .csv), or edited in Excel (columns name, area, db, offset, bit, type, …): every field comes back"><span>Tag list from PLC Monitor (.xlsx / .csv)…</span></button>
           <h3>Names only</h3>
           <button id="menuImportNames" title="Variable names for Scan PLC: DB sources and tag tables from the PLC engineering software"><span>Variable names for Scan PLC…</span></button>
         </div>
       </div>
-      <input type="file" id="tiaFile" accept=".xlsx,.xml,.sdf,.csv,.tsv" hidden>
-      <input type="file" id="csvFile" accept=".csv,.tsv,.txt" hidden>
+      <input type="file" id="tiaFile" accept=".xlsx,.xls,.xml,.sdf,.csv,.tsv" hidden>
+      <input type="file" id="csvFile" accept=".xlsx,.xls,.csv,.tsv,.txt" hidden>
       <input type="file" id="sclFile" accept=".scl,.db,.udt,.awl" hidden>
       <div class="sub">
         <button class="sub-btn" aria-haspopup="true"><span><i class="mi">&#xE898;</i>Export</span><i class="arrow">›</i></button>
         <div class="menu-list sub-list" role="menu">
-          <h3>The tag list</h3>
-          <button data-tia-export="xlsx" title="The I, Q and M tags as a PLC tag table for the PLC engineering software: PLC tags → Import (.xlsx)"><span>PLC tag table (.xlsx)…</span></button>
+          <h3>For PLC Monitor – every tag</h3>
+          <button data-tia-export="list" title="All tags (DB, I, Q, M, Modbus, OPC UA) with every field: Name, Address, Area, DB, Offset, Bit, Type, Unit, Deadband, Description, Node. Edit it in Excel and import it back (Import → Tag list from PLC Monitor); nothing is left out"><span>Tag list (.xlsx)…</span></button>
+          <button id="menuExportCSV" title="All tags with every field, as CSV; Import → Tag list from PLC Monitor reads it back"><span>Tag list (.csv)…</span></button>
+          <h3>For TIA Portal – I, Q, M only</h3>
+          <button data-tia-export="xlsx" title="The I, Q and M tags as a PLC tag table: PLC tags → Import (.xlsx). DB tags can't be in a tag table: use Data blocks as SCL source"><span>PLC tag table (.xlsx)…</span></button>
           <button data-tia-export="xml" title="The I, Q and M tags as a PLC tag table in XML"><span>PLC tag table (.xml)…</span></button>
           <button data-tia-export="sdf" title="The I, Q and M tags as a PLC tag table in .sdf form (one quoted line per tag)"><span>PLC tag table (.sdf)…</span></button>
           <button id="menuExportSCL" title="The tags in data blocks as SCL data blocks (standard access) that keep every address – for Generate blocks from source"><span>Data blocks as SCL source (.scl)…</span></button>
-          <button id="menuExportCSV" title="All tags with every field, for Excel; Import → Tag list from CSV reads it back"><span>Tag list as CSV (Excel)…</span></button>
+          <h3>For the HMI</h3>
+          <button data-tia-export="hmi" title="The ISO-TCP tags (I, Q, M, DB) as an HMIEditERP tag list: Excel 97-2003 workbook, sheet DSO_DX (Name, Type, Address, ByteOrder, Extend1, Extend2). DB10.DBX1.2 → DBxDB100001.2, DB10.DBW1 → DBxDBW100001, DB10.DBD1 → DBxDBD100001_D"><span>HMIEditERP tag list (.xls)…</span></button>
           <h3>Live values</h3>
           <button id="menuExport"><span>Export settings (CSV, InfluxDB, MQTT, …)…</span></button>
           <button id="menuDataView"><span>Data view – what MQTT / InfluxDB get…</span></button>
         </div>
       </div>
       <hr>
-      <div class="sub">
-        <button class="sub-btn" aria-haspopup="true"><span><i class="mi">&#xE772;</i>PLC</span><i class="arrow">›</i></button>
-        <div class="menu-list sub-list" role="menu">
-          <button id="menuPlcScan"><span>Scan PLC for data blocks / tags…</span></button>
-          <button id="menuPlcTags"><span>PLC tags (OPC UA) – names from the PLC…</span></button>
-          <button id="menuTopology"><span>Topology – find devices on the network…</span></button>
-          <hr>
-          <button data-netadapters title="This PC's network adapters: add an IP address to reach a PLC, manual settings, enable / disable, ping"><span><i class="bi">&#xE968;</i>Network adapters (IP addresses)…</span></button>
-          <button data-netconn title="This PC's network adapters and IP addresses (ncpa.cpl)"><span><i class="bi">&#xE839;</i>Windows network connections…</span></button>
-        </div>
-      </div>
       <button id="menuAddTag"><span><i class="mi">&#xE710;</i>Add tag…</span></button>
       <hr>
       <div class="sub">
@@ -486,11 +651,41 @@
       <button id="menuExit"><span><i class="mi">&#xE7E8;</i>Exit</span><kbd id="exitKey">Alt+F4</kbd></button>
     </div>
   </div>
+  <div class="menu" id="toolsMenu">
+    <button id="toolsBtn" aria-haspopup="true">Tools</button>
+    <div class="menu-list" role="menu">
+      <h3>Connection</h3>
+      <button id="menuConn" class="edit-only" title="Connect to the PLC/device, or disconnect (stops all reading and reconnect attempts)"><span><i class="mi">&#xE7E8;</i><span id="menuConnText">Disconnect</span></span></button>
+      <button id="menuAutoConn" class="edit-only" title="Connect to the PLC/device when PLC Monitor starts. Unticked: it starts disconnected until Connect."><span><span class="chk" id="autoConnCheck"></span>Connect automatically at start</span></button>
+      <hr class="edit-only">
+      <h3>PLC</h3>
+      <button id="menuPlcScan"><span><i class="mi">&#xE773;</i>Scan PLC for data blocks / tags…</span></button>
+      <button id="menuPlcTags"><span><i class="mi">&#xE8FD;</i>PLC tags (OPC UA) – names from the PLC…</span></button>
+      <button data-udttool title="Build a PLC data type (UDT) from tags: drag tags into it, or import a UDT and edit it; export as SCL or a UDT sheet"><span><i class="mi">&#xE8F1;</i>UDT tool – build a UDT from tags…</span></button>
+      <h3>HMI</h3>
+      <button data-stategfx title="Images (PNG / SVG) that show a tag's state – lamp, motor, valve, level … – tried with a live tag or a simulated signal before they go into the HMI"><span><i class="mi">&#xE790;</i>State graphics – tag state → image…</span></button>
+      <button data-alarms title="Alarm texts from tags – Bool, bits of an alarm word, limits, ranges – with classes and acknowledgement, tried with live tags or simulated values; export CSV / Excel for the HMI"><span><i class="mi">&#xE7BA;</i>Alarm messages – alarms from tags…</span></button>
+      <hr>
+      <h3>Network</h3>
+      <button id="menuTopology"><span><i class="mi">&#xE968;</i>Topology – find devices on the network…</span></button>
+      <button data-netadapters title="This PC's network adapters: add an IP address to reach a PLC, manual settings, enable / disable, ping"><span><i class="mi">&#xE839;</i>Network adapters (IP addresses)…</span></button>
+      <button data-netconn title="This PC's network adapters and IP addresses (ncpa.cpl)"><span><i class="mi">&#xE7F4;</i>Windows network connections…</span></button>
+    </div>
+  </div>
   <div class="menu" id="viewMenu">
     <button id="viewBtn" aria-haspopup="true">View</button>
     <div class="menu-list" role="menu">
       <button id="menuTheme">Theme…</button>
       <button id="menuTop"><span><span id="topCheck"></span>Always on top</span> <kbd>Ctrl+T</kbd></button>
+      <hr>
+      <h3>Spacing (buttons and tag list)</h3>
+      <button data-rows="compact" title="Small buttons, tight rows: as many tags as possible on the screen"><span><span class="rows-check"></span>Compact</span></button>
+      <button data-rows="normal" title="Buttons and rows a little roomier"><span><span class="rows-check"></span>Normal</span></button>
+      <button data-rows="comfortable" title="Large buttons and more space between the rows, easier on the eyes"><span><span class="rows-check"></span>Comfortable</span></button>
+      <hr class="zoom-item" hidden>
+      <button class="zoom-item" data-zoom="+" hidden><span>Zoom in</span> <kbd>Ctrl++</kbd></button>
+      <button class="zoom-item" data-zoom="-" hidden><span>Zoom out</span> <kbd>Ctrl+−</kbd></button>
+      <button class="zoom-item" data-zoom="0" hidden><span>Zoom 100 %</span> <kbd>Ctrl+0</kbd></button>
       <hr>
       <h3>Quick pick</h3>
       <div id="quickThemes"></div>
@@ -537,6 +732,8 @@
     <span>Network: <b id="netFile">Untitled</b></span>
     <span>Tags: <b id="tagFile">Untitled</b></span>
   </div>
+  <span class="zoom" id="zoomBox" hidden><button id="zoomOut" title="Zoom out (Ctrl+−)">−</button><button id="zoomPct" title="Back to 100 % (Ctrl+0)">100%</button><button id="zoomIn" title="Zoom in (Ctrl++)">+</button></span>
+  <button id="btnHead" class="head-toggle" aria-expanded="true" title="Fold the button row (Disconnect, Topology, Export, …) to see more tags">▴</button>
 </nav>
 <header>
   <h1>PLC Monitor</h1>
@@ -553,9 +750,11 @@
 </header>
 <main>
   <div id="charts"></div>
-  <div id="chartDrop">Drop here for a new chart with this tag – or drop it on a chart above to add it there</div>
-  <div class="toolbar">
+  <div id="chartDrop">Drop here for a new chart with this tag – or drop it on a chart above to add it there</div>  <div class="toolbar">
     <input id="filter" placeholder="Filter tags…" autocomplete="off">
+    <button id="btnTree" title="Tree view: tags grouped by their names (Motor_UDT.Alarms[0] → Motor_UDT ▸ Alarms ▸ [0]). Click a group to fold or unfold it; Ctrl/Shift+click selects its tags" aria-pressed="false">🌲 Tree view</button>
+    <button id="btnTreeOpen" hidden title="Unfold every group">⊞ Expand all</button>
+    <button id="btnTreeClose" hidden title="Fold every group">⊟ Collapse all</button>
     <span class="sel-info" id="selInfo"></span>
     <span class="spacer"></span>
     <button id="btnModSel" hidden title="Write the prepared Modify values of the selected rows">⚡ Modify selected</button>
@@ -627,6 +826,7 @@
     </span>
     <label>Adapter <select id="dcpAdapter" style="min-width:200px"></select></label>
     <button id="btnDcpFind" title="Send a PROFINET DCP Identify request on this adapter (like “Accessible devices” in the PLC engineering software)">Find PROFINET devices</button>
+    <button id="btnLldp" title="Listen for LLDP on this adapter: the device or switch at the other end of the cable tells its name, port and IP address (PROFINET devices every 5 s)">Cable neighbour (LLDP)</button>
     <span id="dcpInfo" class="meta">Finds PROFINET devices on this Ethernet segment, also ones without an IP address, and lets you set their IP address and name of station.</span>
     <details id="dcpHowto" class="dcp-howto">
       <summary>How to set up the Linux agent (no driver needed on this PC)</summary>
@@ -649,6 +849,40 @@
     <div class="chips" id="busUnits" style="width:100%"></div>
   </div>
   <div class="tree" id="topoTree"></div>
+  <aside id="topoDetail" hidden aria-label="Device details">
+    <div class="td-head"><span id="tdKind"></span><h3 id="tdTitle"></h3><button class="icon" id="tdClose" title="Close (Esc)">✕</button></div>
+    <div class="td-body" id="tdBody"></div>
+  </aside>
+  <dialog id="dlgIO" aria-label="PROFINET IO test">
+    <div class="io-wrap">
+      <div class="io-head"><h2>IO test – <span id="ioTitle"></span></h2><button class="icon" id="ioClose" title="Stop and close (Esc)">✕</button></div>
+      <div class="io-sub" id="ioSub"></div>
+      <p class="io-msg" id="ioUnavail" hidden><span></span> <button id="ioNpcap">Download Npcap</button><button id="ioNpcapCheck">Check again</button></p>
+      <div id="ioSetup">
+        <div class="io-grid">
+          <label>Modules after the DAP
+            <input id="ioSlots" placeholder="1:0x30/0x130:i1,2:0x31/0x131:o1" autocomplete="off" spellcheck="false"></label>
+          <label>Cycle<select id="ioCycle"><option value="8">8 ms</option><option value="16">16 ms</option><option value="32" selected>32 ms</option><option value="64">64 ms</option><option value="128">128 ms</option></select></label>
+          <label>Ports<input id="ioPorts" type="number" min="1" max="8" value="1"></label>
+        </div>
+        <p class="td-note">Empty: the p-net sample app (DI 8 in slot 1, DO 8 in slot 2). Otherwise <code>slot:module/submodule:i&lt;bytes&gt;o&lt;bytes&gt;</code>, comma-separated, with the ident numbers from the device's GSDML file.</p>
+        <p class="io-msg" style="margin-top:8px">PLC Monitor becomes this device's IO controller: while connected, <b>no PLC can connect to it</b>.
+          Outputs keep their substitute values until you press <b>Arm outputs</b>.</p>
+        <p class="io-err" id="ioErr"></p>
+        <div class="io-acts" style="margin-top:8px"><button class="primary" id="ioConnect">Connect</button></div>
+      </div>
+      <div id="ioRun" hidden>
+        <div class="io-state">State: <b id="ioState"></b></div>
+        <div class="io-stats" id="ioStats"></div>
+        <div class="io-sec"><h4>Inputs</h4><div id="ioIn"></div></div>
+        <div class="io-sec"><h4>Outputs <button id="ioArm">Arm outputs…</button></h4><div id="ioOut"></div></div>
+        <div class="io-acts" style="margin-top:6px"><button id="ioStop">Stop (release the device)</button></div>
+      </div>
+      <p class="io-msg" id="ioFw" hidden>Windows Firewall has no rule for UDP port 34964, on which the device answers (ApplicationReady).
+        If connecting stops at “waiting for ApplicationReady”, allow it: <button id="ioFwBtn">Allow in firewall…</button></p>
+      <details open><summary class="td-note" style="cursor:pointer">Messages</summary><pre id="ioLog"></pre></details>
+    </div>
+  </dialog>
 </section>
 
 <dialog id="dlgNetwork">
@@ -821,17 +1055,49 @@
   </form>
 </dialog>
 
+<!-- Import preview: what an import will do, before it is done -->
+<dialog id="dlgPreview">
+  <form method="dialog">
+    <h2 id="pvTitle">Import</h2>
+    <p class="note full">Check the tags before they go into the list. <b>New</b> tags are added at the end; <b>Changed</b> ones (same name) get the file's values – old → new; <b>Unchanged</b> ones stay as they are. Untick what you don't want.</p>
+    <div class="pv-sum full" id="pvSum"></div>
+    <p class="note full pv-warn" id="pvNote" hidden></p>
+    <div class="full src-wrap pv-wrap"><table class="src-table pv-table">
+      <thead><tr><th><input type="checkbox" id="pvAll" title="Tick or untick all shown"></th><th>Status</th><th>Tag</th><th>Address</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody id="pvRows"></tbody></table></div>
+    <details class="full pv-skipped" id="pvSkipped" hidden><summary id="pvSkSum"></summary>
+      <div class="src-wrap"><table class="src-table"><thead><tr><th>Where</th><th>Name</th><th>Address</th><th>Why</th></tr></thead><tbody id="pvSkRows"></tbody></table></div></details>
+    <div class="buttons"><span class="meta" id="pvInfo"></span><span style="flex:1"></span><button value="cancel" formnovalidate>Cancel</button><button class="primary" value="ok" id="pvOk">Import</button></div>
+  </form>
+</dialog>
+
+<!-- Rows of an imported tag table that did not become tags, and why -->
+<dialog id="dlgSkipped">
+  <form method="dialog">
+    <h2 id="skTitle">Rows not imported</h2>
+    <p class="note" id="skNote"></p>
+    <div class="full src-wrap"><table class="src-table">
+      <thead><tr><th>Where</th><th>Name</th><th>Address</th><th>Why</th></tr></thead>
+      <tbody id="skRows"></tbody></table></div>
+    <div class="buttons"><button type="button" id="skCopy" title="Copy the list as text">Copy list</button><span style="flex:1"></span><button class="primary" value="ok">Close</button></div>
+  </form>
+</dialog>
+
 <!-- Data blocks of a source (.scl/.db/.udt) to add as tags -->
 <dialog id="dlgSource">
   <form method="dialog" id="formSource">
     <h2 id="srcTitle">Data blocks</h2>
     <p class="note">The variables of the ticked data blocks become tags named <code>Block.Variable</code>. A source has no DB numbers: they come from Scan PLC's names or, by size, from the PLC; type the others. Tags already in the list (same name) are updated.</p>
     <div class="full src-wrap"><table class="src-table">
-      <thead><tr><th></th><th>Data block</th><th>Size</th><th>DB number</th><th>In the PLC</th><th>Variables</th></tr></thead>
+      <thead><tr><th></th><th>Data block</th><th>Size</th><th>DB number</th><th title="The byte of the data block where the block / UDT starts (0 for a whole data block)">Start byte</th><th title="Tags are named Prefix.Member">Tag prefix</th><th title="An array of this UDT in the data block: how many elements, and the first index (Array[0..9] → 10 from 0). Tags are named Prefix[i].Member; each element follows the one before">Array (count · from)</th><th>In the PLC</th><th>Variables</th></tr></thead>
       <tbody id="srcRows"></tbody></table></div>
+    <div class="src-tree-head"><b>Members</b> <span class="sub">tick the ones to add · addresses with the DB number and start byte above</span>
+      <span style="flex:1"></span><button type="button" class="small-btn" id="srcExpand">Expand all</button><button type="button" class="small-btn" id="srcCollapse">Collapse all</button></div>
+    <div class="src-tree" id="srcTree"></div>
     <p class="note" id="srcNote"></p>
     <p class="formerr" id="srcErr"></p>
     <div class="buttons"><button type="button" id="srcScan" title="Scan PLC: find the data blocks and their sizes, then fill in numbers by size">Find DB numbers on the PLC</button>
+      <button type="button" id="srcSaveSCL" title="Save as an SCL source for the PLC engineering software (External source files → Generate blocks from source). A UDT: its TYPE and a data block that holds it at the start byte, as the array set here – the same addresses as shown. Data blocks: the ticked members as a data block that keeps their addresses">Save as SCL…</button>
       <span style="flex:1"></span><button value="cancel" formnovalidate>Cancel</button><button class="primary" value="ok" id="srcOk">Add as tags</button></div>
   </form>
 </dialog>
@@ -975,6 +1241,152 @@ $('btnConn').onclick = async () => {
   setTimeout(() => fetch('api/state', { cache: 'no-store' }).then(r => r.json()).then(render).catch(() => {}), 300);
 };
 
+// ---- Fold / unfold the header (button row); remembered in the layout (config.yaml) ----
+function setHeadFolded(on, save = true) {
+  document.body.classList.toggle('head-folded', on);
+  const b = $('btnHead');
+  b.textContent = on ? '▾' : '▴';
+  b.setAttribute('aria-expanded', String(!on));
+  b.title = on ? 'Unfold the button row' + (status?.last_error ? ' – connection error: ' + status.last_error : '') : 'Fold the button row (Disconnect, Topology, Export, …) to see more tags';
+  try { localStorage.setItem('s7m.headFolded', on ? '1' : '0'); } catch (e) {}
+  if (save && typeof layout !== 'undefined' && layoutLoaded) { layout.header_folded = on; saveLayoutSoon(); }
+}
+$('btnHead').onclick = () => setHeadFolded(!document.body.classList.contains('head-folded'));
+try { if (localStorage.getItem('s7m.headFolded') === '1') setHeadFolded(true, false); } catch (e) {}
+// The view settings kept in the layout: they come back after a restart (the desktop
+// app's web server gets another port each time, which empties localStorage).
+let saveSoonTimer = 0;
+function saveLayoutSoon() { clearTimeout(saveSoonTimer); saveSoonTimer = setTimeout(() => saveLayout(), 400); }
+// Row spacing of the tag list: compact, normal (default) or comfortable.
+function setRowSpacing(v, save = true) {
+  v = ['compact', 'comfortable'].includes(v) ? v : 'normal';
+  document.body.classList.toggle('rows-compact', v === 'compact');
+  document.body.classList.toggle('rows-comfortable', v === 'comfortable');
+  document.querySelectorAll('[data-rows]').forEach(b => b.querySelector('.rows-check').textContent = b.dataset.rows === v ? '✓ ' : '');
+  try { localStorage.setItem('s7m.rows', v); } catch (e) {}
+  if (save && layoutLoaded) { layout.row_spacing = v === 'normal' ? '' : v; saveLayoutSoon(); }
+}
+document.querySelectorAll('[data-rows]').forEach(b => b.onclick = () => { $('viewMenu').classList.remove('open'); setRowSpacing(b.dataset.rows); });
+try { setRowSpacing(localStorage.getItem('s7m.rows') || 'normal', false); } catch (e) { setRowSpacing('normal', false); }
+function applyViewPrefs() {
+  setRowSpacing(layout.row_spacing || 'normal', false); // tag windows too
+  if (PANEL) return;
+  if (layout.header_folded !== undefined) setHeadFolded(!!layout.header_folded, false);
+  if (layout.tag_tree !== undefined) {
+    tagTree.on = !!layout.tag_tree;
+    tagTree.closed = new Set(layout.tree_closed || []);
+    if (lastData) render(lastData);
+  }
+}
+
+// ---- Zoom (desktop app): − 100 % + in the menu bar, View → Zoom; remembered ----
+const desktopZoom = !!(window.__s7frame && !PANEL);
+window.__s7zoomShown = z => { $('zoomPct').textContent = Math.round(z * 100) + '%'; };
+function zoom(op) { if (desktopZoom) window.__s7frame('zoom', op); }
+if (desktopZoom) {
+  $('zoomBox').hidden = false;
+  document.querySelectorAll('.zoom-item').forEach(b => b.hidden = false);
+  zoom('?');
+}
+document.querySelectorAll('[data-zoom]').forEach(b => b.onclick = () => { viewMenu.classList.remove('open'); zoom(b.dataset.zoom); });
+$('zoomIn').onclick = () => zoom('+');
+$('zoomOut').onclick = () => zoom('-');
+$('zoomPct').onclick = () => zoom('0');
+// Ctrl+mouse wheel and Ctrl+= / Ctrl+− zoom too (WebView2 itself): show the new %.
+document.addEventListener('wheel', ev => { if (ev.ctrlKey && desktopZoom) setTimeout(() => zoom('?'), 250); }, { passive: true });
+document.addEventListener('keydown', ev => {
+  if (!desktopZoom || !(ev.ctrlKey || ev.metaKey) || ev.altKey) return;
+  if (ev.key === '+' || ev.key === '=') { ev.preventDefault(); zoom('+'); }
+  else if (ev.key === '-') { ev.preventDefault(); zoom('-'); }
+  else if (ev.key === '0') { ev.preventDefault(); zoom('0'); }
+});
+
+// ---- Tree view of the tag list: groups by the dotted names (Blower01.AutoStart → Blower01 ▸ AutoStart) ----
+const tagTree = { on: false, closed: new Set() };
+try {
+  tagTree.on = localStorage.getItem('s7m.tagTree') === '1';
+  tagTree.closed = new Set(JSON.parse(localStorage.getItem('s7m.tagTreeClosed') || '[]'));
+} catch (e) {}
+function saveTagTree() {
+  try {
+    localStorage.setItem('s7m.tagTree', tagTree.on ? '1' : '0');
+    localStorage.setItem('s7m.tagTreeClosed', JSON.stringify([...tagTree.closed].slice(-2000)));
+  } catch (e) {}
+  if (typeof layout !== 'undefined' && layoutLoaded) {
+    layout.tag_tree = tagTree.on;
+    layout.tree_closed = [...tagTree.closed].slice(-2000);
+    saveLayoutSoon();
+  }
+}
+// tagTreeItems turns the shown tags into rows: {t} in the flat list, or groups
+// {group, key, label, depth, names, open, bad} and tags {t, label, depth}.
+// A group is made for a name part that two or more tags share; a chain of
+// single groups becomes one (A.B ▸ …). While filtering every group is open.
+function tagTreeItems(tags, filtering) {
+  if (!tagTree.on) return tags.map(t => ({ t }));
+  const mk = first => ({ kids: new Map(), tags: [], names: [], bad: 0, first });
+  const root = mk(0);
+  const split = n => n.match(/[^.[\]]+|\[[^\]]*\]/g) || [n]; // Silo[0].Run → Silo ▸ [0] ▸ Run
+  const join = (a, b) => b.startsWith('[') ? a + b : a + '.' + b;
+  tags.forEach((t, i) => {
+    const parts = split(t.name);
+    let node = root;
+    const add = n => { n.names.push(t.name); if (!t.good) n.bad++; };
+    add(node);
+    for (const p of parts.slice(0, -1)) {
+      if (!node.kids.has(p)) node.kids.set(p, mk(i)); // first: where the group's first tag is
+      node = node.kids.get(p); add(node);
+    }
+    node.tags.push({ t, rest: parts[parts.length - 1], first: i });
+  });
+  const out = [];
+  // Tags whose group has only them are shown with the rest of their name.
+  const flat = (node, prefix) => [...node.tags.map(x => ({ t: x.t, label: prefix ? join(prefix, x.rest) : x.rest })),
+    ...[...node.kids].flatMap(([k, c]) => flat(c, prefix ? join(prefix, k) : k))];
+  const walk = (node, depth, key) => {
+    // Keep the list's order: groups and tags where their first tag is.
+    const entries = [...node.tags.map(x => ({ first: x.first, tag: x })), ...[...node.kids].map(kc => ({ first: kc[1].first, kid: kc }))];
+    entries.sort((a, b) => a.first - b.first);
+    for (const e of entries) {
+      if (e.tag) { out.push({ t: e.tag.t, label: e.tag.rest, depth }); continue; }
+      let [label, c] = e.kid;
+      if (c.names.length < 2) { for (const f of flat(c, label)) out.push({ ...f, depth }); continue; }
+      while (c.tags.length === 0 && c.kids.size === 1) { const [k2, c2] = [...c.kids][0]; label = join(label, k2); c = c2; } // A.B
+      const k = key + '/' + label, open = filtering || !tagTree.closed.has(k);
+      out.push({ group: true, key: k, label, depth, names: c.names, open, bad: c.bad });
+      if (open) walk(c, depth + 1, k);
+    }
+  };
+  walk(root, 0, '');
+  return out;
+}
+$('btnTree').onclick = () => { tagTree.on = !tagTree.on; saveTagTree(); if (lastData) render(lastData); };
+rows.addEventListener('click', ev => {
+  const g = ev.target.closest('tr.tgrp');
+  if (!g) return;
+  const names = g.dataset.tags.split('\n');
+  if (ev.ctrlKey || ev.metaKey || ev.shiftKey) { // select the group's tags
+    if (!(ev.ctrlKey || ev.metaKey)) selected.clear();
+    const all = names.every(n => selected.has(n));
+    names.forEach(n => all && (ev.ctrlKey || ev.metaKey) ? selected.delete(n) : selected.add(n));
+    anchor = names[0];
+    if (lastData) render(lastData);
+    return;
+  }
+  if (tagTree.closed.has(g.dataset.grp)) tagTree.closed.delete(g.dataset.grp); else tagTree.closed.add(g.dataset.grp);
+  saveTagTree();
+  if (lastData) render(lastData);
+});
+// Expand all / Collapse all.
+$('btnTreeOpen').onclick = () => { tagTree.closed.clear(); saveTagTree(); if (lastData) render(lastData); };
+$('btnTreeClose').onclick = () => {
+  if (!lastData) return;
+  tagTree.closed = new Set();
+  for (const it of tagTreeItems(lastData.tags || [], true)) if (it.group) tagTree.closed.add(it.key);
+  saveTagTree();
+  render(lastData);
+};
+
 let lastTags = []; // tags from the last /api/state, for the tag pickers
 let draggingTag = false; // a table row is being dragged onto a chart
 function render(data) {
@@ -995,12 +1407,15 @@ function render(data) {
   }
   // Connect / Disconnect: one click either way.
   const cb = $('btnConn');
+  $('menuConnText').textContent = st.paused ? 'Connect' : 'Disconnect'; // Tools menu (also when the button row is folded)
   if (!connBusy) {
     cb.textContent = st.paused ? '▶ Connect' : '⏻ Disconnect';
     cb.classList.toggle('primary', !!st.paused);
     cb.title = st.paused ? 'Connect to the PLC/device again' : 'Disconnect from the PLC/device (stops all reading and reconnect attempts)';
   }
-  $('error').hidden = !st.last_error; $('error').textContent = st.last_error || '';
+  $('error').hidden = !st.last_error; $('error').textContent = st.last_error || ''; $('error').title = st.last_error || '';
+  document.body.classList.toggle('has-error', !!st.last_error);
+  if (document.body.classList.contains('head-folded')) $('btnHead').title = 'Unfold the button row' + (st.last_error ? ' – connection error: ' + st.last_error : '');
   document.querySelectorAll('.edit-only').forEach(e => e.hidden = st.read_only);
   const nf = $('netFile'), tf = $('tagFile');
   nf.textContent = baseName(st.network_file) || 'Untitled'; nf.title = st.network_file || '';
@@ -1015,8 +1430,23 @@ function render(data) {
   const shown = PANEL === 'tags'
     ? (tagWin ? tagWin.tags.map(n => data.tags.find(t => t.name === n)).filter(Boolean) : [])
     : data.tags;
-  for (const t of shown) {
-    if (q && !(t.name + ' ' + t.address + ' ' + (t.description || '')).toLowerCase().includes(q)) continue;
+  const vis = shown.filter(t => !q || (t.name + ' ' + t.address + ' ' + (t.description || '')).toLowerCase().includes(q));
+  const nCells = cols.length + (cols.includes('actions') ? 0 : 1);
+  for (const it of tagTreeItems(vis, !!q)) {
+    if (it.group) { // a group of the tree view: click folds it, Ctrl/Shift+click selects its tags
+      const tr = document.createElement('tr');
+      tr.className = 'tgrp';
+      tr.dataset.grp = it.key;
+      tr.dataset.tags = it.names.join('\n');
+      const open = it.open;
+      tr.innerHTML = `<td colspan="${nCells}"><span class="tgrp-in" style="padding-left:${it.depth * 18}px">` +
+        `<span class="tgrp-arrow">${open ? '▾' : '▸'}</span><b>${esc(it.label)}</b>` +
+        `<span class="tgrp-cnt">${it.names.length} tag${it.names.length === 1 ? '' : 's'}${it.bad ? ` · <span class="tgrp-bad">${it.bad} not read</span>` : ''}</span></span></td>`;
+      if (it.names.every(n => selected.has(n))) tr.classList.add('sel');
+      frag.appendChild(tr);
+      continue;
+    }
+    const t = it.t;
     const tr = document.createElement('tr');
     tr.dataset.name = t.name;
     tr.draggable = true; // drag onto a chart to add the tag to it
@@ -1058,6 +1488,11 @@ function render(data) {
         const [text, cls] = cell[col];
         if (cls) td.className = cls;
         td.textContent = text;
+        if (col === 'name' && it.label !== undefined) { // tree view: the name inside its group, indented
+          td.textContent = it.label;
+          td.title = t.name;
+          td.style.paddingLeft = `${12 + it.depth * 18}px`;
+        }
         if (col === 'value' && t.display === 'TRUE') td.classList.add('true');
         if (col === 'value' && t.gen) {
           const pill = document.createElement('span');
@@ -1087,6 +1522,10 @@ function render(data) {
     }
   } else if (!draggingTag) rows.replaceChildren(frag);
   $('empty').hidden = shown.length > 0;
+  // Lit while the tree view is on (like Always on top); a click switches.
+  $('btnTree').classList.toggle('active', tagTree.on);
+  $('btnTree').setAttribute('aria-pressed', String(tagTree.on));
+  $('btnTreeOpen').hidden = $('btnTreeClose').hidden = !tagTree.on;
   if (PANEL === 'tags') $('empty').innerHTML = tagWin && tagWin.tags.length
     ? 'None of this window’s tags exist at the moment (they come back when a tag file that has them is opened).'
     : 'This tag window has no tags yet. Press <b>Edit tags…</b> to choose them.';
@@ -1197,7 +1636,42 @@ $('tiaFile').onchange = async () => {
   for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000));
   importTIA(f.name, { name: f.name, data: btoa(s) });
 };
-const isTIATable = p => /\.(xlsx|xml|sdf|csv|tsv)$/i.test(p);
+const isTIATable = p => /\.(xlsx|xls|xml|sdf|csv|tsv)$/i.test(p);
+
+// Files dropped on the window: a tag table / register map / HMIEditERP list
+// or a block source is imported as with File → Import. Without this the
+// browser (WebView2) would open or download the file.
+const fileDrag = ev => [...(ev.dataTransfer?.types || [])].includes('Files');
+let dropDepth = 0;
+const dropShow = on => { $('fileDrop').hidden = !on; if (!on) dropDepth = 0; };
+window.addEventListener('dragenter', ev => { if (fileDrag(ev)) { dropDepth++; dropShow(true); } });
+window.addEventListener('dragleave', ev => { if (fileDrag(ev) && --dropDepth <= 0) dropShow(false); });
+window.addEventListener('dragover', ev => {
+  if (!fileDrag(ev)) return;
+  ev.preventDefault();
+  ev.dataTransfer.dropEffect = readOnly() ? 'none' : 'copy';
+});
+window.addEventListener('drop', async ev => {
+  if (!fileDrag(ev)) return;
+  ev.preventDefault();
+  dropShow(false);
+  const files = [...ev.dataTransfer.files];
+  if (!files.length) return;
+  if (readOnly()) { toast('The dashboard is read-only', true); return; }
+  for (const f of files) {
+    if (!isTIATable(f.name) && !isBlockSource(f.name)) {
+      toast(`${f.name}: drop a tag table (.xlsx, .xls, .xml, .sdf, .csv) or a block source (.scl, .db, .udt)` +
+        (/\.ya?ml$/i.test(f.name) ? ' – open a configuration with File → Open' : ''), true);
+      continue;
+    }
+    if (f.size > 32 << 20) { toast(`${f.name}: larger than 32 MB`, true); continue; }
+    const b = new Uint8Array(await f.arrayBuffer());
+    let s = '';
+    for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000));
+    const body = { name: f.name, data: btoa(s) };
+    if (isTIATable(f.name)) await importTIA(f.name, body); else await importSource(f.name, body);
+  }
+});
 
 // The tag list as a PLC tag table (I, Q and M tags only).
 fileMenu.querySelectorAll('[data-tia-export]').forEach(b => b.addEventListener('click', async () => {
@@ -1208,16 +1682,19 @@ fileMenu.querySelectorAll('[data-tia-export]').forEach(b => b.addEventListener('
     const r = await fetch(`api/tags/tia?format=${fmt}`);
     j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
-  } catch (e) { toast('Export PLC tag table: ' + e.message, true); return; }
+  } catch (e) { toast((fmt === 'hmi' ? 'Export HMI tag list: ' : fmt === 'list' ? 'Export tag list: ' : 'Export PLC tag table: ') + e.message, true); return; }
   const bin = atob(j.data), bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   const base = (baseName(status?.tags_file || '') || 'PLCTags').replace(/\.tags\.ya?ml$|\.ya?ml$/i, '');
-  const type = fmt === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : fmt === 'sdf' ? 'text/plain' : 'application/xml';
-  const saved = await saveBlob(new Blob([bytes], { type }), `${base}.${fmt}`);
+  const type = fmt === 'xlsx' || fmt === 'list' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : fmt === 'hmi' ? 'application/vnd.ms-excel'
+    : fmt === 'sdf' ? 'text/plain' : 'application/xml';
+  const file = fmt === 'hmi' ? `${base}_HMI.xls` : fmt === 'list' ? `${base}_tags.xlsx` : fmt === 'xlsx' ? `${base}_TIA.xlsx` : `${base}.${fmt}`;
+  const saved = await saveBlob(new Blob([bytes], { type }), file);
   if (!saved) return;
   const sk = j.skipped || [];
   toast(`Exported ${j.count} tag${j.count === 1 ? '' : 's'} to ${baseName(saved)}` +
-    (sk.length ? ` – ${sk.length} left out (DB, Modbus, OPC UA or LReal tags can't be in a PLC tag table)` : ''), false);
+    (sk.length ? ` – ${sk.length} left out (${fmt === 'hmi' ? 'Modbus, OPC UA or LReal tags have no HMI address'
+      : 'only I, Q and M fit a PLC tag table; Export → Tag list (.xlsx) has every tag, Data blocks as SCL source the DB tags'})` : ''), false);
 }));
 // importTIA adds a PLC tag table's tags; body is {name, data} (a file picked
 // in the page) or {path} (a file on this computer, from the Open dialog).
@@ -1228,19 +1705,62 @@ async function importTIA(label, body) {
     const r = await fetch('api/tags/tia', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body) });
     res = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(res.error || `HTTP ${r.status}`);
+    if (!r.ok) {
+      if (res.skipped?.length) showSkipped(label, res.skipped, 0);
+      throw new Error(res.error || `HTTP ${r.status}`);
+    }
   } catch (e) { toast(`${label}: ${e.message}`, true); return; }
+  // A UDT sheet: its members go to the Data blocks window (DB number, start byte, tree).
+  if (res.source) { openSourceDialog(label, res.source, [], true); return; }
+  // HMIEditERP writes DBxDBW0 when the HMI tag has no DB number: ask for it.
+  if (res.need_db) {
+    const v = prompt(`${label}: ${res.need_db} tag${res.need_db === 1 ? ' has' : 's have'} a DB address without a DB number (DBxDBW0, DBxDB0.0, …).\n\nWhich data block are they in? (DB number)`, '1');
+    if (v === null) return;
+    const db = parseInt(v, 10);
+    if (!(db >= 1 && db <= 65535)) { toast(`${label}: "${v}" is not a DB number (1…65535)`, true); return; }
+    return importTIA(label, { ...body, db });
+  }
   // Same name: the address, type and comment come from the PLC; the rest stays.
-  await mergeTags(label, res.tags.map(cleanTag), (old, t) => ({ ...old, area: t.area, db: 0, offset: t.offset, bit: t.bit,
+  const mb = t => ['COIL', 'DI', 'IR', 'HR'].includes(t.area);
+  const sk = res.skipped || [];
+  // One row left out: say which and why right in the message; more: the list opens.
+  const skText = !sk.length ? '' : sk.length === 1
+    ? `1 row not imported – ${sk[0].where}${sk[0].name ? ` “${sk[0].name}”` : ''}: ${sk[0].reason}`
+    : `${sk.length} rows not imported (see the list)`;
+  // A PLC Monitor tag list (full) brings every field; a PLC tag table only the address, type and comment.
+  await mergeTags(label, res.tags.map(cleanTag), res.full ? (old, t) => ({ ...old, ...t }) : (old, t) => ({ ...old, area: t.area, db: t.db || 0, offset: t.offset, bit: t.bit,
     type: t.type, description: t.description || old.description, node: '' }),
-    res.skipped ? `${res.skipped} skipped (no I/Q/M address, or a type such as String)` : '',
-    proto() === 'modbus' ? '. The network is set to Modbus; these are ISO-TCP tags.' : '');
+    skText,
+    proto() === 'modbus' && !res.tags.some(mb) ? '. The network is set to Modbus; these are ISO-TCP tags.'
+      : proto() !== 'modbus' && res.tags.every(mb) ? '. These are Modbus tags; the network is set to ' + (proto() === 'opcua' ? 'OPC UA' : 'ISO-TCP') + '.' : '',
+    { skipped: sk });
 }
+// showSkipped lists the rows of a tag table that did not become tags.
+let skippedList = [];
+function showSkipped(label, rows, imported) {
+  skippedList = rows;
+  $('skTitle').textContent = `${label}: ${rows.length} row${rows.length === 1 ? '' : 's'} not imported`;
+  $('skNote').textContent = (imported ? `${imported} tag${imported === 1 ? ' was' : 's were'} imported. ` : 'No tag was imported. ') +
+    'These rows were left out; fix them in the file and import it again (tags already in the list are updated, not doubled).';
+  $('skRows').innerHTML = rows.map(s => `<tr><td>${esc(s.where)}</td><td>${esc(s.name || '–')}</td><td><code>${esc(s.address || '–')}</code></td><td>${esc(s.reason)}</td></tr>`).join('');
+  $('dlgSkipped').showModal();
+}
+$('skCopy').onclick = async () => {
+  const txt = skippedList.map(s => [s.where, s.name, s.address, s.reason].join('\t')).join('\n');
+  try { await navigator.clipboard.writeText(txt); toast('Copied the list'); } catch (e) { toast('Copy failed: ' + e.message, true); }
+};
 
 // mergeTags adds imported tags to the list in one undo step: a tag whose
 // name is already there is replaced by update(old, new), the others go at
-// the end and are selected.
-async function mergeTags(label, tags, update, note = '', tail = '') {
+// the end and are selected. First the Import preview shows what will
+// happen (new / changed / unchanged, rows not imported) and lets the user
+// untick tags; opts.noPreview skips it (the Data blocks window is one).
+async function mergeTags(label, tags, update, note = '', tail = '', opts = {}) {
+  if (!opts.noPreview) {
+    tags = await importPreview(label, tags, update, opts.skipped || [], tail);
+    if (!tags) return; // cancelled
+    if (!tags.length) { toast(`${label}: nothing imported – no tag ticked`); return; }
+  }
   let added = [], updated = 0;
   const ok = await changeTags(`import ${label}`, list => {
     const byName = new Map(list.map((t, i) => [t.name, i]));
@@ -1259,6 +1779,81 @@ async function mergeTags(label, tags, update, note = '', tail = '') {
   if (note) parts.push(note);
   toast(`${label}: ${parts.join(', ')} – Ctrl+Z to undo` + tail);
 }
+
+// ---- Import preview ----
+// importPreview resolves to the ticked tags, or null when cancelled.
+const PV_FIELDS = ['area', 'db', 'offset', 'bit', 'type', 'unit', 'deadband', 'description', 'node'];
+let pv = null;
+async function importPreview(label, tags, update, skipped, tail) {
+  const cur = await currentTags();
+  const byName = new Map(cur.map(t => [t.name, t]));
+  const rows = tags.map(t => {
+    const old = byName.get(t.name);
+    if (!old) return { t, st: 'new', on: true };
+    const nu = cleanTag(update(old, t));
+    const diff = PV_FIELDS.filter(f => (old[f] ?? '') !== (nu[f] ?? ''));
+    return diff.length ? { t, old, nu, st: 'chg', diff, on: true } : { t, old, st: 'same', on: false };
+  });
+  pv = { rows, show: 'all', skipped };
+  $('pvTitle').textContent = `Import ${label}`;
+  $('pvNote').textContent = tail.replace(/^\.\s*/, '');
+  $('pvNote').hidden = !tail;
+  const sk = skipped.length;
+  $('pvSkipped').hidden = !sk;
+  if (sk) {
+    $('pvSkSum').textContent = `${sk} row${sk === 1 ? '' : 's'} of the file not imported – why`;
+    $('pvSkRows').innerHTML = skipped.map(s => `<tr><td>${esc(s.where)}</td><td>${esc(s.name || '–')}</td><td><code>${esc(s.address || '–')}</code></td><td>${esc(s.reason)}</td></tr>`).join('');
+  }
+  renderPreview();
+  $('dlgPreview').returnValue = '';
+  $('dlgPreview').showModal();
+  return new Promise(res => {
+    $('dlgPreview').onclose = () => res($('dlgPreview').returnValue === 'ok' ? pv.rows.filter(r => r.on).map(r => r.t) : null);
+  });
+}
+function renderPreview() {
+  const n = { new: 0, chg: 0, same: 0 };
+  for (const r of pv.rows) n[r.st]++;
+  const chip = (k, text) => `<button type="button" class="pv-chip pv-${k}${pv.show === k ? ' on' : ''}" data-show="${k}">${text}</button>`;
+  $('pvSum').innerHTML = chip('all', `All ${pv.rows.length}`) + chip('new', `New ${n.new}`) + chip('chg', `Changed ${n.chg}`) + chip('same', `Unchanged ${n.same}`) +
+    (pv.skipped.length ? `<span class="pv-chip pv-skip">Not imported ${pv.skipped.length}</span>` : '');
+  const vis = pv.rows.map((r, i) => [r, i]).filter(([r]) => pv.show === 'all' || r.st === pv.show);
+  const label = { new: 'New', chg: 'Changed', same: 'Unchanged' };
+  const cell = (r, f, text) => r.st === 'chg' && r.diff.some(d => f.includes(d))
+    ? `<span class="pv-old">${esc(text(r.old))}</span> → <b>${esc(text(r.nu))}</b>` : esc(text(r.nu || r.t));
+  // The address by the tag's own area (not the network's protocol).
+  const addr = t => {
+    const o = t.offset || 0, b = t.bit || 0, u = t.unit > 0 ? `U${t.unit}:` : '';
+    if (t.area === 'UA') return t.node || '';
+    if (['HR', 'IR'].includes(t.area)) return u + t.area + o + (t.type === 'BOOL' ? '.' + b : '');
+    if (['COIL', 'DI'].includes(t.area)) return u + (t.area === 'COIL' ? 'C' : 'DI') + o;
+    const letter = { 1: 'B', 2: 'W', 4: 'D' }[SIZE[t.type]];
+    const pre = t.area === 'DB' ? `DB${t.db || 0}.DB` : t.area;
+    return t.type === 'BOOL' ? `${pre}${t.area === 'DB' ? 'X' : ''}${o}.${b}` : letter ? `${pre}${letter}${o}` : `${pre}X${o}.0 (LREAL)`;
+  };
+  $('pvRows').innerHTML = vis.slice(0, 5000).map(([r, i]) =>
+    `<tr class="pv-${r.st}${r.on ? '' : ' pv-off'}"><td><input type="checkbox" data-pv="${i}" ${r.on ? 'checked' : ''}></td>` +
+    `<td><span class="pv-st pv-${r.st}">${label[r.st]}</span></td><td>${esc(r.t.name)}</td>` +
+    `<td class="mono">${cell(r, ['area', 'db', 'offset', 'bit', 'node', 'unit'], addr)}</td><td class="mono">${cell(r, ['type'], t => t.type)}</td>` +
+    `<td>${cell(r, ['description', 'deadband'], t => t.description || '')}</td></tr>`).join('') ||
+    '<tr><td colspan="6" class="meta">Nothing in this group.</td></tr>';
+  const on = pv.rows.filter(r => r.on);
+  const all = vis.length && vis.every(([r]) => r.on), some = vis.some(([r]) => r.on);
+  $('pvAll').checked = !!all; $('pvAll').indeterminate = !all && some;
+  const a = on.filter(r => r.st === 'new').length, u = on.length - a;
+  $('pvOk').textContent = on.length ? `Import ${on.length} tag${on.length === 1 ? '' : 's'}` : 'Import';
+  $('pvOk').disabled = !on.length;
+  $('pvInfo').textContent = on.length ? `${a} added, ${u} updated` + (pv.rows.length > 5000 ? ' · the first 5000 rows are shown' : '') : 'No tag ticked.';
+}
+$('pvRows').addEventListener('change', ev => {
+  const i = ev.target.dataset.pv; if (i === undefined) return;
+  pv.rows[+i].on = ev.target.checked; renderPreview();
+});
+$('pvAll').onchange = () => {
+  for (const r of pv.rows) if (pv.show === 'all' || r.st === pv.show) r.on = $('pvAll').checked;
+  renderPreview();
+};
+$('pvSum').addEventListener('click', ev => { const b = ev.target.closest('[data-show]'); if (b) { pv.show = b.dataset.show; renderPreview(); } });
 
 // ---- File menu: submenus, recent files, CSV, save all ----
 if (/Windows/.test(navigator.userAgent)) document.body.classList.add('win-icons');
@@ -1387,41 +1982,187 @@ async function importSource(label, body) {
     res = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(res.error || `HTTP ${r.status}`);
   } catch (e) { toast(`${label}: ${e.message}`, true); return; }
-  srcImport = { label, blocks: res.blocks.map(b => ({ ...b, pick: b.tags.length > 0 && !b.optimized })), found: res.found || [] };
-  $('srcTitle').textContent = `Data blocks in ${label}`;
+  openSourceDialog(label, res.blocks, res.found || [], false);
+}
+// openSourceDialog shows data blocks (or a UDT, udt = true) to add as tags:
+// DB number, start byte, tag prefix and a tree of the members to tick.
+function openSourceDialog(label, blocks, found, udt) {
+  srcImport = {
+    label, udt, found, open: new Set(),
+    blocks: blocks.map(b => ({ ...b, pick: b.tags.length > 0 && !b.optimized, start: 0, prefix: b.name, count: 1, from: 0,
+      tags: b.tags.map(t => ({ ...t, on: true })) })),
+  };
+  // The first two levels start open.
+  for (const b of srcImport.blocks) for (const t of b.tags) {
+    const p = srcRel(b, t.name).split('.');
+    srcImport.open.add(b.name); if (p.length > 2) srcImport.open.add(b.name + '/' + p[0]);
+  }
+  $('srcTitle').textContent = udt ? `UDT ${label}: where is it in the PLC?` : `Data blocks in ${label}`;
   $('srcErr').textContent = '';
-  $('srcNote').textContent = srcImport.found.length ? `Sizes compared with the last scan of the PLC (${srcImport.found.filter(f => f.area === 'DB').length} data blocks).` : 'Not compared with the PLC yet: Find DB numbers on the PLC scans it (only reads).';
+  $('srcNote').textContent = udt
+    ? 'A PLC data type (UDT): give the data block it is in and the byte where it starts there (0 when the DB is just this UDT). The members are laid out by the rules of standard access.'
+    : srcImport.found.length ? `Sizes compared with the last scan of the PLC (${srcImport.found.filter(f => f.area === 'DB').length} data blocks).` : 'Not compared with the PLC yet: Find DB numbers on the PLC scans it (only reads).';
   renderSource();
   $('dlgSource').showModal();
+}
+// srcStride: bytes from one array element to the next (a structure starts on an even byte).
+const srcStride = b => b.size + b.size % 2;
+// srcEnd: the byte after the last element.
+const srcEnd = b => (b.start || 0) + srcStride(b) * (b.count || 1);
+// srcRel: a tag's name inside its block (without the block's name in front).
+const srcRel = (b, n) => n.startsWith(b.name + '.') ? n.slice(b.name.length + 1) : n;
+// srcAddr: the address of a member with the block's DB number and start byte.
+function srcAddr(b, t) {
+  const off = t.offset + (b.start || 0), db = b.db ? `DB${b.db}` : 'DB?';
+  const size = { BOOL: 0, BYTE: 1, USINT: 1, SINT: 1, WORD: 2, UINT: 2, INT: 2, DWORD: 4, UDINT: 4, DINT: 4, REAL: 4, LREAL: 8 }[t.type];
+  return size === 0 ? `${db}.DBX${off}.${t.bit}` : size === 1 ? `${db}.DBB${off}` : size === 2 ? `${db}.DBW${off}` : size === 4 ? `${db}.DBD${off}` : `${db}.DBX${off}.0`;
 }
 function srcPlcCell(b) {
   if (!b.db) return ['', '–'];
   if (!srcImport.found.length) return ['', 'not scanned'];
   const f = srcImport.found.find(x => x.area === 'DB' && x.db === b.db);
   if (!f) return ['warn', `DB${b.db} not found in the PLC`];
+  const need = b.count > 1 ? srcEnd(b) : (b.start || 0) + b.size;
+  if (b.start || b.count > 1 || srcImport.udt) return f.size >= need ? ['ok', `✓ DB${b.db}, ${f.size} bytes`] : ['warn', `⚠ the PLC's DB${b.db} has ${f.size} bytes, ${need} needed`];
   return f.size === b.size ? ['ok', `✓ DB${b.db}, ${f.size} bytes`] : ['warn', `⚠ the PLC's DB${b.db} has ${f.size} bytes`];
 }
 function renderSource() {
   $('srcRows').innerHTML = srcImport.blocks.map((b, i) => {
     const usable = b.tags.length > 0 && !b.optimized;
     const [cls, plc] = srcPlcCell(b);
-    const vars = `${b.tags.length}` + (b.other ? ` <span class="sub">(+${b.other} not as tags)</span>` : '');
+    const on = b.tags.filter(t => t.on).length;
+    const vars = (on === b.tags.length ? `${on}` : `${on} of ${b.tags.length}`) + (b.other ? ` <span class="sub">(+${b.other} not as tags)</span>` : '');
     const note = b.optimized ? 'optimized access: PUT/GET cannot read it' : b.note || '';
-    return `<tr><td><input type="checkbox" data-i="${i}" ${b.pick ? 'checked' : ''} ${usable ? '' : 'disabled'}></td>` +
+    const dis = usable ? '' : 'disabled';
+    return `<tr><td><input type="checkbox" data-i="${i}" ${b.pick ? 'checked' : ''} ${dis}></td>` +
       `<td><b>${esc(b.name)}</b>${note ? `<div class="sub">${esc(note)}</div>` : ''}</td><td>${b.size} B</td>` +
-      `<td><input type="number" min="1" max="65535" data-db="${i}" value="${b.db || ''}" placeholder="DB…" ${usable ? '' : 'disabled'}></td>` +
-      `<td class="${cls}" data-plc="${i}">${esc(plc)}</td><td>${vars}</td></tr>`;
+      `<td><input type="number" min="1" max="65535" data-db="${i}" value="${b.db || ''}" placeholder="DB…" ${dis}></td>` +
+      `<td><input type="number" class="src-start" min="0" max="65534" step="2" data-start="${i}" value="${b.start || 0}" ${dis}></td>` +
+      `<td><input class="src-pre" data-pre="${i}" value="${esc(b.prefix)}" spellcheck="false" ${dis}></td>` +
+      `<td class="src-arr"><input type="number" min="1" max="1000" data-count="${i}" value="${b.count}" title="Number of elements (1 = not an array)" ${dis}>` +
+      `<input type="number" min="0" max="65535" data-from="${i}" value="${b.from}" title="First index" ${b.count > 1 ? '' : 'disabled'} ${dis}>` +
+      (b.count > 1 ? `<div class="sub">[${b.from}..${b.from + b.count - 1}], ${srcStride(b)} B each</div>` : '') + `</td>` +
+      `<td class="${cls}" data-plc="${i}">${esc(plc)}</td><td data-vars="${i}">${vars}</td></tr>`;
   }).join('');
+  renderSourceTree();
 }
+// The members of the ticked blocks as a tree: groups by the dotted name.
+function renderSourceTree() {
+  const html = [];
+  srcImport.blocks.forEach((b, bi) => {
+    if (!b.pick && srcImport.blocks.length > 1) return;
+    const root = { kids: new Map(), tags: [] };
+    b.tags.forEach((t, ti) => {
+      const parts = srcRel(b, t.name).split('.');
+      let n = root;
+      for (const p of parts.slice(0, -1)) { if (!n.kids.has(p)) n.kids.set(p, { kids: new Map(), tags: [] }); n = n.kids.get(p); }
+      n.tags.push({ t, ti, leaf: parts[parts.length - 1] });
+    });
+    const all = n => [...n.tags.map(x => x.t), ...[...n.kids.values()].flatMap(all)];
+    const box = (ts, attrs) => {
+      const on = ts.filter(t => t.on).length;
+      return `<input type="checkbox" ${attrs} ${on === ts.length ? 'checked' : ''} ${on && on < ts.length ? 'data-mixed="1"' : ''}>`;
+    };
+    const walk = (n, path, key) => {
+      for (const [name, k] of n.kids) {
+        const p = path ? path + '.' + name : name, kk = key + '/' + name, ts = all(k);
+        html.push(`<details data-key="${esc(kk)}" ${srcImport.open.has(kk) ? 'open' : ''}><summary>${box(ts, `data-gb="${bi}" data-gp="${esc(p)}"`)}<b>${esc(name)}</b> <span class="cnt">${ts.filter(t => t.on).length} / ${ts.length}</span></summary>`);
+        walk(k, p, kk);
+        html.push('</details>');
+      }
+      for (const { t, ti, leaf } of n.tags) {
+        html.push(`<label class="leaf${t.on ? '' : ' unpicked'}"><input type="checkbox" data-tb="${bi}" data-ti="${ti}" ${t.on ? 'checked' : ''}>` +
+          `<span>${esc(leaf)}</span><span class="ty">${esc(t.type)}</span><span class="ad">${esc(srcAddr(b, t))}</span><span class="cm">${esc(t.description || '')}</span></label>`);
+      }
+    };
+    const arr = b.count > 1 ? `[${b.from}..${b.from + b.count - 1}]` : '';
+    const arrNote = b.count > 1 ? ` · addresses of [${b.from}]; each next element +${srcStride(b)} bytes, the last [${b.from + b.count - 1}] at byte ${(b.start || 0) + srcStride(b) * (b.count - 1)}` : '';
+    html.push(`<details data-key="${esc(b.name)}" ${srcImport.open.has(b.name) ? 'open' : ''}><summary>${box(b.tags, `data-gb="${bi}" data-gp=""`)}<b>${esc((b.prefix || b.name) + arr)}</b> <span class="cnt">${b.tags.filter(t => t.on).length} / ${b.tags.length}${b.count > 1 ? ` × ${b.count} = ${b.tags.filter(t => t.on).length * b.count} tags` : ''}${esc(arrNote)}</span></summary>`);
+    walk(root, '', b.name);
+    html.push('</details>');
+  });
+  $('srcTree').innerHTML = html.join('') || '<span class="sub">Tick a data block above to see its members.</span>';
+  $('srcTree').querySelectorAll('[data-mixed]').forEach(c => c.indeterminate = true);
+}
+$('srcTree').addEventListener('toggle', ev => {
+  const d = ev.target; if (d.tagName !== 'DETAILS') return;
+  if (d.open) srcImport.open.add(d.dataset.key); else srcImport.open.delete(d.dataset.key);
+}, true);
+$('srcTree').addEventListener('click', ev => { if (ev.target.matches('summary input')) ev.stopPropagation(); }); // the box does not fold the group
+$('srcTree').addEventListener('change', ev => {
+  const c = ev.target;
+  if (c.dataset.tb !== undefined) srcImport.blocks[+c.dataset.tb].tags[+c.dataset.ti].on = c.checked;
+  if (c.dataset.gb !== undefined) {
+    const b = srcImport.blocks[+c.dataset.gb], p = c.dataset.gp;
+    for (const t of b.tags) { const r = srcRel(b, t.name); if (!p || r === p || r.startsWith(p + '.')) t.on = c.checked; }
+  }
+  renderSource();
+});
+// Array count / first index: the row is drawn again when the value is done (not while typing).
+$('srcRows').addEventListener('change', ev => {
+  const t = ev.target, i = t.dataset.count ?? t.dataset.from;
+  if (i === undefined) return;
+  const b = srcImport.blocks[+i];
+  if (t.dataset.count !== undefined) b.count = Math.min(1000, Math.max(1, parseInt(t.value, 10) || 1));
+  else b.from = Math.max(0, parseInt(t.value, 10) || 0);
+  renderSource();
+});
+// Save as SCL: a UDT (from a sheet) with a data block that holds it; else the ticked members
+// as data blocks that keep their addresses (DB number needed).
+$('srcSaveSCL').onclick = async () => {
+  $('srcErr').textContent = '';
+  const picked = srcImport.blocks.filter(b => b.pick);
+  if (!picked.length) { $('srcErr').textContent = 'Tick a data block first.'; return; }
+  let body, file, note = '';
+  const u = picked.length === 1 && picked[0].udt ? picked[0] : null;
+  if (u) {
+    if (u.start % 2) { $('srcErr').textContent = 'The start byte must be even.'; return; }
+    const member = u.prefix || u.name;
+    const dbName = u.db ? `DB${u.db}_${member}`.replace(/[^\p{L}\p{N}_]+/gu, '_') : `${member}_DB`.replace(/[^\p{L}\p{N}_]+/gu, '_');
+    body = { udt: u.udt, type: u.name, db_name: dbName, member: member.replace(/[^\p{L}\p{N}_]+/gu, '_'), start: u.start || 0, count: u.count || 1, from: u.from || 0 };
+    file = `${dbName}.scl`;
+    if (u.tags.some(t => !t.on)) note = ' The UDT keeps all its members (unticked ones too: they hold their place).';
+  } else {
+    const missing = picked.filter(b => !b.db);
+    if (missing.length) { $('srcErr').textContent = `Give ${missing.map(b => b.name).join(', ')} a DB number to save it as SCL.`; return; }
+    const names = {};
+    const tags = picked.flatMap(b => {
+      names[b.db] = (b.prefix || b.name).replace(/[^\p{L}\p{N}_]+/gu, '_');
+      return Array.from({ length: b.count || 1 }, (_, k) => k).flatMap(k => b.tags.filter(t => t.on).map(t => {
+        const pre = b.count > 1 ? `${b.prefix}[${b.from + k}].` : b.prefix ? b.prefix + '.' : '';
+        return { ...cleanTag(t), name: pre + srcRel(b, t.name), db: b.db, offset: t.offset + (b.start || 0) + k * srcStride(b) };
+      }));
+    });
+    body = { tags, names };
+    file = picked.length === 1 ? `${names[picked[0].db]}.scl` : `${srcImport.label.replace(/\.[^.]+$/, '')}.scl`;
+  }
+  let j;
+  try {
+    const r = await fetch('api/tags/scl', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
+  } catch (e) { $('srcErr').textContent = 'Save as SCL: ' + e.message; return; }
+  const bin = atob(j.data), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const saved = await saveBlob(new Blob([bytes], { type: 'text/plain' }), file);
+  if (saved) toast(`Saved ${baseName(saved)} – in the PLC engineering software: External source files → Add → Generate blocks from source.${note}` +
+    (j.skipped?.length ? ` ${j.skipped.length} left out (overlapping or odd addresses).` : ''));
+};
+$('srcExpand').onclick = () => { $('srcTree').querySelectorAll('details').forEach(d => d.open = true); };
+$('srcCollapse').onclick = () => { $('srcTree').querySelectorAll('details').forEach(d => d.open = false); };
 $('srcRows').addEventListener('input', ev => {
   const t = ev.target;
-  if (t.dataset.i !== undefined) srcImport.blocks[+t.dataset.i].pick = t.checked;
-  if (t.dataset.db !== undefined) {
-    const b = srcImport.blocks[+t.dataset.db];
-    b.db = parseInt(t.value, 10) || 0;
-    if (b.db && !b.pick && b.tags.length && !b.optimized) { b.pick = true; $('srcRows').querySelector(`[data-i="${t.dataset.db}"]`).checked = true; }
-    const [cls, plc] = srcPlcCell(b), cell = $('srcRows').querySelector(`[data-plc="${t.dataset.db}"]`);
+  if (t.dataset.i !== undefined) { srcImport.blocks[+t.dataset.i].pick = t.checked; renderSourceTree(); }
+  if (t.dataset.pre !== undefined) { srcImport.blocks[+t.dataset.pre].prefix = t.value.trim(); renderSourceTree(); }
+  if (t.dataset.start !== undefined) { srcImport.blocks[+t.dataset.start].start = Math.max(0, parseInt(t.value, 10) || 0); }
+  const i = t.dataset.db ?? t.dataset.start;
+  if (i !== undefined) {
+    const b = srcImport.blocks[+i];
+    if (t.dataset.db !== undefined) b.db = parseInt(t.value, 10) || 0;
+    if (b.db && !b.pick && b.tags.length && !b.optimized) { b.pick = true; $('srcRows').querySelector(`[data-i="${i}"]`).checked = true; }
+    const [cls, plc] = srcPlcCell(b), cell = $('srcRows').querySelector(`[data-plc="${i}"]`);
     cell.className = cls; cell.textContent = plc;
+    renderSourceTree();
   }
 });
 // Scan PLC (read only), then numbers by size where exactly one DB fits.
@@ -1460,12 +2201,30 @@ $('srcOk').addEventListener('click', async ev => {
   if (!picked.length) { $('srcErr').textContent = 'Tick at least one data block.'; return; }
   const missing = picked.filter(b => !b.db);
   if (missing.length) { $('srcErr').textContent = `Give ${missing.map(b => b.name).join(', ')} a DB number (or untick).`; return; }
+  const odd = picked.filter(b => b.start % 2);
+  if (odd.length) { $('srcErr').textContent = `${odd.map(b => b.name).join(', ')}: the start byte must be even (a structure starts on an even byte).`; return; }
+  const none = picked.filter(b => !b.tags.some(t => t.on));
+  if (none.length) { $('srcErr').textContent = `${none.map(b => b.name).join(', ')}: no member ticked.`; return; }
   const wrong = picked.filter(b => srcPlcCell(b)[0] === 'warn');
   if (wrong.length && !confirm(`${wrong.map(b => `${b.name}: ${srcPlcCell(b)[1].replace('⚠ ', '')}`).join('\n')}\n\nThe addresses may not match the PLC (another version of the block, or the wrong number). Add anyway?`)) return;
-  const tags = picked.flatMap(b => b.tags.map(t => cleanTag({ ...t, db: b.db })));
+  const noPre = picked.filter(b => b.count > 1 && !b.prefix);
+  if (noPre.length) { $('srcErr').textContent = `${noPre.map(b => b.name).join(', ')}: an array needs a tag prefix (tags are named Prefix[i].Member).`; return; }
+  // One set of tags per array element: Prefix[i].Member, each element srcStride bytes after the one before.
+  const tags = picked.flatMap(b => Array.from({ length: b.count || 1 }, (_, k) => k).flatMap(k =>
+    b.tags.filter(t => t.on).map(t => {
+      const { on, ...tag } = t;
+      const pre = b.count > 1 ? `${b.prefix}[${b.from + k}].` : b.prefix ? b.prefix + '.' : '';
+      return cleanTag({ ...tag, name: pre + srcRel(b, t.name), db: b.db, offset: t.offset + (b.start || 0) + k * srcStride(b) });
+    })));
   if (tags.length > 3000 && !confirm(`Add ${tags.length} tags?`)) return;
   $('dlgSource').close();
-  await mergeTags(srcImport.label, tags, (old, t) => ({ ...old, ...t, description: t.description || old.description }));
+  await mergeTags(srcImport.label, tags, (old, t) => ({ ...old, ...t, description: t.description || old.description }), '', '', { noPreview: true });
+  // A UDT or data block is a structure: show the tag list as a tree, with its groups open.
+  tagTree.on = true;
+  const tops = new Set(tags.map(t => t.name.split(/[.[]/)[0]));
+  for (const k of [...tagTree.closed]) if (tops.has(k.split('/')[1]?.split(/[.[]/)[0])) tagTree.closed.delete(k);
+  saveTagTree();
+  if (lastData) render(lastData);
 });
 
 $('menuExportSCL').onclick = async () => {
@@ -1527,6 +2286,12 @@ $('csvFile').onchange = async () => {
   $('csvFile').value = '';
   if (!f) return;
   if (readOnly()) { toast('The dashboard is read-only', true); return; }
+  if (/\.xlsx?$/i.test(f.name)) { // Excel: read by PLC Monitor (Export → Tag list .xlsx, or any tag table)
+    const b = new Uint8Array(await f.arrayBuffer()); let s = '';
+    for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000));
+    importTIA(f.name, { name: f.name, data: btoa(s) });
+    return;
+  }
   let tags;
   try {
     const rows = parseCSV(await f.text());
@@ -1576,7 +2341,28 @@ window.addEventListener('pagehide', () => { try { exportWindow?.close(); helpWin
 $('menuDataView').onclick = () => openDataView();
 $('menuExport').onclick = () => { fileMenu.classList.remove('open'); openExportWindow(); };
 $('btnExport').onclick = () => openExportWindow();
-const helpMenu = $('helpMenu'), viewMenu = $('viewMenu');
+const helpMenu = $('helpMenu'), viewMenu = $('viewMenu'), toolsMenu = $('toolsMenu');
+// Tools: PLC and network tools. Any click outside it (or on one of its items) closes it.
+$('toolsBtn').onclick = ev => {
+  ev.stopPropagation();
+  document.querySelectorAll('.menubar .menu.open').forEach(m => m !== toolsMenu && m.classList.remove('open'));
+  $('autoConnCheck').textContent = config?.auto_connect === false ? '' : '✓';
+  toolsMenu.classList.toggle('open');
+};
+// Tools → Connect / Disconnect: the same as the button in the button row.
+$('menuConn').onclick = () => $('btnConn').onclick();
+// Tools → Connect automatically at start (default on), kept in config.yaml.
+$('menuAutoConn').onclick = async () => {
+  const on = config?.auto_connect === false;
+  const err = await api('PUT', 'api/ui/autoconnect', { on });
+  if (err) { toast(err, true); return; }
+  if (config) config.auto_connect = on;
+  toast(on ? 'PLC Monitor connects to the PLC when it starts' : 'PLC Monitor starts disconnected – Tools → Connect when you want it');
+};
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('#toolsBtn') && (!ev.target.closest('#toolsMenu') || ev.target.closest('.menu-list button'))) toolsMenu.classList.remove('open');
+}, true);
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') toolsMenu.classList.remove('open'); });
 $('helpBtn').onclick = ev => { ev.stopPropagation(); fileMenu.classList.remove('open'); viewMenu.classList.remove('open'); helpMenu.classList.toggle('open'); };
 $('fileBtn').addEventListener('click', () => { helpMenu.classList.remove('open'); viewMenu.classList.remove('open'); });
 
@@ -2080,7 +2866,7 @@ $('btnNextFree').onclick = () => {
 async function openTagDialog(tag, suggestion) {
   await loadConfig();
   editing = tag ? tag.name : null;
-  if (tag) insertAfter = null;
+  if (tag) insertAfter = insertBefore = null;
   $('tagTitle').textContent = tag ? `Edit tag ${tag.name}` : 'Add tag';
   const f = tagForm.elements;
   const areas = AREAS[proto()];
@@ -2117,10 +2903,11 @@ tagForm.addEventListener('submit', async ev => {
   const before = await currentTags();
   let err;
   if (editing === null) {
-    // Add or insert: the new tag goes after insertAfter (or at the end).
+    // Add or insert: the new tag goes before insertBefore, after insertAfter, or at the end.
     const list = before.slice();
+    const b = insertBefore === null ? -1 : list.findIndex(x => x.name === insertBefore);
     const i = insertAfter === null ? -1 : list.findIndex(x => x.name === insertAfter);
-    list.splice(i < 0 ? list.length : i + 1, 0, t);
+    list.splice(b >= 0 ? b : i < 0 ? list.length : i + 1, 0, t);
     err = await api('PUT', 'api/tags', list);
   } else {
     err = await api('PUT', 'api/tags/' + encodeURIComponent(editing), t);
@@ -2142,6 +2929,7 @@ async function currentTags() { return ((await loadConfig()).tags || []).map(clea
 const shownNames = () => [...rows.querySelectorAll('tr[data-name]')].map(r => r.dataset.name);
 const readOnly = () => !!status?.read_only;
 let insertAfter = null; // Add/Insert dialog: put the new tag after this one (null: at the end)
+let insertBefore = null; // … or before this one
 
 function paintSelection() {
   rows.querySelectorAll('tr[data-name]').forEach(tr => tr.classList.toggle('sel', selected.has(tr.dataset.name)));
@@ -2310,9 +3098,53 @@ async function addTag(after) {
   if (readOnly()) return;
   const all = await currentTags();
   const base = after ? all.find(t => t.name === after) : all.at(-1);
-  insertAfter = after || null;
+  insertAfter = after || null; insertBefore = null;
   await openTagDialog(null, base ? nextTag(base) : null);
   $('tagTitle').textContent = after ? `Insert tag after ${after}` : 'Add tag';
+}
+// ---- UDT tool window: build a UDT from tags ----
+function openUdtTool() {
+  const w = window.open('udttool', 's7m-udttool', 'popup,width=1200,height=780');
+  if (!w) location.href = 'udttool'; else w.focus();
+}
+// Send tags to the UDT tool (opened if needed): through a broadcast, and an
+// inbox the tool reads when it has just opened.
+async function sendToUdtTool(names) {
+  if (!names.length) return;
+  const all = await currentTags();
+  const tags = names.map(n => all.find(t => t.name === n)).filter(Boolean);
+  const msg = { ts: Date.now(), tags };
+  try { localStorage.setItem('plcm.udtInbox', JSON.stringify(msg)); } catch (e) {}
+  openUdtTool();
+  try { const bc = new BroadcastChannel('plcm-udt'); bc.postMessage(msg); bc.close(); } catch (e) {}
+}
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('[data-stategfx]')) return;
+  const w = window.open('stategfx', 's7m-stategfx', 'popup,width=1280,height=800');
+  if (!w) location.href = 'stategfx'; else w.focus();
+});
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('[data-alarms]')) return;
+  const w = window.open('alarms', 's7m-alarms', 'popup,width=1280,height=800');
+  if (!w) location.href = 'alarms'; else w.focus();
+});
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('[data-udttool]')) return;
+  document.querySelectorAll('.menu.open, .tb-menu.open').forEach(m => m.classList.remove('open'));
+  openUdtTool();
+});
+
+// Insert before a tag: the dialog starts with the address after the tag above it
+// (or, at the top of the list, after the tag itself).
+async function insertTagBefore(name) {
+  if (readOnly() || !name) return;
+  const all = await currentTags();
+  const i = all.findIndex(t => t.name === name);
+  if (i < 0) return;
+  const base = all[i - 1] || all[i];
+  insertAfter = null; insertBefore = name;
+  await openTagDialog(null, nextTag(base));
+  $('tagTitle').textContent = `Insert tag before ${name}`;
 }
 
 // Keyboard: only when no dialog is open and no text field has the focus.
@@ -2325,6 +3157,7 @@ document.addEventListener('keydown', async ev => {
   else if (ctrl && (k === 'y' || (k === 'z' && ev.shiftKey))) { ev.preventDefault(); undoRedo(true); }
   else if (ctrl && k === 'z') { ev.preventDefault(); undoRedo(false); }
   else if (ev.key === 'Delete' && selected.size) { ev.preventDefault(); deleteSelected(); }
+  else if (ev.key === 'Insert' && ev.shiftKey) { ev.preventDefault(); insertTagBefore(selectedInOrder()[0]); }
   else if (ev.key === 'Insert') { ev.preventDefault(); addTag(selectedInOrder().at(-1)); }
   else if (ev.key === 'Escape' && selected.size) { selected.clear(); paintSelection(); }
   else if ((ev.key === 'ArrowDown' || ev.key === 'ArrowUp') && !ctrl) {
@@ -2431,8 +3264,9 @@ rows.addEventListener('contextmenu', ev => {
   ctx.innerHTML = [
     ['cut', `Cut${n > 1 ? ` ${n} tags` : ''}`, 'Ctrl+X', ro], ['copy', `Copy${n > 1 ? ` ${n} tags` : ''}`, 'Ctrl+C', false],
     ['paste', 'Paste', 'Ctrl+V', ro], ['delete', `Delete${n > 1 ? ` ${n} tags` : ''}`, 'Del', ro], '-',
-    ['insert', 'Insert tag after this…', 'Ins', ro], ['add', 'Add tag at the end…', '', ro],
+    ['insertBefore', 'Insert tag before this…', 'Shift+Ins', ro || !n], ['insert', 'Insert tag after this…', 'Ins', ro], ['add', 'Add tag at the end…', '', ro],
     ['edit', 'Edit…', 'Double-click', ro || !one], ['chart', n > 1 ? `Chart of these ${n} tags` : 'Chart', '', false],
+    ['udt', n > 1 ? `Send ${n} tags to UDT tool` : 'Send to UDT tool', '', !n],
     ['write', 'Write… / signal generator', '', !one || !config?.can_write || !lastTags.find(t => t.name === one)?.writable],
     ['modify', `Modify now${n > 1 ? ` (${n} rows)` : ''}`, 'Ctrl+Enter', !config?.can_write || !selectedInOrder().some(x => modVals.get(x)?.trim())], '-',
     ['undo', 'Undo' + (undoStack.length ? ` ${undoStack.at(-1).label}` : ''), 'Ctrl+Z', ro || !undoStack.length],
@@ -2457,6 +3291,8 @@ rows.addEventListener('contextmenu', ev => {
       catch (err) { toast('Press Ctrl+V to paste', true); }
     }
     if (c === 'delete') deleteSelected();
+    if (c === 'insertBefore') insertTagBefore(selectedInOrder()[0]);
+    if (c === 'udt') sendToUdtTool(selectedInOrder());
     if (c === 'insert') addTag(selectedInOrder().at(-1));
     if (c === 'add') addTag();
     if (c === 'edit') { const tag = (await currentTags()).find(t => t.name === one); if (tag) openTagDialog(tag); }
@@ -2688,7 +3524,7 @@ function deviceCard(d) {
     const url = (d.ports.includes(443) && !d.ports.includes(80) ? 'https://' : 'http://') + d.ip + '/';
     body += `<div class="meta">Web page: <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a></div>`;
   }
-  return `<div class="node dev${d.current ? ' current' : ''}">
+  return `<div class="node dev${d.current ? ' current' : ''}" data-key="ip:${esc(d.ip)}">
     <div class="dev-head"><span class="kind ${esc(d.kind)}">${esc(KIND_LABEL_DEV[d.kind] || d.kind)}</span>
       <b>${esc(d.ip)}</b>${d.name ? `<span class="meta">${esc(d.name)}</span>` : ''}
       ${d.current ? '<span class="cur-pill">● monitored now</span>' : ''}${d.self ? '<span class="cur-pill" title="An address of this PC: a program running here">on this PC</span>' : ''}<span class="spacer"></span>${ports}</div>
@@ -2821,7 +3657,8 @@ function renderTopology(st) {
   };
   $('topoTree').innerHTML = `<div class="node root"><b>This PC – PLC Monitor</b><br>${pc}</div>` +
     (nets.length ? `<ul>${nets.map(branch).join('')}</ul>` : '') +
-    dcpTree();
+    dcpTree() + lldpTree() + otherTree();
+  if (detailKey) { document.querySelector(`#topoTree [data-key="${CSS.escape(detailKey)}"]`)?.classList.add('picked'); renderDetail(); }
 
   // Slave-ID scan of the current Modbus connection (RS485 line or gateway).
   const n = config?.network;
@@ -2862,6 +3699,7 @@ async function dcpScanAll() {
     dcpAll.error = (j.source === 'agent' && !j.agent_url && !j.local_available ? j.local_error : j.error) || '';
     if (dcpAll.available) {
       const list = (j.adapters || []).filter(a => a.name && !dcpSkip.test(a.name + ' ' + a.desc));
+      lldpRun(list); // at the same time: who is at the other end of each cable
       dcpAll.results = await Promise.all(list.map(async a => {
         try {
           const r = await fetch('api/dcp/identify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adapter: a.id, wait_ms: 2500 }) });
@@ -2914,7 +3752,7 @@ function dcpCard(d, adapter) {
   const acts = (dcp.canSet || dcpAll?.available && config?.local ? `<button data-dcp-cfg="${esc(d.mac)}" data-adapter="${ad}">Configure…</button>` : '') +
     `<button data-dcp-flash="${esc(d.mac)}" data-adapter="${ad}" title="Make the device's LEDs flash for a few seconds, to find it in the cabinet">Flash LED</button>` +
     (d.ip_set && d.vendor_id === 0x2a && config?.local ? `<button data-use="s7" data-ip="${esc(d.ip)}" data-rack="0" data-slot="1">Monitor this PLC (ISO-TCP)</button>` : '');
-  return `<li><div class="node dev"><div class="dev-head"><span class="kind profinet">PROFINET</span>
+  return `<li><div class="node dev" data-key="mac:${esc(d.mac)}"><div class="dev-head"><span class="kind profinet">PROFINET</span>
     <b>${esc(d.name || '(no name)')}</b><span class="meta">${esc(d.type || '')}</span></div>
     <dl>${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
     ${reachText(d, adapter)}
@@ -3026,7 +3864,7 @@ async function dcpFind(quiet) {
 $('btnDcpFind').onclick = () => dcpFind();
 
 let dcpEditing = null;
-$('topoTree').addEventListener('click', async ev => {
+$('topology').addEventListener('click', async ev => { // the cards and the details panel
   const cfg = ev.target.closest('[data-dcp-cfg]'), flash = ev.target.closest('[data-dcp-flash]');
   if (ev.target.closest('[data-npcap-get]')) $('dcpNpcapGet').onclick();
   if (ev.target.closest('[data-npcap-check]')) {
@@ -3088,6 +3926,372 @@ $('formDcp').addEventListener('submit', async ev => {
   setTimeout(() => dcpAll ? dcpScanAll() : dcpFind(true), 800); // show what it reports now
 });
 
+// ---- Other devices: this PC's neighbour (ARP) table, each one pinged ----
+// Every device this PC exchanged packets with lately – also PCs, phones and
+// routers without any industrial port, which the scan does not list.
+const nb = { list: null, error: '', alive: new Map(), checking: false };
+const rerender = () => { if (lastScan) renderTopology(lastScan); };
+async function loadNeighbors(ping) {
+  try {
+    const j = await (await fetch('api/net/neighbors', { cache: 'no-store' })).json();
+    nb.list = j.neighbors || []; nb.error = j.available === false ? j.error : (j.error || '');
+  } catch (e) { nb.error = e.message; }
+  if (ping) await pingNeighbors(); else rerender();
+}
+async function pingIPs(ips) {
+  for (let i = 0; i < ips.length; i += 64) {
+    try {
+      const r = await fetch('api/os/ping', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ips: ips.slice(i, i + 64), timeout_ms: 800 }) });
+      const j = await r.json();
+      for (const p of j.results || []) nb.alive.set(p.ip, { alive: p.alive, ms: p.ms, ttl: p.ttl, at: Date.now() });
+    } catch (e) {}
+  }
+}
+async function pingNeighbors() {
+  if (!nb.list?.length || nb.checking) return;
+  nb.checking = true;
+  for (const n of nb.list) if (!nb.alive.has(n.ip)) nb.alive.set(n.ip, null); // null: being checked
+  rerender();
+  await pingIPs(nb.list.map(n => n.ip));
+  nb.checking = false;
+  rerender(); renderDetail();
+}
+function aliveHTML(ip) {
+  const a = nb.alive.get(ip);
+  if (a === undefined) return '';
+  if (a === null) return '<span class="alive wait">checking…</span>';
+  return a.alive ? `<span class="alive yes" title="Answers ping now">● online ${a.ms ? (a.ms < 1 ? '<1' : Math.round(a.ms)) + ' ms' : ''}</span>`
+    : '<span class="alive no" title="No answer to ping: switched off or gone (the table keeps old entries a while), or it does not answer ping (firewall)">○ no answer</span>';
+}
+const vendorText = n => n.vendor || (n.random_mac ? 'private / random MAC – phone, tablet, laptop or virtual machine' : 'unknown');
+const dcpAllDevices = () => [...(dcp.devices || []).map(d => ({ d, adapter: dcp.adapters.find(a => a.id === dcp.adapter) })),
+  ...(dcpAll?.results || []).flatMap(r => r.devices.map(d => ({ d, adapter: r.adapter })))];
+function nbCard(n) {
+  const a = nb.alive.get(n.ip);
+  return `<div class="node dev${a && !a.alive ? ' gone' : ''}" data-key="nb:${esc(n.ip)}"><div class="dev-head">` +
+    `<span class="kind ${n.router ? 'router' : 'other-dev'}">${n.router ? 'Router' : 'Device'}</span><b>${esc(n.ip)}</b>` +
+    `${n.name ? `<span class="meta">${esc(n.name)}</span>` : ''}<span class="spacer"></span>${aliveHTML(n.ip)}</div>` +
+    `<dl><dt>MAC</dt><dd><code>${esc(n.mac.toUpperCase())}</code></dd><dt>Maker</dt><dd>${esc(vendorText(n))}</dd></dl></div>`;
+}
+function otherTree() {
+  if (!nb.list && !nb.error) return '';
+  const tools = `<span class="net-tools"><button data-nb-refresh title="Read the table again and ping every entry">${nb.checking ? 'Checking…' : 'Check again'}</button></span>`;
+  const head = `<div class="node net">Other devices <span class="meta">– this PC's neighbour table (ARP): PCs, phones, routers … also without industrial ports</span>${tools}</div>`;
+  if (nb.error) return `<ul class="other"><li>${head}<ul><li><div class="node meta err">${esc(nb.error)}</div></li></ul></li></ul>`;
+  const shown = new Set([...(lastScan?.devices || []).map(d => d.ip), ...dcpAllDevices().filter(x => x.d.ip_set).map(x => x.d.ip)]);
+  const rest = (nb.list || []).filter(n => !shown.has(n.ip));
+  const groups = {};
+  for (const n of rest) (groups[n.interface || 'adapter'] ||= []).push(n);
+  const branches = Object.entries(groups).map(([ifn, list]) => `<li><div class="node net">${esc(ifn)} <span class="meta">(this PC ${esc(list[0].local_ip || '?')}` +
+    `${list[0].subnet ? ' · ' + esc(list[0].subnet) : ''})</span></div><ul>${list.map(n => `<li>${nbCard(n)}</li>`).join('')}</ul></li>`).join('');
+  return `<ul class="other"><li>${head}<ul>${branches || `<li><div class="node meta">${nb.list.length ? 'Every neighbour is already shown above.' : 'The table is empty.'}</div></li>`}</ul></li></ul>`;
+}
+
+// ---- Cable neighbours (LLDP): who is at the other end of each cable ----
+const lldp = { results: null };
+async function lldpRun(adapters) {
+  lldp.results = adapters.map(a => ({ adapter: a, neighbors: [], running: true, error: '' }));
+  rerender();
+  await Promise.all(lldp.results.map(async r => {
+    try {
+      const res = await fetch('api/dcp/lldp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adapter: r.adapter.id, wait_ms: 6500 }) });
+      const j = await res.json();
+      if (res.ok) r.neighbors = j.neighbors || []; else r.error = j.error || 'HTTP ' + res.status;
+    } catch (e) { r.error = e.message; }
+    r.running = false;
+    rerender(); renderDetail();
+  }));
+}
+const lldpKey = n => `lldp:${n.source_mac}|${n.port_id}`;
+function lldpCard(n) {
+  const rows = [['Port', n.port_id + (n.port_desc && n.port_desc !== n.port_id ? ` – ${n.port_desc}` : '')]];
+  if (n.mgmt_ip) rows.push(['IP address', n.mgmt_ip]);
+  if (n.mau) rows.push(['Link', n.mau]);
+  if (n.system_desc) rows.push(['Device', n.system_desc]);
+  return `<div class="node dev" data-key="${esc(lldpKey(n))}"><div class="dev-head"><span class="kind lldp">${n.profinet ? 'PROFINET port' : 'LLDP'}</span>` +
+    `<b>${esc(n.system_name || n.chassis_id)}</b>${n.caps?.includes('bridge / switch') ? '<span class="meta">switch</span>' : ''}</div>` +
+    `<dl>${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`;
+}
+function lldpTree() {
+  if (!lldp.results) return '';
+  const head = `<div class="node net">Cable neighbours (LLDP) <span class="meta">– what the device or switch at the other end of each cable of this PC announces: name, port, IP (PRONETA's topology data)</span></div>`;
+  const branches = lldp.results.map(r => `<li><div class="node net">${esc(r.adapter.name)}</div><ul>${
+    r.running ? '<li><div class="node meta">Listening about 6 s…</div></li>'
+    : r.error ? `<li><div class="node meta err">${esc(r.error)}</div></li>`
+    : r.neighbors.map(n => `<li>${lldpCard(n)}</li>`).join('') || '<li><div class="node meta">Nothing heard – an unmanaged switch is in between (it does not pass LLDP on), or the device does not send LLDP.</div></li>'
+  }</ul></li>`).join('');
+  return `<ul><li>${head}<ul>${branches}</ul></li></ul>`;
+}
+$('btnLldp').onclick = () => {
+  const a = dcp.adapters.find(x => x.id === dcp.adapter);
+  if (!a) { toast('Choose the adapter first', true); return; }
+  lldpRun([a]);
+};
+
+// ---- Device details: click a card ----
+let detailKey = null;
+function detailOf(key) {
+  const [type, id] = [key.slice(0, key.indexOf(':')), key.slice(key.indexOf(':') + 1)];
+  const scanDev = ip => (lastScan?.devices || []).find(d => d.ip === ip);
+  const lldpAll = (lldp.results || []).flatMap(r => r.neighbors.map(n => ({ n, adapter: r.adapter })));
+  let ip = '', mac = '', name = '';
+  if (type === 'ip') ip = id;
+  if (type === 'nb') ip = id;
+  if (type === 'mac') { const x = dcpAllDevices().find(x => x.d.mac === id); if (!x) return null; mac = id; if (x.d.ip_set) ip = x.d.ip; name = x.d.name; }
+  if (type === 'lldp') { const x = lldpAll.find(x => lldpKey(x.n) === key); if (!x) return null; ip = x.n.mgmt_ip || ''; mac = x.n.pn_chassis_mac || ''; name = x.n.chassis_id; }
+  const n = (nb.list || []).find(n => n.ip === ip && ip || n.mac === mac && mac);
+  if (n) { mac = mac || n.mac; ip = ip || n.ip; }
+  const pn = dcpAllDevices().find(x => mac && x.d.mac === mac || ip && x.d.ip_set && x.d.ip === ip);
+  if (pn) { mac = mac || pn.d.mac; name = name || pn.d.name; }
+  const ll = lldpAll.filter(x => type === 'lldp' ? lldpKey(x.n) === key
+    : ip && x.n.mgmt_ip === ip || mac && (x.n.pn_chassis_mac === mac || x.n.source_mac === mac) || name && x.n.chassis_id === name);
+  const sd = ip ? scanDev(ip) : null;
+  if (!sd && !pn && !n && !ll.length) return null;
+  return { type, ip, mac, name, scan: sd, pn, nb: n, lldp: ll };
+}
+function openDetail(key) {
+  detailKey = key;
+  $('topoDetail').hidden = false;
+  renderDetail();
+  document.querySelectorAll('#topoTree .dev.picked').forEach(e => e.classList.remove('picked'));
+  document.querySelector(`#topoTree [data-key="${CSS.escape(key)}"]`)?.classList.add('picked');
+  const x = detailOf(key), a = x?.ip && nb.alive.get(x.ip);
+  if (x?.ip && (!a || Date.now() - a.at > 20000)) { nb.alive.set(x.ip, null); renderDetail(); pingIPs([x.ip]).then(() => { renderDetail(); rerender(); }); }
+}
+function closeDetail() {
+  detailKey = null; $('topoDetail').hidden = true;
+  document.querySelectorAll('#topoTree .dev.picked').forEach(e => e.classList.remove('picked'));
+}
+$('tdClose').onclick = closeDetail;
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('topoDetail').hidden && !document.querySelector('dialog[open]')) closeDetail(); });
+function renderDetail() {
+  if (!detailKey) return;
+  const x = detailOf(detailKey);
+  if (!x) { $('tdTitle').textContent = 'Not found any more'; $('tdKind').innerHTML = ''; $('tdBody').innerHTML = '<div class="td-note">This device is no longer in the results – scan again.</div>'; return; }
+  const sec = (title, rows, extra = '') => rows.length || extra ? `<div class="td-sec"><h4>${esc(title)}</h4>${rows.length ? `<dl>${rows.map(([k, v, html]) => `<dt>${esc(k)}</dt><dd>${html ? v : esc(v)}</dd>`).join('')}</dl>` : ''}${extra}</div>` : '';
+  const s = x.scan, p = x.pn?.d, n = x.nb;
+  const kind = s ? KIND_LABEL_DEV[s.kind] || s.kind : p ? 'PROFINET' : x.lldp.length && !n ? 'LLDP' : n?.router ? 'Router' : 'Device';
+  const kcls = s ? s.kind : p ? 'profinet' : x.lldp.length && !n ? 'lldp' : n?.router ? 'router' : 'other-dev';
+  $('tdKind').innerHTML = `<span class="kind ${esc(kcls)}">${esc(kind)}</span>`;
+  $('tdTitle').textContent = p?.name || x.name || s?.s7?.name || s?.name || n?.name || x.ip || x.mac;
+  const reach = x.ip ? localNets.find(l => !l.down && inNet(x.ip, l.subnet)) : null;
+  const net = [];
+  if (x.ip) net.push(['IP address', `<code>${esc(x.ip)}</code> ${aliveHTML(x.ip)}`, true]);
+  if (x.mac) {
+    net.push(['MAC address', `<code>${esc(x.mac.toUpperCase())}</code>`, true]);
+    net.push(['Maker', n?.vendor || p?.vendor || (n ? vendorText(n) : '–')]);
+  }
+  if (s?.name || n?.name) net.push(['Name (DNS)', s?.name || n?.name]);
+  if (x.ip) net.push(['From this PC', reach ? `${reach.interface} (${reach.ip}) – same network` : 'not in any network of this PC (no direct IP access)']);
+  if (n) { net.push(['Neighbour table', `${n.state || 'entry'}${n.router ? ', router' : ''} · ${n.interface}`]); }
+  const a = x.ip && nb.alive.get(x.ip);
+  if (a?.ttl) net.push(['Ping', `${a.ms < 1 ? '<1' : Math.round(a.ms)} ms, TTL ${a.ttl} (${a.ttl > 128 ? 'network device' : a.ttl > 64 ? 'Windows' : 'Linux / embedded / PLC'} – a guess)`]);
+  let body = sec('Network', net);
+  if (s) {
+    body += sec('Services (open ports)', s.ports.map(pt => [String(pt), { 102: 'ISO-TCP – S7 PLC communication', 502: 'Modbus TCP', 44818: 'EtherNet/IP (CIP)', 4840: 'OPC UA server', 80: 'web page (HTTP)', 443: 'web page (HTTPS)' }[pt] || '']));
+    if (s.s7) { const t = s.s7; body += sec('PLC (ISO-TCP)', [['CPU', t.module], ['Order no.', t.order_code], ['Firmware', t.firmware], ['Serial no.', t.serial], ['Name', t.name], ['State', t.state], ['Rack / slot', `${t.rack} / ${t.slot}`], ['Note', t.note], ['Error', t.error]].filter(r => r[1])); }
+    if (s.modbus) body += sec('Modbus', [['Slave IDs', s.modbus.all_units ? 'answers on every ID (a single device)' : (s.modbus.units || []).join(', ') || 'none found'], ['Error', s.modbus.error]].filter(r => r[1]));
+    if (s.opcua) { const u = s.opcua; body += sec('OPC UA', [['Endpoint', u.endpoint], ['Device', u.model], ['Order no.', u.order_number], ['Firmware', u.firmware], ['Serial', u.serial], ['Security', (u.security || []).join(', ')], ['Guest access', u.anonymous ? 'yes' : 'no'], ['Error', u.error]].filter(r => r[1])); }
+  } else if (x.ip) body += `<div class="td-note">Not in the scan results: ${lastScan?.subnet ? 'no industrial or web port answered (102, 502, 44818, 4840, 80, 443)' : 'press Scan to check its ports'}.</div>`;
+  if (p) {
+    body += sec('PROFINET (DCP)', [['Name of station', p.name || '(none – a controller cannot find it)'], ['Device type', p.type], ['Vendor', p.vendor || (p.vendor_id ? '0x' + p.vendor_id.toString(16).padStart(4, '0') : '')],
+      ['Device ID', p.device_id ? '0x' + p.device_id.toString(16).padStart(4, '0') : ''], ['Role', p.role], ['IP setting', p.ip_set ? `${p.ip} / ${p.mask}${p.gateway !== '0.0.0.0' ? ' · gateway ' + p.gateway : ''}` : 'no IP address yet'],
+      ['Alias', p.alias], ['Adapter', x.pn.adapter?.name], ['IP conflict', p.ip_conflict ? 'YES – another device uses the same address' : '']].filter(r => r[1]));
+  }
+  for (const l of x.lldp) {
+    const q = l.n;
+    body += sec(`Cable neighbour (LLDP) on ${l.adapter.name}`, [['Chassis', `${q.chassis_id}${q.chassis_kind ? ` (${q.chassis_kind})` : ''}`], ['Port', q.port_id], ['Port description', q.port_desc], ['System name', q.system_name],
+      ['System', q.system_desc], ['Capabilities', (q.capabilities || []).join(', ')], ['Management IP', q.mgmt_ip], ['Link', q.mau], ['Auto-negotiation', q.autoneg], ['PROFINET alias', q.pn_alias],
+      ['Chassis MAC', q.pn_chassis_mac], ['Sending port MAC', q.source_mac], ['TTL', q.ttl ? q.ttl + ' s' : ''], ['Heard', q.seen ? new Date(q.seen).toLocaleTimeString() : '']].filter(r => r[1]));
+  }
+  // Actions: the same buttons as on the cards (handled for the whole Topology section).
+  const acts = [];
+  if (x.ip) acts.push(`<button data-td-ping="${esc(x.ip)}">Ping again</button>`);
+  if (x.ip && (!s || s.ports.includes(80) || s.ports.includes(443))) {
+    const url = (s?.ports.includes(443) && !s.ports.includes(80) ? 'https://' : 'http://') + x.ip + '/';
+    acts.push(`<a class="btn" href="${esc(url)}" target="_blank" rel="noopener">Open web page</a>`);
+  }
+  if (s?.s7 && (!s.s7.error || s.s7.module || s.s7.rack || s.s7.slot)) acts.push(`<button data-use="s7" data-ip="${esc(s.ip)}" data-rack="${s.s7.rack}" data-slot="${s.s7.slot}">Monitor this PLC (ISO-TCP)</button>`);
+  else if (!s && p?.ip_set && p.vendor_id === 0x2a && config?.local) acts.push(`<button data-use="s7" data-ip="${esc(p.ip)}" data-rack="0" data-slot="1">Monitor this PLC (ISO-TCP)</button>`);
+  if (s?.modbus && !s.modbus.error) acts.push(`<button data-use="modbus" data-ip="${esc(s.ip)}" data-unit="${s.modbus.units?.[0] || 1}">Monitor via Modbus TCP</button>`);
+  if (s?.opcua && !s.opcua.error) acts.push(`<button data-uatags="${esc(s.opcua.endpoint)}">PLC tags (OPC UA)…</button>`,
+    `<button data-use="opcua" data-ip="${esc(s.ip)}" data-endpoint="${esc(s.opcua.endpoint)}">Monitor via OPC UA</button>`);
+  if (p) {
+    const ad = esc(x.pn.adapter?.id || dcp.adapter);
+    acts.push(`<button data-dcp-flash="${esc(p.mac)}" data-adapter="${ad}">Flash LED</button>`);
+    if (dcp.canSet || dcpAll?.available && config?.local) acts.push(`<button data-dcp-cfg="${esc(p.mac)}" data-adapter="${ad}">Set IP / name…</button>`);
+    if (config?.local && !config?.read_only) acts.push(`<button data-io-test="${esc(p.mac)}" title="Connect as IO controller: read inputs, force outputs (like PRONETA)">IO test…</button>`);
+  }
+  acts.push('<button data-td-copy>Copy details</button>');
+  body += `<div class="td-acts">${acts.join('')}</div>`;
+  if (p && (dcp.canSet || dcpAll?.available && config?.local) && !config?.read_only) {
+    body += `<div class="td-danger"><h4 style="margin:0 0 4px;font-size:11px;text-transform:uppercase;color:var(--muted)">Reset to factory settings (PROFINET)</h4>` +
+      `<select id="tdResetMode"><option value="communication">IP address and name of station</option><option value="all">All stored data</option></select> ` +
+      `<button data-dcp-reset="${esc(p.mac)}" data-adapter="${esc(x.pn.adapter?.id || dcp.adapter)}">Reset…</button>` +
+      `<div class="td-note">Like PRONETA / TIA “Reset to factory settings”. A running controller loses this device until it gets its name and IP again.</div></div>`;
+  }
+  $('tdBody').innerHTML = body;
+}
+$('topoDetail').addEventListener('click', async ev => {
+  if (ev.target.closest('[data-io-test]')) { openIOTest(detailOf(detailKey)); return; }
+  const pg = ev.target.closest('[data-td-ping]');
+  if (pg) { nb.alive.set(pg.dataset.tdPing, null); renderDetail(); await pingIPs([pg.dataset.tdPing]); renderDetail(); rerender(); return; }
+  if (ev.target.closest('[data-td-copy]')) {
+    const text = [$('tdTitle').textContent, ...[...$('tdBody').querySelectorAll('.td-sec')].map(sc =>
+      `\n${sc.querySelector('h4').textContent}\n` + [...sc.querySelectorAll('dt')].map(dt => `  ${dt.textContent}: ${dt.nextElementSibling.textContent}`).join('\n'))].join('\n');
+    try { await navigator.clipboard.writeText(text); toast('Details copied'); } catch (e) { toast('Copy failed: ' + e.message, true); }
+    return;
+  }
+  const rs = ev.target.closest('[data-dcp-reset]');
+  if (rs) {
+    const mode = $('tdResetMode').value, x = detailOf(detailKey), p = x?.pn?.d;
+    const what = mode === 'all' ? 'ALL stored data (IP, name and all parameters)' : 'its IP address and name of station';
+    if (!confirm(`Reset PROFINET device “${p?.name || rs.dataset.dcpReset}” (${p?.type || ''}, MAC ${rs.dataset.dcpReset}) to factory settings?\n\nIt loses ${what}. A PLC that controls it loses the connection.`)) return;
+    if (!confirm('Really reset it? This cannot be undone.')) return;
+    const r = await fetch('api/dcp/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adapter: rs.dataset.adapter, mac: rs.dataset.dcpReset, mode }) });
+    const j = await r.json().catch(() => ({}));
+    toast(r.ok ? 'The device was reset to factory settings' : 'Reset: ' + (j.error || r.status), !r.ok);
+    if (r.ok) setTimeout(() => dcpAll ? dcpScanAll() : dcpFind(true), 1500);
+  }
+});
+// ---- PROFINET IO test (like PRONETA): PLC Monitor as the device's IO controller ----
+// The dialog polls the status 4× a second while open; that is also the
+// dead-man (the server disarms after 3 s and releases after 15 s without it).
+const io = { dev: null, timer: 0, since: 0, st: null, fw: '', inHTML: '', outHTML: '' };
+function openIOTest(x) {
+  const p = x?.pn?.d;
+  if (!p) return;
+  io.dev = { ip: p.ip_set ? p.ip : '', mac: p.mac, name: p.name || '', vendor_id: p.vendor_id || 0, device_id: p.device_id || 0,
+             adapter: x.pn.adapter?.id || '' };
+  $('ioTitle').textContent = p.name || p.mac.toUpperCase();
+  $('ioSub').textContent = [p.type, 'IP ' + (io.dev.ip || 'none'), 'MAC ' + p.mac.toUpperCase(), x.pn.adapter?.name].filter(Boolean).join(' · ');
+  $('ioLog').textContent = ''; $('ioErr').textContent = '';
+  io.since = 0; io.st = null; io.inHTML = io.outHTML = '';
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('ioTest:' + p.mac) || '{}'); } catch {}
+  $('ioSlots').value = saved.slots || '';
+  $('ioCycle').value = String(saved.cycle || 32);
+  $('ioPorts').value = saved.ports || 1;
+  $('ioSetup').hidden = false; $('ioRun').hidden = true;
+  $('dlgIO').showModal();
+  ioCheckFirewall();
+  ioPoll();
+}
+async function ioCheckFirewall() {
+  try { io.fw = (await (await fetch('api/pnio/firewall', { cache: 'no-store' })).json()).rule || ''; } catch { io.fw = ''; }
+  ioRenderFw();
+}
+function ioRenderFw() {
+  const stuck = /ApplicationReady|firewall/i.test(io.st?.error || '') || (io.st?.state || '').includes('ApplicationReady');
+  $('ioFw').hidden = io.fw !== 'no';
+  $('ioFw').classList.toggle('urgent', stuck);
+}
+async function ioPoll() {
+  clearTimeout(io.timer);
+  if (!$('dlgIO').open) return;
+  try {
+    const j = await (await fetch('api/pnio/status?since=' + io.since, { cache: 'no-store' })).json();
+    io.st = j;
+    ioRender(j);
+  } catch (e) { $('ioErr').textContent = 'PLC Monitor is not reachable'; }
+  io.timer = setTimeout(ioPoll, 250);
+}
+function ioRow(v, out, armed) {
+  const lbl = `Slot ${v.slot}${v.subslot !== 1 ? '.' + v.subslot : ''}`;
+  const bytes = v.data.map((b, i) => `<span class="io-byte" title="byte ${i}">` + [7, 6, 5, 4, 3, 2, 1, 0].map(bit => out
+    ? `<button class="io-bit${b >> bit & 1 ? ' on' : ''}" data-io-slot="${v.slot}" data-io-sub="${v.subslot}" data-io-byte="${i}" data-io-bit="${bit}"${armed ? '' : ' disabled'} title="bit ${i}.${bit}">${bit}</button>`
+    : `<span class="io-bit${b >> bit & 1 ? ' on' : ''}" title="bit ${i}.${bit}">${bit}</span>`).join('') + '</span>').join('');
+  const hex = v.data.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+  const tag = out
+    ? (v.iops === 0x80 ? '<span class="io-tag ok">acting</span>' : '<span class="io-tag off">substitute values</span>') +
+      (v.iocs === 0x80 ? '' : ' <span class="io-tag bad">device does not take them</span>')
+    : (v.iops === 0x80 ? '<span class="io-tag ok">good</span>' : '<span class="io-tag bad">not valid</span>');
+  return `<div class="io-row"><span class="io-lbl">${lbl}</span>${bytes}<span class="io-hex">${hex}</span>${tag}</div>`;
+}
+function ioRender(j) {
+  for (const e of j.events || []) { io.since = e.n; $('ioLog').textContent += new Date(e.at).toLocaleTimeString() + '  ' + e.text + '\n'; }
+  if (j.events?.length) $('ioLog').scrollTop = $('ioLog').scrollHeight;
+  const running = !!(j.running || j.busy);
+  $('ioSetup').hidden = running; $('ioRun').hidden = !running;
+  $('ioUnavail').hidden = !!j.available;
+  $('ioUnavail').querySelector('span').textContent = j.unavailable || '';
+  $('ioConnect').disabled = !j.available || j.read_only;
+  if (!running) $('ioErr').textContent = j.error ? 'Not connected: ' + j.error : '';
+  if (running) {
+    const st = j.busy ? j.busy + '…' : j.state || '';
+    $('ioState').textContent = st;
+    $('ioState').className = st === 'data exchange' ? 'ok' : st === 'aborted' ? 'bad' : '';
+    $('ioStats').textContent = j.running ? `cycle ${j.cycle_ms} ms · ${j.in_frames} input / ${j.out_frames} output frames · ${j.late} late (worst ${j.max_late_ms} ms)` +
+      (j.in_frames ? ` · device: ${j.data_status}` : '') : '';
+    const armed = !!j.armed;
+    $('ioArm').textContent = armed ? 'Disarm outputs' : 'Arm outputs…';
+    $('ioArm').classList.toggle('danger', armed);
+    $('ioArm').disabled = !j.running || j.read_only;
+    const inH = (j.inputs || []).map(v => ioRow(v, false)).join('') || '<div class="td-note">No input data.</div>';
+    const outH = (j.outputs || []).map(v => ioRow(v, true, armed)).join('') || '<div class="td-note">No output data.</div>';
+    if (inH !== io.inHTML) $('ioIn').innerHTML = io.inHTML = inH;
+    if (outH !== io.outHTML) $('ioOut').innerHTML = io.outHTML = outH;
+  }
+  ioRenderFw();
+}
+$('ioConnect').onclick = async () => {
+  const slots = $('ioSlots').value.trim(), cycle = +$('ioCycle').value, ports = +$('ioPorts').value || 1;
+  try { localStorage.setItem('ioTest:' + io.dev.mac, JSON.stringify({ slots, cycle, ports })); } catch {}
+  $('ioLog').textContent = ''; io.since = 0; $('ioErr').textContent = '';
+  const err = await api('POST', 'api/pnio/start', { ...io.dev, slots, cycle_ms: cycle, ports });
+  if (err) $('ioErr').textContent = err;
+  ioPoll();
+};
+$('ioStop').onclick = async () => { const err = await api('POST', 'api/pnio/stop', {}); if (err) toast(err, true); ioPoll(); };
+$('ioArm').onclick = async () => {
+  const on = !io.st?.armed;
+  if (on && !confirm(`Arm the outputs of “${$('ioTitle').textContent}”?\n\nThe outputs switch to what you set here. Machinery connected to them can move.`)) return;
+  const err = await api('POST', 'api/pnio/arm', { on });
+  if (err) toast(err, true);
+  ioPoll();
+};
+$('ioOut').addEventListener('click', async ev => {
+  const b = ev.target.closest('button[data-io-bit]');
+  if (!b || b.disabled) return;
+  const v = (io.st?.outputs || []).find(o => o.slot === +b.dataset.ioSlot && o.subslot === +b.dataset.ioSub);
+  if (!v) return;
+  const data = v.data.slice();
+  data[+b.dataset.ioByte] ^= 1 << +b.dataset.ioBit;
+  v.data = data; // at once on screen; the next status confirms it
+  b.classList.toggle('on');
+  const err = await api('POST', 'api/pnio/output', { slot: v.slot, subslot: v.subslot, hex: data.map(x => x.toString(16).padStart(2, '0')).join('') });
+  if (err) toast(err, true);
+});
+$('ioFwBtn').onclick = async () => {
+  toast('Windows asks for administrator permission…');
+  const err = await api('POST', 'api/pnio/firewall', {});
+  toast(err || 'Firewall rule added: UDP 34964 may come in', !!err);
+  ioCheckFirewall();
+};
+$('ioNpcap').onclick = async () => {
+  const err = await api('POST', 'api/dcp/npcap/download', {});
+  toast(err || 'npcap.com opens in your browser. Install Npcap with “WinPcap API-compatible mode”, then press Check again.', !!err);
+};
+$('ioNpcapCheck').onclick = async () => { const err = await api('POST', 'api/dcp/npcap/check', {}); toast(err || 'Npcap found', !!err); ioPoll(); };
+// Closing the dialog (✕ or Esc) ends the test: the device is released. Done
+// here and not only on "close", which some WebViews do not fire; the server
+// also releases it 15 s after the last status poll.
+function ioEnd() {
+  clearTimeout(io.timer);
+  if (io.st?.running || io.st?.busy) api('POST', 'api/pnio/stop', {});
+  io.st = null;
+}
+$('ioClose').onclick = () => { ioEnd(); $('dlgIO').close(); };
+$('dlgIO').addEventListener('cancel', ioEnd);
+$('dlgIO').addEventListener('close', ioEnd);
+
+$('topoTree').addEventListener('click', ev => {
+  if (ev.target.closest('[data-nb-refresh]')) { loadNeighbors(true); return; }
+  if (ev.target.closest('button, a, input, select, summary, label')) return;
+  const card = ev.target.closest('[data-key]');
+  if (card) openDetail(card.dataset.key);
+});
+
 async function topoTick() {
   clearTimeout(topoTimer);
   try {
@@ -3113,6 +4317,10 @@ async function initTopology() {
   showDcpPanel(false);
   topoTick();
   setInterval(() => loadConfig().catch(() => {}), 5000);
+  // Other devices: the neighbour table now, read again every 15 s, pinged every minute.
+  loadNeighbors(true);
+  let nbTick = 0;
+  setInterval(() => { if (!document.hidden) loadNeighbors(++nbTick % 4 === 0); }, 15000);
 }
 
 // ---- Export the topology view as PNG / JPG / PDF ----
@@ -3145,6 +4353,16 @@ function topoModel() {
     kind: 'profinet', label: 'PROFINET', title: d.name || '(no name)',
     lines: [d.type, `MAC ${d.mac}`, d.ip_set ? `IP ${d.ip} / ${d.mask}${d.gateway !== '0.0.0.0' ? ' · gw ' + d.gateway : ''}` : 'no IP address',
             d.vendor ? `${d.vendor} · device 0x${d.device_id.toString(16)}` : '', d.role].filter(Boolean) })) });
+  for (const r of lldp.results || []) if (r.neighbors.length) items.push({ title: `Cable neighbour (LLDP) on ${r.adapter.name}`, devs: r.neighbors.map(n => ({
+    kind: 'profinet', label: n.profinet ? 'PROFINET port' : 'LLDP', title: n.system_name || n.chassis_id,
+    lines: [`Port ${n.port_id}`, n.port_desc, n.mgmt_ip && `IP ${n.mgmt_ip}`, n.mau].filter(Boolean) })) });
+  const shown = new Set([...(st?.devices || []).map(d => d.ip), ...dcpAllDevices().filter(x => x.d.ip_set).map(x => x.d.ip)]);
+  const others = (nb.list || []).filter(n => !shown.has(n.ip));
+  if (others.length) items.push({ title: 'Other devices (neighbour table)', devs: others.map(n => {
+    const a = nb.alive.get(n.ip);
+    return { kind: 'other', label: n.router ? 'Router' : 'Device', title: n.ip + (a ? (a.alive ? '  ● online' : '  ○ no answer') : ''),
+      lines: [n.name, `MAC ${n.mac.toUpperCase()}`, vendorText(n), n.interface].filter(Boolean) };
+  }) });
   return { root: ['This PC – PLC Monitor', ...localNets.map(n => `${n.ip} (${n.interface})${n.down ? ' – no link' : ''}`)], items };
 }
 
@@ -3274,6 +4492,7 @@ $('btnScan').onclick = async () => {
   const err = await api('POST', 'api/scan', { subnet,
     timeout_ms: +$('scanTimeout').value, units: $('scanUnits').checked, local: $('scanLocal').checked });
   if (err) toast(err, true); else topoTick();
+  loadNeighbors(true);
   // "all" also searches every cable with PROFINET DCP (devices whatever their IP address).
   if (/^all$/i.test(subnet) && config?.local) dcpScanAll();
 };
@@ -3283,8 +4502,8 @@ $('btnBusScan').onclick = async () => {
   if (err) toast(err, true); else topoTick();
 };
 
-// "Monitor this device": switch the network settings to it.
-$('topoTree').addEventListener('click', async ev => {
+// "Monitor this device": switch the network settings to it (cards and details panel).
+$('topology').addEventListener('click', async ev => {
   const t = ev.target.closest('button[data-uatags]');
   if (t) { // the PLC tags window, on this device's endpoint
     const u = 'plctags?endpoint=' + encodeURIComponent(t.dataset.uatags);
@@ -3339,15 +4558,18 @@ async function loadLayout() {
         layout = saved && Array.isArray(saved.charts) ? saved : j.layout;
         layoutLoaded = true;
         applyLayout();
+        applyViewPrefs();
       }
       return;
     }
     // Newer revisions only: a reply that started before our own save must
     // not undo it. A restarted server starts counting again (new boot id).
     if (!layoutLoaded || j.boot !== layoutBoot || j.rev > layoutRev) {
+      const first = !layoutLoaded;
       layoutRev = j.rev; layoutBoot = j.boot; layout = j.layout; layoutLoaded = true;
       layout.chart_place = layout.chart_place || 'main';
       applyLayout();
+      if (first) applyViewPrefs(); // fold, tree view: as they were left
     } else if (PANEL === 'chart' || PANEL === 'tags') {
       applyLayout(); // keeps counting while its chart / tag window is missing, then closes
     }
@@ -3704,7 +4926,11 @@ rows.addEventListener('dragstart', ev => {
   const tr = ev.target.closest?.('tr[data-name]');
   if (!tr) return;
   ev.dataTransfer.setData('text/x-s7m-tag', tr.dataset.name);
-  ev.dataTransfer.setData('text/plain', tr.dataset.name);
+  // Dragged onto the UDT tool (another window): every selected tag, as names and in full.
+  const names = selected.has(tr.dataset.name) ? selectedInOrder() : [tr.dataset.name];
+  ev.dataTransfer.setData('text/plain', names.join('\n'));
+  const full = names.map(n => (config?.tags || []).find(t => t.name === n)).filter(Boolean);
+  if (full.length === names.length) ev.dataTransfer.setData('application/x-plcm-tags', JSON.stringify(full.map(cleanTag)));
   ev.dataTransfer.effectAllowed = 'copy';
   draggingTag = true;
   // Only after the drag has started: changing the page right away cancels it.
@@ -4217,6 +5443,8 @@ function mergeCharts(srcId, dstId) {
 if (window.__s7desktop && window.__s7frame && !PANEL) {
   const bar = $('titlebar'), frame = window.__s7frame;
   bar.hidden = false;
+  // The title bar shows the name and the connection: not again below it.
+  document.body.classList.add('with-titlebar');
   bar.addEventListener('mousedown', ev => {
     if (ev.button !== 0 || ev.target.closest('button, .menu-list')) return;
     if (ev.target.id === 'tbResize') { frame('resize'); return; }
@@ -4324,5 +5552,6 @@ if (PANEL === 'topology') {
   exportBadge(); setInterval(exportBadge, 5000);
 }
 </script>
+<div id="fileDrop" hidden><div><b>Drop to import tags</b><span>PLC tag table, register map, HMIEditERP list (.xlsx, .xls, .xml, .sdf, .csv) or block source (.scl, .db, .udt)</span></div></div>
 </body>
 </html>

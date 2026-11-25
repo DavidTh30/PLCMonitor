@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UDT tool – PLC Monitor</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="themes.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e5e7eb;
+          --good:#15803d; --bad:#b91c1c; --warn:#b45309; --accent:#2563eb; --accent-fg:#fff;
+          --code:#f3f4f6; --soft:#eef2ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#171b23; --fg:#e5e7eb; --muted:#9ca3af; --line:#2a303b;
+            --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --accent:#60a5fa; --accent-fg:#0f1218;
+            --code:#11151c; --soft:#1f2633; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; display:flex; flex-direction:column; }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:8px 14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0 6px 0 0; display:flex; align-items:center; gap:8px; }
+  .logo { width:30px; height:30px; border-radius:8px; display:grid; place-items:center; color:#fff; font-weight:800; font-size:13px;
+          background:linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #7c3aed)); }
+  .spacer { flex:1; }
+  button { font:inherit; font-size:13px; padding:4px 11px; border-radius:7px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; white-space:nowrap; }
+  button:hover:not(:disabled) { border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); font-weight:600; }
+  button.icon { padding:2px 7px; }
+  input, select { font:inherit; font-size:13px; padding:4px 7px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); }
+  input:focus { outline:2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color:var(--accent); }
+  input.bad { border-color:var(--bad); background:color-mix(in srgb, var(--bad) 8%, var(--card)); }
+  label.nm { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); }
+  #udtName { width:200px; font-weight:600; color:var(--fg); }
+  .menu { position:relative; }
+  .menu-list { display:none; position:absolute; right:0; top:calc(100% + 4px); background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.15); padding:4px; z-index:20; min-width:220px; }
+  .menu.open .menu-list { display:block; }
+  .menu-list button { display:block; width:100%; text-align:left; border:0; border-radius:5px; padding:6px 10px; }
+  .menu-list button:hover { background:var(--soft); }
+  .menu-list small { color:var(--muted); }
+  main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(560px, 1.6fr) minmax(300px, 1fr); gap:12px; padding:12px 14px; }
+  @media (max-width:980px) { main { grid-template-columns:1fr; overflow:auto; } }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; display:flex; flex-direction:column; min-height:0; }
+  .panel-head { display:flex; align-items:center; gap:6px; padding:8px 10px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .panel-head b { font-size:13px; }
+  .meta { color:var(--muted); font-size:12px; }
+  .tbl-wrap { flex:1; min-height:120px; overflow:auto; position:relative; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th { position:sticky; top:0; background:var(--card); text-align:left; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.03em; font-weight:600; padding:6px; border-bottom:1px solid var(--line); z-index:1; }
+  td { padding:3px 6px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  td input { width:100%; border-color:transparent; background:transparent; padding:3px 5px; }
+  td input:hover { border-color:var(--line); }
+  td.off, td.from { font-family:ui-monospace, Consolas, monospace; font-size:12px; white-space:nowrap; }
+  td.off { color:var(--accent); }
+  td.from { color:var(--muted); }
+  td.from.miss { color:var(--warn); }
+  td.drag { cursor:grab; color:var(--muted); width:18px; text-align:center; user-select:none; }
+  td.acts { white-space:nowrap; width:1%; }
+  td.acts button { padding:1px 6px; border-color:transparent; background:none; color:var(--muted); }
+  td.acts button:hover { color:var(--fg); border-color:var(--line); }
+  td.acts button.del:hover { color:var(--bad); }
+  tr.grp td { background:color-mix(in srgb, var(--accent) 6%, var(--card)); }
+  tr.grp td input.nm { font-weight:600; }
+  tr.err td { background:color-mix(in srgb, var(--bad) 8%, var(--card)); }
+  tr.dragging { opacity:.4; }
+  tr.drop-above td { box-shadow:inset 0 2px 0 var(--accent); }
+  tr.drop-below td { box-shadow:inset 0 -2px 0 var(--accent); }
+  tr.drop-into td { background:color-mix(in srgb, var(--accent) 18%, var(--card)); box-shadow:inset 0 0 0 1px var(--accent); }
+  tr.drop-into td:nth-child(2)::after { content:'  ⤵ put inside'; color:var(--accent); font-size:11px; font-weight:600; }
+  .ind { display:inline-block; }
+  .nmcell { display:flex; align-items:center; }
+  .drop { position:absolute; inset:6px; border:2px dashed var(--line); border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+          text-align:center; color:var(--muted); gap:6px; padding:20px; pointer-events:none; }
+  .drop b { color:var(--fg); font-size:15px; }
+  .tbl-wrap.over { outline:2px dashed var(--accent); outline-offset:-6px; background:color-mix(in srgb, var(--accent) 5%, transparent); }
+  .tbl-wrap.over .drop { border-color:var(--accent); color:var(--accent); }
+  pre { margin:0; padding:10px 12px; font:12.5px/1.5 ui-monospace, Consolas, monospace; overflow:auto; flex:1; min-height:120px; white-space:pre; }
+  .sum { display:flex; gap:12px; flex-wrap:wrap; padding:8px 10px; border-top:1px solid var(--line); font-size:12.5px; }
+  .sum b { font-size:14px; }
+  .ok { color:var(--good); } .warn { color:var(--warn); } .bad { color:var(--bad); }
+  footer { padding:6px 14px; border-top:1px solid var(--line); background:var(--card); font-size:12.5px; display:flex; gap:10px; align-items:center; min-height:32px; }
+  #status.bad { color:var(--bad); } #status.ok { color:var(--good); }
+  dialog { border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--fg); padding:0; width:min(520px, 94vw); }
+  dialog::backdrop { background:rgba(0,0,0,.35); }
+  .dlg { padding:16px 18px; display:flex; flex-direction:column; gap:10px; }
+  .dlg h2 { margin:0; font-size:16px; }
+  .dlg .acts { display:flex; justify-content:flex-end; gap:8px; }
+  .pick { display:flex; flex-direction:column; gap:4px; max-height:50vh; overflow:auto; }
+  .pick label { display:flex; gap:8px; align-items:center; padding:5px 8px; border:1px solid var(--line); border-radius:7px; cursor:pointer; }
+  .pick label:hover { border-color:var(--accent); }
+  #toast { position:fixed; left:50%; bottom:44px; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:7px 14px; border-radius:8px; font-size:13px; z-index:50; max-width:90vw; }
+  #toast.err { background:var(--bad); color:#fff; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="logo">UDT</span>UDT tool</h1>
+  <label class="nm">Name <input id="udtName" value="New_UDT" spellcheck="false" title="The name of the PLC data type (TYPE &quot;…&quot;)"></label>
+  <span class="spacer"></span>
+  <button id="btnNew" title="Start an empty UDT">New</button>
+  <button id="btnImport" title="Open a UDT: a UDT sheet (.xlsx, .xls, .csv) or a source with TYPE / DATA_BLOCK (.udt, .scl, .db)">Import…</button>
+  <input type="file" id="file" accept=".xlsx,.xls,.csv,.tsv,.udt,.scl,.db" hidden>
+  <button id="btnCopy" title="Copy the SCL source">Copy SCL</button>
+  <div class="menu" id="expMenu">
+    <button class="primary" id="btnExport">Export ▾</button>
+    <div class="menu-list">
+      <button data-exp="udt">SCL source (.udt) <small>– TYPE for the PLC software</small></button>
+      <button data-exp="scl">SCL source (.scl)</button>
+      <button data-exp="xlsx">UDT sheet (.xlsx) <small>– Name, Data Type, Offset, Comment</small></button>
+      <button data-exp="csv">UDT sheet (.csv)</button>
+    </div>
+  </div>
+  <button class="icon" onclick="S7Themes.openPicker()" title="Colour theme">🎨</button>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="panel-head">
+      <b>Members</b> <span class="meta" id="count"></span>
+      <span class="spacer"></span>
+      <button id="btnAdd" title="Add a member at the end">+ Member</button>
+      <button id="btnStruct" title="Add a structure (members inside it are named Group.Member)">+ Struct</button>
+      <button id="btnArrays" title="Make consecutive members Name[0], Name[1], … of one type into Name : Array[a..b] of Type">Make arrays</button>
+      <button id="btnSort" title="Order the members by the address of the tags they were made from">Sort by address</button>
+      <button id="btnClear" title="Remove every member">Clear</button>
+    </div>
+    <div class="tbl-wrap" id="wrap">
+      <table><thead><tr><th></th><th style="width:34%">Name</th><th style="width:20%">Data type</th><th>Comment</th><th>Offset</th><th>From tag</th><th></th></tr></thead>
+        <tbody id="rows"></tbody></table>
+      <div class="drop" id="dropHint"><b>Drag tags here from the tag list</b>
+        <span>Select tags in PLC Monitor and drag them onto this window – or right-click them → <i>Send to UDT tool</i>.<br>Or <b>Import…</b> a UDT, or add members with <b>+ Member</b>.<br>
+        Move a member with ⠿: drop it <b>on a Struct</b> to put it inside, between rows to place it there; → / ← put it into the Struct above or take it out.</span></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><b>SCL</b> <span class="meta">TYPE for the PLC engineering software (External source files → Generate blocks from source)</span></div>
+    <pre id="scl"></pre>
+    <div class="sum" id="sum"></div>
+  </section>
+</main>
+<footer><span id="status">Ready.</span></footer>
+
+<datalist id="types">
+  <option>Bool</option><option>Byte</option><option>Word</option><option>DWord</option><option>LWord</option><option>Char</option>
+  <option>SInt</option><option>USInt</option><option>Int</option><option>UInt</option><option>DInt</option><option>UDInt</option><option>LInt</option>
+  <option>Real</option><option>LReal</option><option>Time</option><option>Date</option><option>TOD</option><option>DTL</option>
+  <option>String[20]</option><option>Struct</option><option>Array[0..7] of Bool</option><option>Array[0..9] of Int</option><option>Array[0..9] of Real</option>
+</datalist>
+
+<dialog id="dlgPick"><form method="dialog" class="dlg">
+  <h2 id="pickTitle">Choose a type</h2>
+  <div class="pick" id="pickList"></div>
+  <div class="acts"><button value="cancel">Cancel</button><button value="ok" class="primary">Open</button></div>
+</form></dialog>
+<div id="toast" hidden></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const SCL = { BOOL: 'Bool', BYTE: 'Byte', USINT: 'USInt', SINT: 'SInt', WORD: 'Word', UINT: 'UInt', INT: 'Int', DWORD: 'DWord', UDINT: 'UDInt', DINT: 'DInt', REAL: 'Real', LREAL: 'LReal' };
+const SIZE = { BOOL: 0, BYTE: 1, USINT: 1, SINT: 1, WORD: 2, UINT: 2, INT: 2, DWORD: 4, UDINT: 4, DINT: 4, REAL: 4, LREAL: 8 };
+// state: the UDT being edited. A member: {name, type, comment, from?, src?: {area, db, offset, bit}}.
+let st = { name: 'New_UDT', members: [] };
+let lay = null, undo = [];
+try { const s = JSON.parse(localStorage.getItem('plcm.udtTool') || 'null'); if (s && Array.isArray(s.members)) st = s; } catch (e) {}
+
+function toast(msg, err) {
+  const t = $('toast'); t.textContent = msg; t.className = err ? 'err' : ''; t.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, err ? 6000 : 3000);
+}
+function status(msg, cls) { $('status').textContent = msg; $('status').className = cls || ''; }
+function save() { try { localStorage.setItem('plcm.udtTool', JSON.stringify(st)); } catch (e) {} }
+function snapshot() { undo.push(JSON.stringify(st)); if (undo.length > 50) undo.shift(); }
+
+// ---- layout (server): offsets, size, SCL ----
+let layTimer = 0, layReq = 0;
+function relayout() { clearTimeout(layTimer); layTimer = setTimeout(doLayout, 200); save(); }
+async function doLayout() {
+  const id = ++layReq;
+  if (!st.members.length) { lay = null; paintLayout(); $('scl').textContent = ''; $('sum').innerHTML = ''; status('Ready – drag tags here, Import… a UDT or add members.'); return; }
+  try {
+    const r = await fetch('api/udt/layout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: st.name, members: st.members.map(({ name, type, comment }) => ({ name, type, comment })) }) });
+    const j = await r.json();
+    if (id !== layReq) return;
+    if (!r.ok) { lay = { error: j.error }; } else lay = j;
+  } catch (e) { lay = { error: 'PLC Monitor not reachable: ' + e.message }; }
+  const chk = !lay.error && checkAgainstTags();
+  paintLayout(); // the cells only: the field being typed in keeps its focus
+  if (lay.error) { status(lay.error, 'bad'); return; }
+  $('scl').textContent = lay.scl;
+  $('sum').innerHTML = `<span>Size <b>${lay.size}</b> bytes</span><span>${lay.tags.length} tags</span>` +
+    (lay.other ? `<span class="meta">+${lay.other} not as tags (String, …)</span>` : '') + (chk ? `<span class="${chk.cls}">${esc(chk.text)}</span>` : '');
+  status(`TYPE "${lay.name}" – ${lay.size} bytes, standard access.`, 'ok');
+}
+// Members made from tags of one data block: does the UDT lay them out where they are in the PLC?
+function checkAgainstTags() {
+  const src = st.members.map((m, i) => [m, lay.members[i]]).filter(([m]) => m.src && m.src.area === 'DB');
+  if (!src.length) return null;
+  const base = Math.min(...src.map(([m]) => m.src.offset));
+  let miss = 0;
+  for (const [m, l] of src) {
+    const want = `${m.src.offset - base}.${m.type.toLowerCase() === 'bool' ? m.src.bit : 0}`;
+    m.miss = l && l.offset !== want; if (m.miss) miss++;
+  }
+  return miss ? { cls: 'warn', text: `⚠ ${miss} member${miss === 1 ? '' : 's'} not where the tag is (from byte ${base} of the DB) – the PLC's DB has another layout` }
+    : { cls: 'ok', text: `✓ Same layout as the tags in the PLC (from byte ${base})` };
+}
+
+// ---- table ----
+function render() {
+  $('udtName').value = st.name;
+  const errName = lay?.error && (lay.error.match(/^member (.+?):/) || [])[1];
+  const offs = lay && !lay.error ? lay.members : [];
+  $('rows').innerHTML = st.members.map((m, i) => {
+    const depth = (m.name.match(/\./g) || []).length, grp = m.type.toLowerCase() === 'struct';
+    const off = offs[i]?.offset || '';
+    return `<tr data-i="${i}" class="${grp ? 'grp' : ''}${errName === m.name ? ' err' : ''}">` +
+      `<td class="drag" draggable="true" title="Drag to move it: drop it on a Struct to put it inside, between rows to place it there">⠿</td>` +
+      `<td><div class="nmcell"><span class="ind" style="width:${depth * 16}px"></span><input class="nm" data-f="name" value="${esc(m.name)}" spellcheck="false"></div></td>` +
+      `<td><input data-f="type" value="${esc(m.type)}" list="types" spellcheck="false"></td>` +
+      `<td><input data-f="comment" value="${esc(m.comment || '')}"></td>` +
+      `<td class="off">${esc(off)}</td><td class="from${m.miss ? ' miss' : ''}" title="${m.miss ? 'The tag is at another place in the PLC than this member in the UDT' : ''}">${esc(m.from || '')}</td>` +
+      `<td class="acts">${depth ? `<button data-a="out" title="Take it out of ${esc(parentOf(m.name))}">←</button>` : ''}` +
+      `${structAbove(i) ? `<button data-a="in" title="Put it into the Struct ${esc(structAbove(i))} above">→</button>` : ''}` +
+      `<button data-a="up" title="Move up">↑</button><button data-a="down" title="Move down">↓</button><button data-a="ins" title="Insert a member below">+</button><button class="del" data-a="del" title="Remove">✕</button></td></tr>`;
+  }).join('');
+  $('dropHint').hidden = st.members.length > 0;
+  $('count').textContent = st.members.length ? `${st.members.length}` : '';
+  $('btnSort').disabled = !st.members.some(m => m.src);
+}
+// paintLayout puts the layout into the rows that are there: offsets, the row
+// with an error, members not where their tag is.
+function paintLayout() {
+  const trs = $('rows').rows;
+  if (trs.length !== st.members.length) { render(); return; }
+  const errName = lay?.error && (lay.error.match(/^member (.+?):/) || [])[1];
+  const offs = lay && !lay.error ? lay.members : [];
+  st.members.forEach((m, i) => {
+    const tr = trs[i];
+    tr.classList.toggle('err', errName === m.name);
+    tr.querySelector('td.off').textContent = offs[i]?.offset || '';
+    const f = tr.querySelector('td.from');
+    f.classList.toggle('miss', !!m.miss);
+    f.title = m.miss ? 'The tag is at another place in the PLC than this member in the UDT' : '';
+  });
+}
+$('rows').addEventListener('change', ev => {
+  const inp = ev.target, tr = inp.closest('tr'); if (!tr || !inp.dataset.f) return;
+  snapshot();
+  const m = st.members[+tr.dataset.i];
+  m[inp.dataset.f] = inp.value.trim();
+  if (inp.dataset.f === 'name' || inp.dataset.f === 'type') { // indentation, group look
+    const depth = (m.name.match(/\./g) || []).length;
+    tr.querySelector('.ind').style.width = depth * 16 + 'px';
+    tr.classList.toggle('grp', m.type.toLowerCase() === 'struct');
+  }
+  relayout();
+});
+// structAbove: the nearest Struct above row i at the same level (not its own group).
+function structAbove(i) {
+  const m = st.members[i], p = parentOf(m.name);
+  for (let k = i - 1; k >= 0; k--) {
+    const x = st.members[k];
+    if (parentOf(x.name) === p && isGroup(x) && !inside(m.name, x.name)) return x.name;
+    if (parentOf(x.name) === p && !inside(x.name, m.name)) break; // only right above (its group's members may be between)
+  }
+  return '';
+}
+$('rows').addEventListener('click', ev => {
+  const b = ev.target.closest('button[data-a]'); if (!b) return;
+  const i = +b.closest('tr').dataset.i, ms = st.members;
+  if (b.dataset.a === 'out') { const p = parentOf(ms[i].name); moveMember(i, { i: groupEnd(p), parent: parentOf(p) }); return; }
+  if (b.dataset.a === 'in') { const g = structAbove(i); if (g) moveMember(i, { i: groupEnd(g), parent: g }); return; }
+  snapshot();
+  if (b.dataset.a === 'up' && i > 0) [ms[i - 1], ms[i]] = [ms[i], ms[i - 1]];
+  if (b.dataset.a === 'down' && i < ms.length - 1) [ms[i + 1], ms[i]] = [ms[i], ms[i + 1]];
+  if (b.dataset.a === 'del') ms.splice(i, 1);
+  if (b.dataset.a === 'ins') {
+    const pre = ms[i].type.toLowerCase() === 'struct' ? ms[i].name + '.' : ms[i].name.replace(/[^.]*$/, '');
+    ms.splice(i + 1, 0, { name: uniq(pre + 'Member'), type: 'Int', comment: '' });
+  }
+  render(); relayout();
+});
+$('udtName').addEventListener('change', () => { snapshot(); st.name = $('udtName').value.trim() || 'New_UDT'; relayout(); });
+const uniq = n => { const have = new Set(st.members.map(m => m.name)); if (!have.has(n)) return n; for (let k = 2; ; k++) if (!have.has(n + k)) return n + k; };
+$('btnAdd').onclick = () => { snapshot(); st.members.push({ name: uniq('Member'), type: 'Int', comment: '' }); render(); relayout(); focusLast(); };
+$('btnStruct').onclick = () => {
+  snapshot(); const g = uniq('Group');
+  st.members.push({ name: g, type: 'Struct', comment: '' }, { name: g + '.Member', type: 'Int', comment: '' });
+  render(); relayout(); focusLast(2);
+};
+function focusLast(back = 1) { const r = $('rows').rows[st.members.length - back]; r?.querySelector('input.nm')?.select(); r?.scrollIntoView({ block: 'nearest' }); }
+$('btnClear').onclick = () => { if (!st.members.length || !confirm('Remove every member?')) return; snapshot(); st.members = []; render(); relayout(); };
+$('btnNew').onclick = () => {
+  if (st.members.length && !confirm('Start a new UDT? The current one goes (Ctrl+Z brings it back).')) return;
+  snapshot(); st = { name: 'New_UDT', members: [] }; render(); relayout();
+};
+$('btnSort').onclick = () => {
+  snapshot();
+  const key = m => m.src ? (m.src.db || 0) * 1e7 + m.src.offset * 8 + (m.src.bit || 0) : Infinity;
+  st.members = st.members.map((m, i) => [m, i]).sort((a, b) => key(a[0]) - key(b[0]) || a[1] - b[1]).map(x => x[0]);
+  render(); relayout();
+};
+// Name[0], Name[1], … of one type, one after the other → Name : Array[a..b] of Type.
+$('btnArrays').onclick = () => {
+  const out = []; let made = 0;
+  for (let i = 0; i < st.members.length;) {
+    const m = st.members[i], x = m.name.match(/^(.*)\[(\d+)\]$/);
+    if (x) {
+      let j = i + 1, n = +x[2];
+      while (j < st.members.length) {
+        const y = st.members[j].name.match(/^(.*)\[(\d+)\]$/);
+        if (!y || y[1] !== x[1] || +y[2] !== n + 1 || st.members[j].type !== m.type) break;
+        n++; j++;
+      }
+      if (j - i > 1) { out.push({ name: x[1], type: `Array[${x[2]}..${n}] of ${m.type}`, comment: m.comment, from: m.from, src: m.src }); made++; i = j; continue; }
+    }
+    out.push(m); i++;
+  }
+  if (!made) { toast('No members Name[0], Name[1], … of one type in a row'); return; }
+  snapshot(); st.members = out; render(); relayout(); toast(`${made} array${made === 1 ? '' : 's'} made`);
+};
+document.addEventListener('keydown', ev => {
+  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z' && !ev.target.matches('input')) {
+    ev.preventDefault();
+    const s = undo.pop(); if (s) { st = JSON.parse(s); render(); relayout(); }
+  }
+});
+
+// Reorder by dragging the ⠿ handle.
+let dragRow = -1;
+$('rows').addEventListener('dragstart', ev => {
+  const tr = ev.target.closest?.('tr'); if (!tr) return;
+  dragRow = +tr.dataset.i; tr.classList.add('dragging');
+  ev.dataTransfer.setData('text/x-udt-row', String(dragRow)); ev.dataTransfer.effectAllowed = 'move';
+});
+$('rows').addEventListener('dragend', () => { dragRow = -1; document.querySelectorAll('tr.dragging, tr.drop-above').forEach(r => r.classList.remove('dragging', 'drop-above')); });
+
+// ---- tags → members ----
+const addrOf = t => {
+  if (t.area === 'UA') return t.node || '';
+  const o = t.offset || 0, b = t.bit || 0, letter = { 1: 'B', 2: 'W', 4: 'D' }[SIZE[t.type]];
+  if (['HR', 'IR', 'COIL', 'DI'].includes(t.area)) return t.area + o + (t.type === 'BOOL' && t.area.endsWith('R') ? '.' + b : '');
+  const pre = t.area === 'DB' ? `DB${t.db}.DB` : t.area;
+  return t.type === 'BOOL' ? `${pre}${t.area === 'DB' ? 'X' : ''}${o}.${b}` : letter ? `${pre}${letter}${o}` : `${pre}X${o}.0`;
+};
+// addTags makes members of tags: at the end, or at spot {i, parent} (dropped into a Struct).
+function addTags(tags, spot = null) {
+  tags = tags.filter(t => t && t.name && t.type);
+  if (!tags.length) return;
+  const into = spot?.parent ? spot.parent + '.' : '';
+  let at = spot ? spot.i : -1;
+  const put = m => { if (at < 0) st.members.push(m); else st.members.splice(at++, 0, m); };
+  // Names inside the UDT: without the part all the tags share (Motor_UDT.Run → Run).
+  const parts = tags.map(t => t.name.split('.'));
+  let common = 0;
+  while (parts.every(p => p.length > common + 1 && p[common] === parts[0][common])) common++;
+  if (!st.members.length && common > 0 && (st.name === 'New_UDT' || !st.name)) st.name = parts[0].slice(0, common).join('_') + (/_?udt$/i.test(parts[0][common - 1]) ? '' : '_UDT');
+  snapshot();
+  const have = new Set(st.members.map(m => m.name));
+  let added = 0, dup = 0;
+  for (const t of tags) {
+    const name = into + t.name.split('.').slice(common).join('.');
+    if (have.has(name)) { dup++; continue; }
+    // Parent groups of dotted names (below the Struct dropped into).
+    const segs = name.split('.');
+    for (let k = 1; k < segs.length; k++) {
+      const g = segs.slice(0, k).join('.');
+      if (!have.has(g)) { put({ name: g, type: 'Struct', comment: '' }); have.add(g); }
+    }
+    put({ name, type: SCL[t.type] || t.type, comment: t.description || '', from: addrOf(t),
+      src: { area: t.area, db: t.db || 0, offset: t.offset || 0, bit: t.bit || 0 } });
+    have.add(name); added++;
+  }
+  render(); relayout();
+  toast(`${added} member${added === 1 ? '' : 's'} added` + (dup ? `, ${dup} already there` : ''));
+}
+async function tagsByName(names) {
+  const cfg = await (await fetch('api/config', { cache: 'no-store' })).json();
+  const by = new Map((cfg.tags || []).map(t => [t.name, t]));
+  return names.map(n => by.get(n.trim())).filter(Boolean);
+}
+// ---- where a drop goes: above / below a row, or into a Struct ----
+const isGroup = m => m.type.toLowerCase() === 'struct';
+const leafOf = n => n.slice(n.lastIndexOf('.') + 1);
+const parentOf = n => n.includes('.') ? n.slice(0, n.lastIndexOf('.')) : '';
+const inside = (n, g) => n === g || n.startsWith(g + '.');
+// The end of a group in the list: after its last member.
+const groupEnd = g => { let e = st.members.findIndex(m => m.name === g); st.members.forEach((m, i) => { if (inside(m.name, g)) e = i; }); return e + 1; };
+// dropSpot: {i: index to insert at, parent: group name or ''} for the pointer over a row.
+function dropSpot(ev) {
+  const tr = ev.target.closest('tr[data-i]');
+  if (!tr) return { i: st.members.length, parent: '', tr: null, how: 'end' };
+  const i = +tr.dataset.i, m = st.members[i], r = tr.getBoundingClientRect(), y = (ev.clientY - r.top) / r.height;
+  if (isGroup(m) && y > 0.3) return { i: groupEnd(m.name), parent: m.name, tr, how: 'into' };   // on a Struct: inside it
+  if (y < 0.5) return { i, parent: parentOf(m.name), tr, how: 'above' };                         // upper half: above, same level
+  return { i: isGroup(m) ? groupEnd(m.name) : i + 1, parent: parentOf(m.name), tr, how: 'below' };
+}
+function clearMarks() { document.querySelectorAll('tr.drop-above, tr.drop-below, tr.drop-into').forEach(r => r.classList.remove('drop-above', 'drop-below', 'drop-into')); }
+// moveMember moves a member (a Struct with its members) to spot, renamed into its new group.
+function moveMember(from, spot) {
+  const m = st.members[from];
+  if (spot.parent && inside(spot.parent, m.name)) { toast('A Struct can\'t go inside itself', true); return; }
+  const block = st.members.filter(x => inside(x.name, m.name));
+  const rest = st.members.filter(x => !inside(x.name, m.name));
+  let at = spot.i - st.members.slice(0, spot.i).filter(x => inside(x.name, m.name)).length;
+  const others = new Set(rest.map(x => x.name));
+  let base = spot.parent ? spot.parent + '.' + leafOf(m.name) : leafOf(m.name);
+  if (others.has(base)) { let k = 2; while (others.has(base + k)) k++; base += k; }
+  const old = m.name;
+  snapshot();
+  for (const x of block) x.name = base + x.name.slice(old.length);
+  rest.splice(Math.max(0, Math.min(at, rest.length)), 0, ...block);
+  st.members = rest;
+  render(); relayout();
+  if (parentOf(old) !== spot.parent) toast(spot.parent ? `${leafOf(old)} is now in ${spot.parent}` : `${leafOf(old)} is now at the top level`);
+}
+
+// Drops: tags from the tag list (JSON, or their names as text), files, or a row being moved.
+const wrap = $('wrap');
+wrap.addEventListener('dragover', ev => {
+  const ty = [...ev.dataTransfer.types];
+  const row = ty.includes('text/x-udt-row'), tags = ty.includes('application/x-plcm-tags') || ty.includes('text/plain');
+  if (!row && !tags && !ty.includes('Files')) return;
+  ev.preventDefault();
+  clearMarks();
+  if (row || (tags && st.members.length)) {
+    const s = dropSpot(ev);
+    s.tr?.classList.add(s.how === 'into' ? 'drop-into' : s.how === 'above' ? 'drop-above' : 'drop-below');
+  }
+  if (!row) wrap.classList.add('over');
+});
+wrap.addEventListener('dragleave', ev => { if (!wrap.contains(ev.relatedTarget)) { wrap.classList.remove('over'); clearMarks(); } });
+wrap.addEventListener('drop', async ev => {
+  ev.preventDefault(); wrap.classList.remove('over');
+  const dt = ev.dataTransfer, spot = dropSpot(ev);
+  clearMarks();
+  if (dt.types.includes('text/x-udt-row')) {
+    const from = +dt.getData('text/x-udt-row');
+    if (from >= 0 && from < st.members.length) moveMember(from, spot);
+    return;
+  }
+  if (dt.files.length) { importFile(dt.files[0]); return; }
+  const at = st.members.length ? spot : null; // tags go where they are dropped (into a Struct too)
+  try {
+    const j = dt.getData('application/x-plcm-tags');
+    if (j) { addTags(JSON.parse(j), at); return; }
+  } catch (e) {}
+  const text = dt.getData('text/plain');
+  if (text) addTags(await tagsByName(text.split(/\r?\n/).filter(Boolean)), at);
+});
+// "Send to UDT tool" in the tag list.
+let lastInbox = 0;
+function inbox(msg) { if (!msg || !msg.ts || msg.ts <= lastInbox) return; lastInbox = msg.ts; addTags(msg.tags || []); }
+try { new BroadcastChannel('plcm-udt').onmessage = e => inbox(e.data); } catch (e) {}
+window.addEventListener('storage', e => { if (e.key === 'plcm.udtInbox' && e.newValue) inbox(JSON.parse(e.newValue)); });
+function readInbox() { try { const m = JSON.parse(localStorage.getItem('plcm.udtInbox') || 'null'); if (m && Date.now() - m.ts < 15000) inbox(m); } catch (e) {} }
+
+// ---- import / export ----
+$('btnImport').onclick = () => $('file').click();
+$('file').onchange = () => { const f = $('file').files[0]; $('file').value = ''; if (f) importFile(f); };
+async function importFile(f) {
+  const b = new Uint8Array(await f.arrayBuffer()); let s = '';
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000));
+  let j;
+  try {
+    const r = await fetch('api/udt/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: f.name, data: btoa(s) }) });
+    j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'HTTP ' + r.status);
+  } catch (e) { toast(`${f.name}: ${e.message}`, true); return; }
+  let c = j.types[0];
+  if (j.types.length > 1) {
+    $('pickTitle').textContent = `${f.name}: which one?`;
+    $('pickList').innerHTML = j.types.map((t, i) => `<label><input type="radio" name="pk" value="${i}" ${i ? '' : 'checked'}>` +
+      `<b>${esc(t.name)}</b><span class="meta">${t.kind === 'udt' ? 'UDT' : t.kind === 'db' ? 'data block' : 'sheet'} · ${t.members.length} members</span></label>`).join('');
+    const ok = await new Promise(res => { $('dlgPick').onclose = () => res($('dlgPick').returnValue === 'ok'); $('dlgPick').returnValue = ''; $('dlgPick').showModal(); });
+    if (!ok) return;
+    c = j.types[+$('pickList').querySelector('input:checked').value];
+  }
+  if (st.members.length && !confirm(`Replace the current UDT with ${c.name}? (Ctrl+Z brings it back)`)) return;
+  snapshot();
+  st = { name: c.name, members: c.members.map(m => ({ name: m.name, type: m.type, comment: m.comment || '' })) };
+  render(); relayout();
+  toast(`${c.name}: ${c.members.length} members – edit them, then Export`);
+}
+async function exportUDT(format) {
+  $('expMenu').classList.remove('open');
+  if (!st.members.length) { toast('The UDT has no members yet', true); return; }
+  let j;
+  try {
+    const r = await fetch('api/udt/export', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: st.name, format, members: st.members.map(({ name, type, comment }) => ({ name, type, comment })) }) });
+    j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'HTTP ' + r.status);
+  } catch (e) { toast('Export: ' + e.message, true); return; }
+  // The Save dialog of the desktop app, else a download.
+  try {
+    const s = await fetch('api/save-file', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: j.name, data: j.data }) });
+    const k = await s.json().catch(() => ({}));
+    if (s.ok) { if (!k.cancelled) toast('Saved ' + k.path); return; }
+    if (s.status !== 501 && s.status !== 403) throw new Error(k.error || 'HTTP ' + s.status);
+  } catch (e) { toast('Not saved: ' + e.message, true); return; }
+  const bin = atob(j.data), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bytes])); a.download = j.name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+  toast(j.name + ' in Downloads');
+}
+$('btnExport').onclick = ev => { ev.stopPropagation(); $('expMenu').classList.toggle('open'); };
+document.addEventListener('click', ev => { if (!ev.target.closest('#expMenu')) $('expMenu').classList.remove('open'); });
+document.querySelectorAll('[data-exp]').forEach(b => b.onclick = () => exportUDT(b.dataset.exp));
+$('btnCopy').onclick = async () => {
+  if (!lay || lay.error) { toast(lay?.error || 'Nothing to copy', true); return; }
+  try { await navigator.clipboard.writeText(lay.scl); toast('SCL copied'); } catch (e) { toast('Copy failed: ' + e.message, true); }
+};
+
+render(); doLayout(); readInbox();
+// Close with the main window.
+setInterval(() => { if (window.opener && window.opener.closed) window.close(); }, 2000);
+</script>
+</body>
+</html>

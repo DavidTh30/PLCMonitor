@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>State graphics – PLC Monitor</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="themes.js"></script>
+<script src="stategfx-lib.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e5e7eb;
+          --good:#15803d; --bad:#b91c1c; --warn:#b45309; --accent:#2563eb; --accent-fg:#fff; --code:#f3f4f6; --soft:#eef2ff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#171b23; --fg:#e5e7eb; --muted:#9ca3af; --line:#2a303b;
+            --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --accent:#60a5fa; --accent-fg:#0f1218; --code:#11151c; --soft:#1f2633; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; display:flex; flex-direction:column; }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:5px 10px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  header h1 { font-size:15px; margin:0 6px 0 0; display:flex; align-items:center; gap:7px; white-space:nowrap; }
+  .logo { width:24px; height:24px; border-radius:6px; display:grid; place-items:center; color:#fff; font-weight:800; font-size:12px;
+          background:linear-gradient(135deg, #16a34a, var(--accent)); }
+  #docName { width:190px; font-weight:600; }
+  #fileInfo { color:var(--muted); font-size:12px; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .spacer { flex:1; }
+  button { font:inherit; padding:2px 9px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; white-space:nowrap; }
+  button:hover:not(:disabled) { border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); font-weight:600; }
+  button.on { background:color-mix(in srgb, var(--accent) 16%, var(--card)); border-color:var(--accent); }
+  button.icon { padding:1px 6px; border-color:transparent; background:none; color:var(--muted); }
+  button.icon:hover { color:var(--fg); border-color:var(--line); }
+  input, select { font:inherit; padding:2px 6px; border:1px solid var(--line); border-radius:5px; background:var(--card); color:var(--fg); }
+  input[type=number] { width:76px; }
+  input:focus, select:focus { outline:2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color:var(--accent); }
+  label { display:inline-flex; align-items:center; gap:4px; color:var(--muted); }
+  .menu { position:relative; }
+  .menu-list { display:none; position:absolute; right:0; top:calc(100% + 3px); background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.15); padding:4px; z-index:30; min-width:250px; }
+  .menu.open .menu-list { display:block; }
+  .menu.left .menu-list { left:0; right:auto; }
+  .menu-list button { display:block; width:100%; text-align:left; border:0; border-radius:5px; padding:5px 9px; }
+  .menu-list button:hover { background:var(--soft); }
+  .menu-list small { color:var(--muted); }
+  .menu-list hr { border:0; border-top:1px solid var(--line); margin:4px; }
+  main { flex:1; min-height:0; display:grid; grid-template-columns:210px minmax(420px, 1fr) minmax(300px, 380px); gap:8px; padding:8px; }
+  @media (max-width:1000px) { main { grid-template-columns:180px 1fr; } #testPanel { grid-column:1 / -1; } }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:9px; display:flex; flex-direction:column; min-height:0; }
+  .ph { display:flex; align-items:center; gap:6px; padding:5px 8px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .ph b { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  .scroll { flex:1; min-height:0; overflow:auto; }
+  .meta { color:var(--muted); font-size:12px; }
+  /* graphics list */
+  #glist { padding:5px; display:flex; flex-direction:column; gap:4px; }
+  .gcard { display:flex; align-items:center; gap:7px; padding:4px 6px; border:1px solid var(--line); border-radius:7px; cursor:pointer; background:var(--card); }
+  .gcard:hover { border-color:color-mix(in srgb, var(--accent) 50%, var(--line)); }
+  .gcard.sel { border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .gcard .th { width:34px; height:34px; flex:none; display:grid; place-items:center; background:var(--bg); border-radius:5px; overflow:hidden; }
+  .gcard .th img { max-width:34px; max-height:34px; object-fit:contain; }
+  .gcard .nm { min-width:0; flex:1; }
+  .gcard .nm b { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12.5px; }
+  .gcard .nm span { color:var(--muted); font-size:11.5px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .drop-over { outline:2px dashed var(--accent); outline-offset:-3px; background:color-mix(in srgb, var(--accent) 6%, transparent); }
+  .hint { color:var(--muted); font-size:12px; padding:10px; text-align:center; }
+  /* editor */
+  .gform { display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:6px 8px; border-bottom:1px solid var(--line); }
+  .gform input.tag { width:210px; font-family:ui-monospace, Consolas, monospace; font-size:12px; }
+  table { border-collapse:collapse; width:100%; }
+  th { position:sticky; top:0; background:var(--card); text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); font-weight:600; padding:4px 6px; border-bottom:1px solid var(--line); z-index:1; }
+  td { padding:3px 6px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  td.img { width:58px; }
+  .thumb { width:48px; height:40px; border:1px dashed var(--line); border-radius:6px; display:grid; place-items:center; cursor:pointer; background:var(--bg); overflow:hidden; color:var(--muted); font-size:11px; }
+  .thumb img { max-width:46px; max-height:38px; object-fit:contain; }
+  .thumb:hover { border-color:var(--accent); }
+  td input.lbl { width:100%; min-width:90px; }
+  .cond { display:flex; gap:4px; align-items:center; flex-wrap:nowrap; }
+  .cond select { width:84px; }
+  .cond input[type=number] { width:64px; }
+  tr.active td { background:color-mix(in srgb, var(--good) 12%, var(--card)); }
+  tr.active td:first-child { box-shadow:inset 3px 0 0 var(--good); }
+  td.acts { white-space:nowrap; width:1%; }
+  /* test */
+  .stage { display:grid; place-items:center; padding:14px; min-height:180px; background:repeating-conic-gradient(color-mix(in srgb, var(--fg) 5%, transparent) 0 25%, transparent 0 50%) 50% / 16px 16px; border-bottom:1px solid var(--line); }
+  .stage .box { display:grid; place-items:center; }
+  .stage img { width:100%; height:100%; object-fit:contain; }
+  .blink { animation:blink 1s steps(2, start) infinite; }
+  @keyframes blink { to { visibility:hidden; } }
+  .readout { display:flex; gap:12px; padding:6px 10px; border-bottom:1px solid var(--line); align-items:baseline; flex-wrap:wrap; }
+  .readout .v { font:600 18px ui-monospace, Consolas, monospace; }
+  .readout .s { font-weight:700; color:var(--good); }
+  .readout .s.none { color:var(--warn); }
+  .src { padding:6px 10px; display:flex; flex-direction:column; gap:6px; border-bottom:1px solid var(--line); }
+  .row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .seg button { border:0; border-radius:0; }
+  .seg button.on { background:var(--accent); color:var(--accent-fg); }
+  input[type=range] { flex:1; min-width:120px; padding:0; }
+  .chips { display:flex; gap:4px; flex-wrap:wrap; }
+  .board { display:grid; grid-template-columns:repeat(auto-fill, minmax(92px, 1fr)); gap:6px; padding:8px; }
+  .tile { border:1px solid var(--line); border-radius:7px; padding:5px; text-align:center; cursor:pointer; background:var(--card); }
+  .tile.sel { border-color:var(--accent); }
+  .tile .im { height:56px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .tile .im img { max-width:100%; max-height:56px; object-fit:contain; }
+  .tile b { display:block; font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tile span { display:block; font-size:11px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  footer { padding:4px 10px; border-top:1px solid var(--line); background:var(--card); font-size:12px; display:flex; gap:10px; }
+  #status.bad { color:var(--bad); }
+  dialog#dlgLib { border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--fg); padding:0; width:min(1100px, 96vw); height:min(760px, 92vh); }
+  dialog#dlgLib::backdrop { background:rgba(0,0,0,.35); }
+  .lib { display:flex; flex-direction:column; height:100%; }
+  .lib-head { display:flex; gap:8px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--line); }
+  .lib-head input { width:260px; }
+  .lib-body { flex:1; min-height:0; display:grid; grid-template-columns:210px 1fr; }
+  .lib-cats { border-right:1px solid var(--line); overflow:auto; padding:6px; }
+  .lib-cats button { display:flex; justify-content:space-between; width:100%; text-align:left; border:0; padding:5px 9px; border-radius:6px; background:none; }
+  .lib-cats button.on { background:var(--accent); color:var(--accent-fg); font-weight:600; }
+  .lib-cats button span { color:inherit; opacity:.7; font-size:11.5px; }
+  .lib-items { overflow:auto; padding:10px; display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; align-content:start; }
+  .litem { border:1px solid var(--line); border-radius:9px; padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .litem:hover { border-color:color-mix(in srgb, var(--accent) 50%, var(--line)); }
+  .litem b { font-size:12.5px; }
+  .lstrip { display:flex; gap:6px; flex-wrap:wrap; align-items:flex-end; min-height:64px; padding:4px; border-radius:6px;
+            background:repeating-conic-gradient(color-mix(in srgb, var(--fg) 5%, transparent) 0 25%, transparent 0 50%) 50% / 12px 12px; }
+  .lstrip figure { margin:0; text-align:center; }
+  .lstrip img { height:56px; max-width:120px; object-fit:contain; display:block; margin:auto; }
+  .lstrip figcaption { font-size:10.5px; color:var(--muted); max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lacts { display:flex; gap:6px; }
+  .lib-modes { flex-wrap:wrap; padding-top:5px; padding-bottom:5px; }
+  .lib-modes input[type=checkbox] { width:auto; }
+  #modeColors { display:flex; gap:4px; flex-wrap:wrap; }
+  #modeColors label { flex-direction:column; gap:0; font-size:10.5px; }
+  input[type=color] { width:34px; height:22px; padding:1px; cursor:pointer; }
+  dialog#dlgColors { border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--fg); padding:12px 14px; width:min(940px, 96vw); }
+  dialog#dlgColors::backdrop { background:rgba(0,0,0,.35); }
+  .col-body { display:grid; grid-template-columns:1fr 200px; gap:12px; }
+  @media (max-width:700px) { .col-body { grid-template-columns:1fr; } }
+  .col-list { display:flex; flex-direction:column; gap:4px; max-height:44vh; overflow:auto; }
+  .crow { display:flex; align-items:center; gap:5px; border:1px solid var(--line); border-radius:7px; padding:3px 6px; flex-wrap:wrap; }
+  .crow.changed { border-color:var(--accent); background:color-mix(in srgb, var(--accent) 6%, transparent); }
+  .crow input.sw { width:34px; height:24px; flex:none; cursor:pointer; }
+  .crow .grp { display:inline-flex; align-items:center; gap:5px; }
+  .crow .grp + .grp { padding-left:8px; border-left:1px solid var(--line); }
+  .crow .nocol { padding:0 6px; height:24px; font-size:15px; line-height:1; color:var(--muted); }
+  .crow .nocol.on { background:var(--bad); border-color:var(--bad); color:#fff; }
+  .crow button.sw { width:34px; height:24px; flex:none; padding:0; border:1px solid var(--line); border-radius:5px; cursor:pointer; box-shadow:inset 0 0 0 2px var(--card); }
+  .crow button.sw.line { width:26px; }
+  .crow.none button.sw[data-k=color], .pk-cur.none, .pk-none span { background:linear-gradient(to top right, transparent calc(50% - 1.5px), #ef4444 calc(50% - 1.5px), #ef4444 calc(50% + 1.5px), transparent calc(50% + 1.5px)),
+    repeating-conic-gradient(#d1d5db 0 25%, #fff 0 50%) 50% / 8px 8px !important; }
+  .picker { position:fixed; z-index:100; width:250px; background:var(--card); border:1px solid var(--line); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.3); padding:8px; display:flex; flex-direction:column; gap:7px; }
+  .pk-sv { position:relative; height:140px; border-radius:6px; cursor:crosshair; touch-action:none; }
+  .pk-dot { position:absolute; width:14px; height:14px; margin:-7px 0 0 -7px; border:2px solid #fff; border-radius:50%; box-shadow:0 0 0 1px #000, inset 0 0 0 1px #000; pointer-events:none; }
+  .pk-row { display:flex; align-items:center; gap:6px; }
+  .pk-cur { width:30px; height:30px; border-radius:50%; flex:none; padding:0; border:1px solid var(--line); }
+  input.pk-hue { flex:1; -webkit-appearance:none; appearance:none; height:12px; border-radius:6px; padding:0; border:0;
+    background:linear-gradient(to right, red, #ff0, lime, cyan, blue, #f0f, red); }
+  input.pk-hue::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:#fff; border:2px solid #374151; }
+  .pk-nums label { flex-direction:column; gap:0; font-size:11px; }
+  .pk-nums input { width:48px; padding:2px 3px; text-align:center; }
+  .pk-nums label:last-child input { width:70px; font-family:ui-monospace, Consolas, monospace; }
+  .pk-sw { display:flex; flex-direction:column; gap:5px; }
+  .pk-none { display:flex; align-items:center; gap:6px; padding:2px 8px 2px 3px; }
+  .pk-none span { width:22px; height:18px; border-radius:4px; border:1px solid var(--line); }
+  .pk-none.on { border-color:var(--bad); background:color-mix(in srgb, var(--bad) 12%, var(--card)); font-weight:600; }
+  .pk-grid { display:grid; grid-template-columns:repeat(12, 1fr); gap:3px; }
+  .pk-grid button { height:17px; padding:0; border:1px solid color-mix(in srgb, var(--fg) 20%, transparent); border-radius:3px; }
+  .pk-grid button:hover { transform:scale(1.2); }
+  .crow.none input.hex { text-decoration:line-through; color:var(--muted); }
+  .crow input.hex { width:78px; font:12px ui-monospace, Consolas, monospace; }
+  .crow code { font-size:11.5px; min-width:28px; color:var(--muted); }
+  .crow select { width:auto; }
+  .crow input[type=range] { width:80px; }
+  .crow output { font-size:11px; color:var(--muted); min-width:32px; }
+  .col-fx { border:1px solid var(--line); border-radius:8px; margin:8px 0 0; padding:6px 8px; display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:4px 12px; }
+  .col-fx legend { color:var(--muted); font-size:12px; padding:0 4px; }
+  .col-fx label { justify-content:space-between; }
+  .col-fx input[type=range] { flex:1; min-width:80px; }
+  .col-fx output { font-size:11.5px; min-width:42px; text-align:right; }
+  .col-prev { display:flex; flex-direction:column; gap:4px; }
+  .col-prev .pv { height:150px; display:grid; place-items:center; border:1px solid var(--line); border-radius:8px;
+    background:repeating-conic-gradient(color-mix(in srgb, var(--fg) 7%, transparent) 0 25%, transparent 0 50%) 50% / 14px 14px; }
+  .col-prev img { max-width:180px; max-height:140px; object-fit:contain; }
+  #toast { position:fixed; left:50%; bottom:34px; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:6px 14px; border-radius:8px; font-size:12.5px; z-index:50; max-width:90vw; }
+  #toast.err { background:var(--bad); color:#fff; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="logo">ST</span>State graphics</h1>
+  <input id="docName" spellcheck="false" title="Name of this set of state graphics">
+  <span id="fileInfo"></span>
+  <span class="spacer"></span>
+  <button id="bNew" title="Start a new, empty set">New</button>
+  <button id="bOpen" title="Open a .plcstate file or a ZIP (Ctrl+O)">Open…</button>
+  <button id="bSave" title="Save (Ctrl+S)">Save</button>
+  <button id="bSaveAs" title="Save under another name">Save as…</button>
+  <div class="menu" id="mImport"><button data-menu>Import ▾</button>
+    <div class="menu-list">
+      <button id="iImages">Images as states (.png .svg …)… <small>– into the selected graphic</small></button>
+      <button id="iSet">Graphics from a .plcstate / ZIP… <small>– added to this set</small></button>
+    </div></div>
+  <div class="menu" id="mExport"><button class="primary" data-menu>Export ▾</button>
+    <div class="menu-list">
+      <button id="eZip">ZIP for the HMI <small>– every image as a file + states.csv</small></button>
+      <button id="eSet">State set (.plcstate)</button>
+      <hr>
+      <button id="eImg">Shown image as it is (.svg / .png)</button>
+      <button id="ePng">Shown image as PNG <small>– at 2× the graphic size</small></button>
+    </div></div>
+  <button class="icon" onclick="S7Themes.openPicker()" title="Colour theme">🎨</button>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="ph"><b>Graphics</b><span class="spacer"></span><button id="bAddG" title="Add a graphic">+ Graphic</button></div>
+    <div class="scroll" id="glistWrap"><div id="glist"></div>
+      <div class="hint" id="glistHint">Drag tags here from the tag list (each becomes a graphic), or <b>+ Graphic</b>.</div></div>
+  </section>
+
+  <section class="panel" id="editor">
+    <div class="gform" id="gform">
+      <label>Name <input id="gName" spellcheck="false" style="width:150px"></label>
+      <label title="The tag whose value chooses the state – type it, pick it, or drag it here from the tag list">Tag <input id="gTag" class="tag" list="tagList" spellcheck="false" placeholder="drag a tag here"></label>
+      <label>Size <input type="number" id="gW" min="8" max="4000"> × <input type="number" id="gH" min="8" max="4000"></label>
+      <span class="spacer"></span>
+      <button class="icon" id="bDelG" title="Delete this graphic">🗑</button>
+    </div>
+    <div class="ph"><b>States</b> <span class="meta">checked from the top: the first that matches shows</span><span class="spacer"></span>
+      <button id="bAddS">+ State</button>
+      <button id="bLib" class="primary" title="Ready-made graphics: LEDs, push buttons, relays, contactors, motors, pumps, valves, timers, flap and diverter valves, symbols, breakers, switches, levels, alarm messages …">📚 Library…</button>
+      <button id="bColors" title="Change the colours of this graphic (all its SVG states)">🎨 Colours…</button>
+      <button id="bModes" title="Make the states Off + Manual, Auto, Disable, Enable, Alarm, Warning, Fault, Interlock, Lock (values 0…9) from the first two states">+ Modes</button>
+      <div class="menu left" id="mSample"><button data-menu title="Ready-made SVG states to start from">Samples ▾</button>
+        <div class="menu-list">
+          <button data-sample="lamp">Lamp – Off / On</button>
+          <button data-sample="lamp3">Lamp – Off / On / Fault (blinks)</button>
+          <button data-sample="motor">Motor – Stopped / Running / Fault</button>
+          <button data-sample="valve">Valve – Closed / Open / Moving</button>
+          <button data-sample="level">Tank level – 0…100 % in 5 ranges</button>
+          <button data-sample="bits">Status bits – bit 0 / 1 / 2</button>
+        </div></div>
+    </div>
+    <div class="scroll" id="sWrap">
+      <table><thead><tr><th>Image</th><th>State</th><th>When the value is</th><th title="Blinks while shown (alarms)">Blink</th><th></th></tr></thead><tbody id="srows"></tbody></table>
+      <div class="hint" id="sHint">No states yet: <b>Samples ▾</b>, <b>+ State</b>, or drop PNG / SVG files here (one state each).</div>
+    </div>
+  </section>
+
+  <section class="panel" id="testPanel">
+    <div class="ph"><b>Try it</b><span class="spacer"></span>
+      <div class="seg"><button data-zoom="1">1×</button><button data-zoom="2" class="on">2×</button><button data-zoom="4">4×</button></div></div>
+    <div class="stage"><div class="box" id="stageBox"><img id="stageImg" alt=""></div></div>
+    <div class="readout"><span class="meta">Value</span><span class="v" id="rValue">–</span><span class="meta">State</span><span class="s" id="rState">–</span></div>
+    <div class="src">
+      <div class="row"><div class="seg" id="srcSeg"><button data-src="tag" class="on">Tag (live)</button><button data-src="sim">Simulate</button></div>
+        <span class="meta" id="tagInfo"></span></div>
+      <div id="simBox" hidden>
+        <div class="row">
+          <select id="simMode">
+            <option value="manual">Manual value</option><option value="cycle">Step through the states</option><option value="toggle">Toggle 0 / 1</option>
+            <option value="ramp">Ramp min → max</option><option value="sine">Sine min … max</option><option value="random">Random min … max</option>
+          </select>
+          <button id="simRun" class="primary">▶ Start</button>
+        </div>
+        <div class="row" id="simManual"><input type="number" id="simVal" step="any" value="0"><input type="range" id="simSlider" min="0" max="100" step="any" value="0"></div>
+        <div class="row" id="simParams" hidden><label>min <input type="number" id="simMin" step="any" value="0"></label><label>max <input type="number" id="simMax" step="any" value="100"></label>
+          <label>period <input type="number" id="simPer" min="100" step="100" value="2000"> ms</label></div>
+        <div class="chips" id="simStates"></div>
+      </div>
+    </div>
+    <div class="ph"><b>All graphics</b><span class="meta">live – click one to edit it</span></div>
+    <div class="scroll"><div class="board" id="board"></div></div>
+  </section>
+</main>
+<footer><span id="status">Ready.</span><span class="spacer"></span><span class="meta" id="autosave"></span></footer>
+<datalist id="tagList"></datalist>
+<input type="file" id="fImages" accept=".png,.svg,.jpg,.jpeg,.gif,.webp" multiple hidden>
+<input type="file" id="fOne" accept=".png,.svg,.jpg,.jpeg,.gif,.webp" hidden>
+<input type="file" id="fSet" accept=".plcstate,.json,.zip" hidden>
+<div id="toast" hidden></div>
+
+<dialog id="dlgLib"><div class="lib">
+  <div class="lib-head"><b>Library</b><input id="libSearch" type="search" placeholder="Search (motor, valve, LED …)" spellcheck="false">
+    <span class="meta" id="libInfo"></span><span class="spacer"></span><button id="libClose">Close</button></div>
+  <div class="lib-head lib-modes"><span class="seg" id="libVar"><button data-var="normal" class="on" title="The graphic's own states (off / on / fault …)">Normal states</button><button data-var="modes" title="Off (0) and one state per operating mode: Manual 1, Auto 2, Disable 3, Enable 4, Alarm 5, Warning 6, Fault 7, Interlock 8, Lock 9">With modes</button></span>
+    <span id="modeColors"></span>
+    <label title="A letter badge (M, A, D …) in the corner"><input type="checkbox" id="modeBadge" checked> badge</label>
+    <button class="icon" id="modeReset" title="Default mode colours">↺</button></div>
+  <div class="lib-body"><div class="lib-cats" id="libCats"></div><div class="lib-items" id="libItems"></div></div>
+</div></dialog>
+
+<dialog id="dlgColors">
+  <div class="row" style="gap:8px;margin-bottom:6px"><h3 style="margin:0">Colours of “<span id="colName"></span>”</h3><span class="spacer"></span>
+    <label>Apply to <select id="colScope"></select></label></div>
+  <div class="col-body">
+    <div>
+      <div class="meta" style="margin-bottom:4px">Each colour of the SVG image(s): keep it, a new colour, no colour, a pattern … and its transparency. PNG / JPG states are left as they are.</div>
+      <div id="colList" class="col-list"></div>
+      <fieldset class="col-fx"><legend>Whole image</legend>
+        <label title="Thickness of every line (stroke)">Line thickness <input type="range" id="fxStroke" min="0.25" max="4" step="0.25" value="1"><output>1×</output></label>
+        <label title="Size of the pattern tiles">Pattern size <input type="range" id="fxPatSize" min="3" max="24" step="1" value="8"><output>8</output></label>
+        <label title="Thickness of the pattern lines">Pattern lines <input type="range" id="fxPatWidth" min="0.5" max="6" step="0.5" value="1.5"><output>1.5</output></label>
+        <label title="Brighter or darker">Brightness <input type="range" id="fxBright" min="0.4" max="2" step="0.05" value="1"><output>100 %</output></label>
+        <label title="A glow (light) around the graphic">Glow <input type="range" id="fxGlow" min="0" max="12" step="0.5" value="0"><output>off</output><input type="color" id="fxGlowColor" value="#fde047" title="Glow colour"></label>
+        <label id="fxHaloRow" title="The soft light drawn around a lamp or LED – 0 turns it off">Halo (light around) <input type="range" id="fxHalo" min="0" max="2" step="0.1" value="1"><output>100 %</output></label>
+        <label title="See-through">Opacity <input type="range" id="fxOpacity" min="0.05" max="1" step="0.05" value="1"><output>100 %</output></label>
+      </fieldset>
+    </div>
+    <div class="col-prev"><div class="meta">Before</div><div class="pv"><img id="pvBefore" alt=""></div><div class="meta">After</div><div class="pv"><img id="pvAfter" alt=""></div>
+      <select id="pvState" title="State shown in the preview"></select></div>
+  </div>
+  <div id="picker" class="picker" hidden>
+    <div class="pk-sv" id="pkSV"><span class="pk-dot" id="pkDot"></span></div>
+    <div class="pk-row"><button type="button" class="icon" id="pkEye" title="Pick a colour from the screen">💧</button><button type="button" class="pk-cur" id="pkCur" title="Chosen colour"></button>
+      <input type="range" id="pkHue" min="0" max="359" step="1" class="pk-hue" title="Hue"></div>
+    <div class="pk-row pk-nums"><label>R<input type="number" id="pkR" min="0" max="255"></label><label>G<input type="number" id="pkG" min="0" max="255"></label><label>B<input type="number" id="pkB" min="0" max="255"></label>
+      <label>#<input id="pkHex" maxlength="7" spellcheck="false"></label></div>
+    <div class="pk-sw"><button type="button" id="pkNone" class="pk-none" title="No colour (see-through)"><span></span>No colour</button><div id="pkSwatches" class="pk-grid"></div></div>
+    <div id="pkRecentRow"><div class="meta">Recent</div><div id="pkRecent" class="pk-grid"></div></div>
+    <div class="pk-row" style="justify-content:flex-end"><button type="button" id="pkDone" class="primary">Done</button></div>
+  </div>
+  <div class="row" style="justify-content:flex-end;margin-top:10px;gap:6px"><button id="colReset">Reset</button><button id="colCancel">Cancel</button><button id="colApply" class="primary">Apply</button></div>
+</dialog>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const newDoc = () => ({ format: 'plcmonitor-stategraphics', version: 1, name: 'New state graphics', graphics: [] });
+let doc = newDoc(), sel = 0, filePath = '', dirty = false;
+const undo = [];
+let tags = [], live = new Map(); // tag name → {value, good, type}
+
+function toast(msg, err) {
+  const t = $('toast'); t.textContent = msg; t.className = err ? 'err' : ''; t.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, err ? 6000 : 3000);
+}
+function status(msg, bad) { $('status').textContent = msg; $('status').className = bad ? 'bad' : ''; }
+const G = () => doc.graphics[sel];
+const gid = () => 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+function change(fn) { undo.push(JSON.stringify(doc)); if (undo.length > 60) undo.shift(); fn(); dirty = true; renderAll(); autosaveSoon(); }
+
+// ---- images: data URLs; ready-made SVG samples ----
+const svgURL = s => 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(s)));
+const SVG = (w, h, body) => `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 100 100">${body}</svg>`;
+const lamp = (c, ring = '#334155') => SVG(96, 96, `<defs><radialGradient id="g" cx="40%" cy="35%" r="65%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".35" stop-color="${c}"/><stop offset="1" stop-color="${c}" stop-opacity=".85"/></radialGradient></defs>` +
+  `<circle cx="50" cy="50" r="44" fill="${ring}"/><circle cx="50" cy="50" r="37" fill="url(#g)"/>`);
+const motor = (c, t) => SVG(96, 96, `<rect x="8" y="22" width="70" height="56" rx="10" fill="${c}" stroke="#1f2937" stroke-width="4"/><rect x="78" y="42" width="14" height="16" fill="#475569"/>` +
+  `<text x="43" y="61" font-family="Segoe UI,Arial" font-size="30" font-weight="700" fill="#fff" text-anchor="middle">${t}</text>`);
+const valve = (c, open) => SVG(96, 96, `<path d="M10 25 L50 50 L10 75 Z" fill="${c}" stroke="#1f2937" stroke-width="4"/><path d="M90 25 L50 50 L90 75 Z" fill="${c}" stroke="#1f2937" stroke-width="4"/>` +
+  `<rect x="46" y="10" width="8" height="40" fill="#1f2937"/><rect x="34" y="4" width="32" height="10" rx="3" fill="${open ? '#16a34a' : '#6b7280'}"/>`);
+const tank = pct => SVG(80, 100, `<rect x="10" y="6" width="60" height="88" rx="8" fill="#e5e7eb" stroke="#334155" stroke-width="4"/>` +
+  `<rect x="14" y="${10 + 80 * (1 - pct / 100)}" width="52" height="${80 * pct / 100}" rx="4" fill="${pct >= 80 ? '#dc2626' : pct >= 20 ? '#2563eb' : '#f59e0b'}"/>` +
+  `<text x="40" y="58" font-family="Segoe UI,Arial" font-size="18" font-weight="700" fill="#111827" text-anchor="middle">${pct}%</text>`);
+const SAMPLES = {
+  lamp: () => [{ label: 'Off', when: { op: 'eq', value: 0 }, image: svgURL(lamp('#6b7280')) }, { label: 'On', when: { op: 'else' }, image: svgURL(lamp('#22c55e')) }],
+  lamp3: () => [{ label: 'Off', when: { op: 'eq', value: 0 }, image: svgURL(lamp('#6b7280')) }, { label: 'On', when: { op: 'eq', value: 1 }, image: svgURL(lamp('#22c55e')) },
+    { label: 'Fault', when: { op: 'else' }, image: svgURL(lamp('#ef4444')), blink: true }],
+  motor: () => [{ label: 'Stopped', when: { op: 'eq', value: 0 }, image: svgURL(motor('#9ca3af', 'M')) }, { label: 'Running', when: { op: 'eq', value: 1 }, image: svgURL(motor('#16a34a', 'M')) },
+    { label: 'Fault', when: { op: 'else' }, image: svgURL(motor('#dc2626', '!')), blink: true }],
+  valve: () => [{ label: 'Closed', when: { op: 'eq', value: 0 }, image: svgURL(valve('#9ca3af', false)) }, { label: 'Open', when: { op: 'eq', value: 1 }, image: svgURL(valve('#16a34a', true)) },
+    { label: 'Moving', when: { op: 'else' }, image: svgURL(valve('#f59e0b', false)), blink: true }],
+  level: () => [0, 20, 40, 60, 80].map((lo, i) => ({ label: `${lo}–${lo + 20} %`, when: { op: 'range', min: lo, max: i === 4 ? 100 : lo + 19.999 }, image: svgURL(tank(lo + 10)) })),
+  bits: () => [{ label: 'Fault (bit 2)', when: { op: 'bit', bit: 2 }, image: svgURL(lamp('#ef4444')), blink: true }, { label: 'Running (bit 1)', when: { op: 'bit', bit: 1 }, image: svgURL(lamp('#22c55e')) },
+    { label: 'Ready (bit 0)', when: { op: 'bit', bit: 0 }, image: svgURL(lamp('#3b82f6')) }, { label: 'Off', when: { op: 'else' }, image: svgURL(lamp('#6b7280')) }],
+};
+function readImage(file) {
+  return new Promise((res, rej) => {
+    if (file.size > 4 << 20) { rej(new Error(`${file.name} is larger than 4 MB`)); return; }
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result); fr.onerror = () => rej(fr.error);
+    fr.readAsDataURL(file);
+  });
+}
+
+// ---- states: which one matches a value ----
+const num = v => v === true ? 1 : v === false ? 0 : v === null || v === undefined || v === '' ? NaN : Number(v);
+function matchState(g, v) {
+  const x = num(v);
+  if (!g || Number.isNaN(x)) return -1;
+  return g.states.findIndex(s => {
+    const w = s.when || {};
+    if (w.op === 'eq') return Math.abs(x - (w.value || 0)) < 1e-9;
+    if (w.op === 'range') return x >= (w.min ?? -Infinity) && x <= (w.max ?? Infinity);
+    if (w.op === 'bit') return Math.floor(Math.trunc(x) / 2 ** (w.bit || 0)) % 2 !== 0;
+    return w.op === 'else';
+  });
+}
+// A value that shows each state (for the Simulate buttons).
+function valueFor(s, g) {
+  const w = s.when || {};
+  if (w.op === 'eq') return w.value || 0;
+  if (w.op === 'range') return Math.round(((w.min || 0) + (w.max || 0)) / 2 * 100) / 100;
+  if (w.op === 'bit') return 2 ** (w.bit || 0);
+  const used = new Set(g.states.filter(t => t.when?.op === 'eq').map(t => t.when.value || 0));
+  for (let k = 2; ; k++) if (!used.has(k)) return k; // something no other state takes
+}
+
+// ---- rendering ----
+function renderAll() { renderList(); renderEditor(); renderTest(); $('docName').value = doc.name; title(); }
+function title() {
+  $('fileInfo').textContent = (filePath ? filePath : 'not saved') + (dirty ? ' •' : '');
+  $('fileInfo').title = filePath;
+  document.title = `${dirty ? '• ' : ''}${doc.name} – State graphics – PLC Monitor`;
+}
+function currentValue(g) {
+  if (g === G() && test.src === 'sim') return test.value;
+  const t = g?.tag && live.get(g.tag);
+  return t ? t.value : undefined;
+}
+function imgOf(g, v) { const i = matchState(g, v); return i >= 0 ? g.states[i] : null; }
+function renderList() {
+  setHTML('glist', doc.graphics.map((g, i) => {
+    const st = imgOf(g, currentValue(g)) || g.states[0];
+    return `<div class="gcard${i === sel ? ' sel' : ''}" data-g="${i}"><span class="th">${st?.image ? `<img src="${st.image}" alt="">` : ''}</span>` +
+      `<span class="nm"><b>${esc(g.name)}</b><span>${esc(g.tag || 'no tag')} · ${g.states.length} state${g.states.length === 1 ? '' : 's'}</span></span></div>`;
+  }).join(''));
+  $('glistHint').hidden = doc.graphics.length > 0;
+}
+function condHTML(s, i) {
+  const w = s.when || { op: 'else' };
+  const n = (f, v) => `<input type="number" step="any" data-i="${i}" data-w="${f}" value="${v ?? 0}">`;
+  return `<div class="cond"><select data-i="${i}" data-w="op">${[['eq', '='], ['range', 'from … to'], ['bit', 'bit set'], ['else', 'anything else']].map(([v, l]) =>
+    `<option value="${v}"${w.op === v ? ' selected' : ''}>${l}</option>`).join('')}</select>` +
+    (w.op === 'eq' ? n('value', w.value) : w.op === 'range' ? n('min', w.min) + '<span class="meta">…</span>' + n('max', w.max) :
+      w.op === 'bit' ? `<input type="number" min="0" max="63" data-i="${i}" data-w="bit" value="${w.bit ?? 0}">` : '') + '</div>';
+}
+function renderEditor() {
+  const g = G();
+  $('gform').hidden = !g;
+  if (!g) { $('srows').innerHTML = ''; $('sHint').hidden = false; return; }
+  $('gName').value = g.name; $('gTag').value = g.tag || ''; $('gW').value = g.width; $('gH').value = g.height;
+  const act = matchState(g, currentValue(g));
+  $('srows').innerHTML = g.states.map((s, i) => `<tr data-i="${i}" class="${i === act ? 'active' : ''}">` +
+    `<td class="img"><div class="thumb" data-pick="${i}" title="Click to choose a PNG / SVG – or drop a file here">${s.image ? `<img src="${s.image}" alt="">` : 'image…'}</div></td>` +
+    `<td><input class="lbl" data-i="${i}" data-f="label" value="${esc(s.label)}"></td><td>${condHTML(s, i)}</td>` +
+    `<td><input type="checkbox" data-i="${i}" data-f="blink"${s.blink ? ' checked' : ''}></td>` +
+    `<td class="acts"><button class="icon" data-a="show" data-i="${i}" title="Show this state (Simulate)">👁</button><button class="icon" data-col="${i}" title="Colours of this state only">🎨</button><button class="icon" data-a="up" data-i="${i}" title="Check it earlier">↑</button>` +
+    `<button class="icon" data-a="down" data-i="${i}" title="Check it later">↓</button><button class="icon" data-a="dup" data-i="${i}" title="Copy">⧉</button><button class="icon" data-a="del" data-i="${i}" title="Remove">✕</button></td></tr>`).join('');
+  $('sHint').hidden = g.states.length > 0;
+}
+function paintActive() { // live updates: only what changes
+  const g = G(); if (!g) return;
+  const act = matchState(g, currentValue(g));
+  [...$('srows').rows].forEach((r, i) => r.classList.toggle('active', i === act));
+}
+let zoom = 2;
+function renderTest() {
+  const g = G(), v = g ? currentValue(g) : undefined, i = g ? matchState(g, v) : -1, s = i >= 0 ? g.states[i] : null;
+  $('stageBox').style.width = (g ? g.width * zoom : 0) + 'px'; $('stageBox').style.height = (g ? g.height * zoom : 0) + 'px';
+  $('stageImg').src = s?.image || 'data:,'; $('stageImg').style.visibility = s?.image ? '' : 'hidden';
+  $('stageImg').classList.toggle('blink', !!s?.blink);
+  $('rValue').textContent = v === undefined ? '–' : typeof v === 'boolean' ? (v ? 'TRUE' : 'FALSE') : String(Math.round(num(v) * 1000) / 1000);
+  $('rState').textContent = !g ? '–' : s ? s.label : (v === undefined ? 'no value' : 'no state matches');
+  $('rState').className = 's' + (s ? '' : ' none');
+  const t = g?.tag && live.get(g.tag);
+  $('tagInfo').textContent = test.src === 'tag' ? (!g?.tag ? 'no tag set for this graphic' : !t ? 'tag not in the tag list' : t.good ? `${g.tag}` : `${g.tag} – not read (PLC disconnected?)`) : '';
+  setHTML('simStates', g && test.src === 'sim' ? g.states.map((s, k) => `<button data-v="${valueFor(s, g)}" class="${k === i ? 'on' : ''}">${esc(s.label)}</button>`).join('') : '');
+  setHTML('board', doc.graphics.map((b, k) => {
+    const bv = currentValue(b), bs = imgOf(b, bv);
+    return `<div class="tile${k === sel ? ' sel' : ''}" data-g="${k}"><div class="im">${bs?.image ? `<img src="${bs.image}" class="${bs.blink ? 'blink' : ''}" alt="">` : ''}</div>` +
+      `<b>${esc(b.name)}</b><span>${bs ? esc(bs.label) : bv === undefined ? '–' : 'no match'}</span></div>`;
+  }).join('') || '<div class="hint">No graphics yet.</div>');
+  paintActive();
+}
+// setHTML redraws only when something changed: a blinking image keeps its rhythm.
+const shown = {};
+function setHTML(id, html) { if (shown[id] !== html) { shown[id] = html; $(id).innerHTML = html; } }
+
+// ---- graphics ----
+function addGraphic(name, tag, type) {
+  const states = type === 'BOOL' ? SAMPLES.lamp() : type ? SAMPLES.level() : [];
+  doc.graphics.push({ id: gid(), name: uniqName(name || 'Graphic'), tag: tag || '', width: 96, height: 96, states });
+  sel = doc.graphics.length - 1;
+}
+function uniqName(n) { const have = new Set(doc.graphics.map(g => g.name)); if (!have.has(n)) return n; for (let k = 2; ; k++) if (!have.has(`${n} ${k}`)) return `${n} ${k}`; }
+$('bAddG').onclick = () => change(() => addGraphic('Graphic'));
+$('glist').addEventListener('click', ev => { const c = ev.target.closest('[data-g]'); if (c) { sel = +c.dataset.g; stopSim(); renderAll(); } });
+$('board').addEventListener('click', ev => { const c = ev.target.closest('[data-g]'); if (c) { sel = +c.dataset.g; stopSim(); renderAll(); } });
+$('bDelG').onclick = () => { const g = G(); if (g && confirm(`Delete the graphic “${g.name}” and its ${g.states.length} states?`)) change(() => { doc.graphics.splice(sel, 1); sel = Math.max(0, sel - 1); }); };
+$('gName').onchange = () => change(() => G().name = $('gName').value.trim() || 'Graphic');
+$('gTag').onchange = () => change(() => G().tag = $('gTag').value.trim());
+$('gW').onchange = () => change(() => G().width = Math.max(8, Math.min(4000, +$('gW').value || 96)));
+$('gH').onchange = () => change(() => G().height = Math.max(8, Math.min(4000, +$('gH').value || 96)));
+$('docName').onchange = () => change(() => doc.name = $('docName').value.trim() || 'State graphics');
+
+// ---- states ----
+$('bAddS').onclick = () => { if (!G()) addGraphic(); change(() => G().states.push({ label: `State ${G().states.length + 1}`, when: { op: 'eq', value: G().states.length } })); };
+document.querySelectorAll('[data-sample]').forEach(b => b.onclick = () => {
+  closeMenus();
+  change(() => {
+    if (!G()) addGraphic(b.textContent.split('–')[0].trim());
+    const g = G();
+    if (g.states.length && !confirm(`Replace the ${g.states.length} states of “${g.name}” with the sample?`)) return;
+    g.states = SAMPLES[b.dataset.sample]();
+    if (b.dataset.sample === 'level') { g.width = 80; g.height = 100; }
+  });
+});
+$('srows').addEventListener('change', ev => {
+  const t = ev.target, i = +t.dataset.i, s = G().states[i];
+  if (t.dataset.f === 'label') change(() => s.label = t.value.trim());
+  else if (t.dataset.f === 'blink') change(() => s.blink = t.checked);
+  else if (t.dataset.w === 'op') change(() => { s.when = { op: t.value }; if (t.value === 'range') Object.assign(s.when, { min: 0, max: 100 }); });
+  else if (t.dataset.w) change(() => s.when[t.dataset.w] = t.dataset.w === 'bit' ? Math.max(0, Math.min(63, parseInt(t.value, 10) || 0)) : Number(t.value) || 0);
+});
+$('srows').addEventListener('click', ev => {
+  const p = ev.target.closest('[data-pick]');
+  if (p) { pickFor = +p.dataset.pick; $('fOne').click(); return; }
+  const b = ev.target.closest('button[data-a]'); if (!b) return;
+  const i = +b.dataset.i, ss = G().states;
+  if (b.dataset.a === 'show') { setSrc('sim'); $('simMode').value = 'manual'; $('simMode').onchange(); setSimValue(valueFor(ss[i], G())); return; }
+  change(() => {
+    if (b.dataset.a === 'up' && i > 0) [ss[i - 1], ss[i]] = [ss[i], ss[i - 1]];
+    if (b.dataset.a === 'down' && i < ss.length - 1) [ss[i + 1], ss[i]] = [ss[i], ss[i + 1]];
+    if (b.dataset.a === 'dup') ss.splice(i + 1, 0, JSON.parse(JSON.stringify(ss[i])));
+    if (b.dataset.a === 'del') ss.splice(i, 1);
+  });
+});
+let pickFor = -1;
+$('fOne').onchange = async () => {
+  const f = $('fOne').files[0]; $('fOne').value = '';
+  if (!f || pickFor < 0) return;
+  try { const url = await readImage(f); change(() => Object.assign(G().states[pickFor], { image: url, file: f.name })); } catch (e) { toast(e.message, true); }
+};
+// Image files dropped on a state's picture, or on the table (one state each).
+async function imagesToStates(files) {
+  if (!G()) change(() => addGraphic(files[0].name.replace(/[_-]?\d*\.[^.]+$/, '') || 'Graphic'));
+  const add = [];
+  for (const f of files) {
+    try {
+      const url = await readImage(f), base = f.name.replace(/\.[^.]+$/, ''), m = base.match(/(-?\d+)$/);
+      add.push({ label: base, file: f.name, image: url, when: { op: 'eq', value: m ? +m[1] : G().states.length + add.length } });
+    } catch (e) { toast(e.message, true); }
+  }
+  if (add.length) change(() => G().states.push(...add));
+  toast(`${add.length} state${add.length === 1 ? '' : 's'} added – check their values`);
+}
+$('sWrap').addEventListener('dragover', ev => { if ([...ev.dataTransfer.types].includes('Files')) { ev.preventDefault(); $('sWrap').classList.add('drop-over'); } });
+$('sWrap').addEventListener('dragleave', ev => { if (!$('sWrap').contains(ev.relatedTarget)) $('sWrap').classList.remove('drop-over'); });
+$('sWrap').addEventListener('drop', async ev => {
+  ev.preventDefault(); $('sWrap').classList.remove('drop-over');
+  const files = [...ev.dataTransfer.files].filter(f => /\.(png|svg|jpe?g|gif|webp)$/i.test(f.name));
+  if (!files.length) return;
+  const th = ev.target.closest('[data-pick]');
+  if (th && files.length === 1) { const url = await readImage(files[0]).catch(e => toast(e.message, true)); if (url) change(() => Object.assign(G().states[+th.dataset.pick], { image: url, file: files[0].name })); return; }
+  imagesToStates(files);
+});
+$('iImages').onclick = () => { closeMenus(); $('fImages').click(); };
+$('fImages').onchange = () => { const fs = [...$('fImages').files]; $('fImages').value = ''; if (fs.length) imagesToStates(fs); };
+
+// ---- tags: dropped from the tag list, picked, read live ----
+async function loadTags() {
+  try { const c = await (await fetch('api/config', { cache: 'no-store' })).json(); tags = c.tags || []; } catch (e) {}
+  $('tagList').innerHTML = tags.map(t => `<option value="${esc(t.name)}">${esc(t.type)}</option>`).join('');
+}
+async function droppedTags(dt) {
+  try { const j = dt.getData('application/x-plcm-tags'); if (j) return JSON.parse(j); } catch (e) {}
+  const names = (dt.getData('text/plain') || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if (!names.length) return [];
+  await loadTags();
+  return names.map(n => tags.find(t => t.name === n)).filter(Boolean);
+}
+const isTagDrag = ev => [...ev.dataTransfer.types].some(t => t === 'application/x-plcm-tags' || t === 'text/plain');
+for (const el of [$('glistWrap'), $('gTag')]) {
+  el.addEventListener('dragover', ev => { if (isTagDrag(ev)) { ev.preventDefault(); el.classList.add('drop-over'); } });
+  el.addEventListener('dragleave', () => el.classList.remove('drop-over'));
+}
+$('glistWrap').addEventListener('drop', async ev => {
+  ev.preventDefault(); $('glistWrap').classList.remove('drop-over');
+  const ts = await droppedTags(ev.dataTransfer);
+  if (!ts.length) return;
+  change(() => ts.forEach(t => addGraphic(t.name.split('.').pop(), t.name, t.type)));
+  toast(`${ts.length} graphic${ts.length === 1 ? '' : 's'} added – Samples ▾ or images for their states`);
+});
+$('gTag').addEventListener('drop', async ev => {
+  ev.preventDefault(); $('gTag').classList.remove('drop-over');
+  const [t] = await droppedTags(ev.dataTransfer);
+  if (t && G()) change(() => G().tag = t.name);
+});
+async function pollLive() {
+  try {
+    const j = await (await fetch('api/state', { cache: 'no-store' })).json();
+    live = new Map((j.tags || []).map(t => [t.name, { value: t.good ? t.value : undefined, good: t.good, type: t.type }]));
+  } catch (e) {}
+  renderList(); renderTest();
+}
+
+// ---- Try it: tag or simulated signal ----
+const test = { src: 'tag', value: 0, running: false, t0: 0, timer: 0 };
+function setSrc(s) {
+  test.src = s;
+  document.querySelectorAll('[data-src]').forEach(b => b.classList.toggle('on', b.dataset.src === s));
+  $('simBox').hidden = s !== 'sim';
+  if (s !== 'sim') stopSim();
+  renderTest(); renderList();
+}
+document.querySelectorAll('[data-src]').forEach(b => b.onclick = () => setSrc(b.dataset.src));
+function setSimValue(v) { test.value = v; $('simVal').value = v; $('simSlider').value = v; renderTest(); renderList(); }
+function simRange() {
+  const g = G(); let lo = 0, hi = 100;
+  if (g?.states.length) { const vs = g.states.map(s => valueFor(s, g)); lo = Math.min(0, ...vs); hi = Math.max(1, ...vs); }
+  $('simSlider').min = lo; $('simSlider').max = hi;
+}
+$('simVal').oninput = () => setSimValue(Number($('simVal').value) || 0);
+$('simSlider').oninput = () => setSimValue(Math.round(Number($('simSlider').value) * 100) / 100);
+$('simStates').addEventListener('click', ev => { const b = ev.target.closest('[data-v]'); if (b) { stopSim(); setSimValue(Number(b.dataset.v)); } });
+$('simMode').onchange = () => {
+  stopSim();
+  const m = $('simMode').value, wave = ['ramp', 'sine', 'random'].includes(m);
+  $('simManual').hidden = m !== 'manual'; $('simParams').hidden = m === 'manual'; $('simRun').hidden = m === 'manual';
+  $('simMin').closest('label').hidden = $('simMax').closest('label').hidden = !wave; // step / toggle: only the period
+};
+function stopSim() { clearInterval(test.timer); test.running = false; $('simRun').textContent = '▶ Start'; $('simRun').classList.add('primary'); }
+$('simRun').onclick = () => {
+  if (test.running) { stopSim(); return; }
+  const m = $('simMode').value, per = Math.max(100, +$('simPer').value || 2000), lo = +$('simMin').value || 0, hi = +$('simMax').value || 100;
+  test.running = true; test.t0 = performance.now(); let k = 0;
+  $('simRun').textContent = '■ Stop'; $('simRun').classList.remove('primary');
+  const g = G();
+  const tick = () => {
+    const t = (performance.now() - test.t0) % per / per;
+    if (m === 'cycle') { const vs = g.states.map(s => valueFor(s, g)); if (vs.length) setSimValue(vs[k++ % vs.length]); }
+    else if (m === 'toggle') setSimValue(k++ % 2);
+    else if (m === 'ramp') setSimValue(Math.round((lo + (hi - lo) * t) * 100) / 100);
+    else if (m === 'sine') setSimValue(Math.round((lo + (hi - lo) * (0.5 - 0.5 * Math.cos(2 * Math.PI * t))) * 100) / 100);
+    else if (m === 'random') setSimValue(Math.round((lo + (hi - lo) * Math.random()) * 100) / 100);
+  };
+  tick();
+  test.timer = setInterval(tick, ['cycle', 'toggle', 'random'].includes(m) ? per : 100);
+};
+document.querySelectorAll('[data-zoom]').forEach(b => b.onclick = () => { zoom = +b.dataset.zoom; document.querySelectorAll('[data-zoom]').forEach(x => x.classList.toggle('on', x === b)); renderTest(); });
+
+// ---- file: new, open, save, import, export ----
+async function post(path, body) {
+  const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  return { ok: r.ok, status: r.status, j };
+}
+function loadDoc(d, path) { stopSim(); doc = d; doc.graphics = doc.graphics || []; sel = 0; filePath = path || ''; dirty = false; undo.length = 0; simRange(); renderAll(); autosaveSoon(); }
+$('bNew').onclick = () => { if (dirty && doc.graphics.length && !confirm('Start a new set? Unsaved changes go.')) return; loadDoc(newDoc(), ''); dirty = false; title(); };
+$('bOpen').onclick = openSet;
+async function openSet() {
+  if (dirty && doc.graphics.length && !confirm('Open another set? Unsaved changes go.')) return;
+  const { ok, status: st, j } = await post('api/stategfx/open', {});
+  if (st === 501 || st === 403) { $('fSet').dataset.mode = 'open'; $('fSet').click(); return; } // a browser: its own file picker
+  if (!ok) { toast(j.error || 'Open failed', true); return; }
+  if (j.cancelled) return;
+  loadDoc(j.set, j.path); toast(`Opened ${j.set.name} – ${j.set.graphics.length} graphics`);
+}
+$('iSet').onclick = () => { closeMenus(); $('fSet').dataset.mode = 'import'; $('fSet').click(); };
+$('fSet').onchange = async () => {
+  const f = $('fSet').files[0]; $('fSet').value = ''; if (!f) return;
+  const b = new Uint8Array(await f.arrayBuffer()); let s = '';
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000));
+  const { ok, j } = await post('api/stategfx/import', { name: f.name, data: btoa(s) });
+  if (!ok) { toast(`${f.name}: ${j.error}`, true); return; }
+  if ($('fSet').dataset.mode === 'open') { loadDoc(j.set, ''); toast(`Opened ${f.name}`); return; }
+  change(() => { for (const g of j.set.graphics) { g.id = gid(); g.name = uniqName(g.name); doc.graphics.push(g); } sel = doc.graphics.length - 1; });
+  toast(`${j.set.graphics.length} graphic${j.set.graphics.length === 1 ? '' : 's'} added from ${f.name}`);
+};
+async function save(as) {
+  const { ok, status: st, j } = await post('api/stategfx/save', { set: doc, path: filePath, as });
+  if (st === 501) { download(new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' }), safe(doc.name) + '.plcstate'); dirty = false; title(); return; }
+  if (!ok) { toast(j.error || 'Not saved', true); return; }
+  if (j.cancelled) return;
+  filePath = j.path; dirty = false; title(); toast('Saved ' + j.path);
+}
+$('bSave').onclick = () => save(false);
+$('bSaveAs').onclick = () => save(true);
+const safe = s => (s || 'states').replace(/[^\p{L}\p{N}_\-]+/gu, '_');
+function download(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+}
+// Save a file through the desktop app's Save dialog (or a download).
+async function saveFile(name, b64, blob) {
+  const { ok, status: st, j } = await post('api/save-file', { name, data: b64 });
+  if (ok) { if (!j.cancelled) toast('Saved ' + j.path); return; }
+  if (st === 501 || st === 403) { download(blob, name); toast(name + ' in Downloads'); return; }
+  toast('Not saved: ' + (j.error || st), true);
+}
+const b64of = async blob => { const b = new Uint8Array(await blob.arrayBuffer()); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
+$('eZip').onclick = async () => {
+  closeMenus();
+  const { ok, j } = await post('api/stategfx/export', { set: doc });
+  if (!ok) { toast(j.error, true); return; }
+  const bin = atob(j.data), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  saveFile(j.name, j.data, new Blob([bytes], { type: 'application/zip' }));
+};
+$('eSet').onclick = async () => { closeMenus(); const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' }); saveFile(safe(doc.name) + '.plcstate', await b64of(blob), blob); };
+function shownState() { const g = G(); const s = g && imgOf(g, currentValue(g)); if (!s?.image) toast('No image is shown – choose a state that has one', true); return s?.image ? { g, s } : null; }
+$('eImg').onclick = async () => {
+  closeMenus(); const x = shownState(); if (!x) return;
+  const m = x.s.image.match(/^data:image\/([a-z+]+);base64,(.*)$/), ext = { 'svg+xml': 'svg', jpeg: 'jpg' }[m[1]] || m[1];
+  const bin = atob(m[2]), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  saveFile(`${safe(x.g.name)}_${safe(x.s.label)}.${ext}`, m[2], new Blob([bytes]));
+};
+$('ePng').onclick = async () => {
+  closeMenus(); const x = shownState(); if (!x) return;
+  const img = new Image(); img.src = x.s.image; await img.decode().catch(() => {});
+  const c = document.createElement('canvas'); c.width = x.g.width * 2; c.height = x.g.height * 2;
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  saveFile(`${safe(x.g.name)}_${safe(x.s.label)}.png`, await b64of(blob), blob);
+};
+
+// ---- Library: ready-made graphics (stategfx-lib.js) ----
+const LIB = window.STATE_LIB || [];
+const MODE = window.STATE_MODES;
+let libCat = 0, libVar = 'normal';
+const modeColors = () => doc.mode_colors || {};
+const modeBadge = () => !doc.mode_no_badge;
+const libStates = it => libVar === 'modes' ? MODE.modeStates(it, modeColors(), modeBadge()) : it.states();
+function renderModeColors() {
+  $('modeColors').innerHTML = MODE.MODES.map((m, i) => `<label title="${m.label} – value ${i + 1}"><input type="color" data-mode="${m.key}" value="${modeColors()[m.key] || m.color}">${m.label}</label>`).join('');
+  $('modeBadge').checked = modeBadge();
+}
+$('modeColors').addEventListener('change', ev => {
+  const k = ev.target.dataset.mode; if (!k) return;
+  change(() => { doc.mode_colors = { ...modeColors(), [k]: ev.target.value }; });
+  if (libVar === 'modes') renderLib();
+});
+$('modeBadge').onchange = () => { change(() => { doc.mode_no_badge = !$('modeBadge').checked || undefined; }); if (libVar === 'modes') renderLib(); };
+$('modeReset').onclick = () => { change(() => { delete doc.mode_colors; }); renderModeColors(); if (libVar === 'modes') renderLib(); };
+$('libVar').onclick = ev => { const b = ev.target.closest('[data-var]'); if (!b) return; libVar = b.dataset.var; $('libVar').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); renderLib(); };
+
+// + Modes: Off + one state per mode from the graphic's first two SVG states.
+$('bModes').onclick = () => {
+  const g = G(); if (!g) { toast('Select or add a graphic first', true); return; }
+  const svgs = g.states.filter(s => /^data:image\/svg\+xml/.test(s.image || ''));
+  if (!svgs.length) { toast('Modes need SVG states (Library or Samples) – PNG images cannot be recoloured', true); return; }
+  if (g.states.length > 2 && !confirm(`Replace the ${g.states.length} states of “${g.name}” with Off + 9 mode states (made from “${svgs[0].label}” and “${(svgs[1] || svgs[0]).label}”)?`)) return;
+  change(() => { g.states = MODE.modeStates({ states: () => svgs }, modeColors(), modeBadge()); });
+  toast(`${g.name}: Off = 0, ${MODE.MODES.map((m, i) => `${m.label} = ${i + 1}`).join(', ')}`);
+};
+
+// 🎨 Colours: every colour of the graphic's SVG states.
+// Apply to all states or one; per colour a fill kind and transparency; for the
+// whole image line thickness, brightness, glow, opacity – with a preview.
+const svgStates = () => (G()?.states || []).map((s, i) => [s, i]).filter(([s]) => MODE.isSvg(s.image));
+const scopeIdx = () => $('colScope').value === 'all' ? svgStates().map(([, i]) => i) : [+$('colScope').value];
+function openColors(only) {
+  const g = G(); if (!g) { toast('Select or add a graphic first', true); return; }
+  const ss = svgStates();
+  if (!ss.length) { toast('This graphic has no SVG states to restyle (PNG / JPG images)', true); return; }
+  $('colName').textContent = g.name;
+  $('colScope').innerHTML = `<option value="all">All states (${ss.length})</option>` + ss.map(([s, i]) => `<option value="${i}">Only “${esc(s.label)}”</option>`).join('');
+  $('colScope').value = only != null && ss.some(([, i]) => i === only) ? String(only) : 'all';
+  resetFx(); colRows(); $('dlgColors').showModal();
+}
+function resetFx() {
+  for (const [id, v] of [['fxStroke', 1], ['fxPatSize', 8], ['fxPatWidth', 1.5], ['fxBright', 1], ['fxGlow', 0], ['fxHalo', 1], ['fxOpacity', 1]]) $(id).value = v;
+  fxLabels();
+}
+function colRows() {
+  const idx = scopeIdx(), g = G();
+  const cols = MODE.colorsOf(idx.map(i => g.states[i].image));
+  const pats = '<option value="">No pattern</option>' + Object.entries(MODE.PATTERNS).map(([k, [n]]) => `<option value="${k}">${n}</option>`).join('');
+  $('colList').innerHTML = cols.map(([c, n]) => `<div class="crow" data-old="${c}" data-cs="keep"><span class="grp" title="Colour – keep it, pick a new one, or No colour"><button type="button" class="sw" data-k="color" data-value="${c}" style="background:${c}" title="Pick a colour – or No colour"></button><button type="button" class="nocol" title="No colour (see-through) – click again to bring it back">∅</button><input class="hex" value="${c}" spellcheck="false" maxlength="7" title="Type a colour (#rrggbb)"><code title="was ${c}, used ${n}×">×${n}</code></span>` +
+    `<span class="grp" title="Pattern – on top of the colour, or alone with No colour"><select data-k="pattern" title="Pattern">${pats}</select><button type="button" class="sw line" data-k="line" data-value="#1f2937" style="background:#1f2937" title="Pattern line colour"></button></span>` +
+    `<input type="range" data-k="alpha" min="0" max="100" step="5" value="100" title="Opacity of this colour"><output>100 %</output></div>`).join('') || '<div class="hint">No colours here.</div>';
+  $('colList').querySelectorAll('.crow').forEach(colRowShow);
+  const halo = idx.some(i => MODE.hasHalo(g.states[i].image));
+  $('fxHalo').disabled = !halo; $('fxHaloRow').title = halo ? 'The soft light drawn around a lamp or LED – 0 turns it off' : 'This graphic has no halo';
+  $('fxHaloRow').style.opacity = halo ? '' : '.5';
+  $('pvState').innerHTML = idx.map(i => `<option value="${i}">${esc(g.states[i].label)}</option>`).join('');
+  $('pvState').hidden = idx.length < 2;
+  const act = idx.find(i => i === matchState(g, currentValue(g)));
+  if (act != null) $('pvState').value = String(act);
+  colPreview();
+}
+// A row has two independent choices: its colour (data-cs: keep | new | none)
+// and a pattern (none or one, with a line colour).
+function colRowShow(r) {
+  const cs = r.dataset.cs, pat = r.querySelector('[data-k=pattern]').value;
+  r.classList.toggle('none', cs === 'none'); r.querySelector('.nocol').classList.toggle('on', cs === 'none');
+  r.querySelector('[data-k=line]').hidden = !pat;
+  r.querySelector('[data-k=alpha]').hidden = r.querySelector('output').hidden = cs === 'none' && !pat;
+  r.querySelector('output').textContent = r.querySelector('[data-k=alpha]').value + ' %';
+  r.classList.toggle('changed', cs !== 'keep' || !!pat || r.querySelector('[data-k=alpha]').value !== '100');
+}
+function colRules() {
+  const rules = {};
+  $('colList').querySelectorAll('.crow').forEach(r => {
+    const v = k => { const el = r.querySelector(`[data-k=${k}]`); return el.dataset.value ?? el.value; }, a = +v('alpha') / 100;
+    const cs = r.dataset.cs, pattern = v('pattern'), line = v('line');
+    if (!pattern) {
+      if (cs !== 'keep' || a < 1) rules[r.dataset.old] = { mode: cs === 'new' ? 'color' : cs, color: v('color'), alpha: a };
+    } else rules[r.dataset.old] = cs === 'none' ? { mode: 'patterncolor', color: line, pattern, alpha: a } // the pattern alone
+      : { mode: cs === 'new' ? 'colorpattern' : 'pattern', color: v('color'), pattern, line, alpha: a };
+  });
+  return rules;
+}
+const colFx = () => ({ stroke: +$('fxStroke').value, patSize: +$('fxPatSize').value, patWidth: +$('fxPatWidth').value, bright: +$('fxBright').value, glow: +$('fxGlow').value, glowColor: $('fxGlowColor').value, halo: +$('fxHalo').value, opacity: +$('fxOpacity').value });
+function fxLabels() {
+  const o = id => $(id).nextElementSibling;
+  o('fxStroke').textContent = $('fxStroke').value + '×'; o('fxPatSize').textContent = $('fxPatSize').value; o('fxPatWidth').textContent = $('fxPatWidth').value;
+  o('fxBright').textContent = Math.round($('fxBright').value * 100) + ' %'; o('fxGlow').textContent = +$('fxGlow').value ? $('fxGlow').value : 'off';
+  o('fxOpacity').textContent = Math.round($('fxOpacity').value * 100) + ' %';
+  o('fxHalo').textContent = +$('fxHalo').value ? Math.round($('fxHalo').value * 100) + ' %' : 'off';
+}
+const fxChanged = fx => fx.stroke !== 1 || fx.bright !== 1 || fx.glow > 0 || fx.opacity < 1 || fx.halo !== 1;
+function colPreview() {
+  const s = G()?.states[+$('pvState').value || scopeIdx()[0]]; if (!s) return;
+  $('pvBefore').src = s.image; $('pvAfter').src = MODE.restyle(s.image, colRules(), colFx(), 'pv');
+}
+// ---- colour picker with "No colour" (the browser's own picker has none) ----
+const parseHex = s => { let v = String(s || '').trim().toLowerCase(); if (!v.startsWith('#')) v = '#' + v; if (/^#[0-9a-f]{3}$/.test(v)) v = '#' + [...v.slice(1)].map(c => c + c).join(''); return /^#[0-9a-f]{6}$/.test(v) ? v : null; };
+const toRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const toHex = (r, g, b) => '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+const rgb2hsv = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b);
+  const h = !d ? 0 : mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [h * 60, mx ? d / mx : 0, mx]; };
+const hsv2rgb = (h, s, v) => { const f = n => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); }; return [f(5) * 255, f(3) * 255, f(1) * 255]; };
+const PRESETS = ['#ffffff', '#d1d5db', '#6b7280', '#374151', '#1f2937', '#000000', '#ef4444', '#b91c1c', '#f97316', '#f59e0b', '#facc15', '#84cc16',
+  '#22c55e', '#15803d', '#14b8a6', '#0ea5e9', '#3b82f6', '#1e40af', '#6366f1', '#a855f7', '#ec4899', '#78350f', '#94a3b8', '#e5e7eb'];
+let recentColors = [];
+const pk = { h: 0, s: 0, v: 0, none: false, cb: null, allowNone: false, anchor: null };
+function openPicker(anchor, value, cb, allowNone = false) {
+  Object.assign(pk, { cb, allowNone, anchor, none: value === null });
+  [pk.h, pk.s, pk.v] = rgb2hsv(...toRgb(value || anchor.dataset.value || '#22c55e'));
+  const p = $('picker');
+  $('pkNone').hidden = !allowNone; $('pkEye').hidden = !window.EyeDropper;
+  $('pkSwatches').innerHTML = PRESETS.map(c => `<button type="button" data-c="${c}" style="background:${c}" title="${c}"></button>`).join('');
+  $('pkRecent').innerHTML = recentColors.map(c => `<button type="button" data-c="${c}" style="background:${c}" title="${c}"></button>`).join('');
+  $('pkRecentRow').hidden = !recentColors.length;
+  p.hidden = false; pkPaint();
+  const a = anchor.getBoundingClientRect(), w = p.offsetWidth, h = p.offsetHeight;
+  p.style.left = Math.max(6, Math.min(innerWidth - w - 6, a.left)) + 'px';
+  p.style.top = (a.bottom + h + 6 < innerHeight ? a.bottom + 4 : Math.max(6, a.top - h - 4)) + 'px';
+}
+function pkPaint() {
+  const [r, g, b] = hsv2rgb(pk.h, pk.s, pk.v), hex = toHex(r, g, b);
+  $('pkSV').style.background = `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent), hsl(${pk.h} 100% 50%)`;
+  $('pkDot').style.left = pk.s * 100 + '%'; $('pkDot').style.top = (1 - pk.v) * 100 + '%';
+  $('pkHue').value = pk.h;
+  $('pkCur').classList.toggle('none', pk.none); $('pkCur').style.background = pk.none ? '' : hex;
+  $('pkNone').classList.toggle('on', pk.none);
+  for (const [id, v] of [['pkR', r], ['pkG', g], ['pkB', b]]) if (document.activeElement !== $(id)) $(id).value = Math.round(v);
+  if (document.activeElement !== $('pkHex')) $('pkHex').value = pk.none ? '' : hex;
+  $('pkHex').placeholder = pk.none ? 'no colour' : '';
+}
+function pkSet(hex, fromInput) { // a colour was chosen in the picker
+  if (hex) { [pk.h, pk.s, pk.v] = rgb2hsv(...toRgb(hex)); pk.none = false; }
+  pkPaint();
+  if (pk.cb) pk.cb(pk.none ? null : toHex(...hsv2rgb(pk.h, pk.s, pk.v)));
+}
+function closePicker() {
+  const p = $('picker'); if (p.hidden) return;
+  p.hidden = true;
+  if (!pk.none) { const c = toHex(...hsv2rgb(pk.h, pk.s, pk.v)); recentColors = [c, ...recentColors.filter(x => x !== c)].slice(0, 12); }
+  pk.cb = null;
+}
+(() => {
+  const sv = $('pkSV');
+  const drag = ev => { const r = sv.getBoundingClientRect(); pk.s = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)); pk.v = Math.max(0, Math.min(1, 1 - (ev.clientY - r.top) / r.height)); pk.none = false; pkSet(); };
+  sv.addEventListener('pointerdown', ev => { sv.setPointerCapture(ev.pointerId); drag(ev); });
+  sv.addEventListener('pointermove', ev => { if (sv.hasPointerCapture(ev.pointerId)) drag(ev); });
+  $('pkHue').oninput = () => { pk.h = +$('pkHue').value; pk.none = false; pkSet(); };
+  for (const id of ['pkR', 'pkG', 'pkB']) $(id).oninput = () => pkSet(toHex(+$('pkR').value || 0, +$('pkG').value || 0, +$('pkB').value || 0));
+  $('pkHex').oninput = () => { const v = parseHex($('pkHex').value); if (v) pkSet(v); };
+  $('pkNone').onclick = () => { pk.none = !pk.none; pkSet(); };
+  $('pkCur').onclick = () => { if (pk.none) { pk.none = false; pkSet(); } };
+  $('picker').addEventListener('click', ev => { const b = ev.target.closest('[data-c]'); if (b) pkSet(b.dataset.c); });
+  $('pkEye').onclick = async () => { try { const r = await new EyeDropper().open(); pkSet(parseHex(r.sRGBHex) || toHex(...(r.sRGBHex.match(/\d+/g) || []).map(Number))); } catch (e) {} };
+  $('pkDone').onclick = closePicker;
+  document.addEventListener('pointerdown', ev => { if (!$('picker').hidden && !ev.target.closest('#picker') && ev.target !== pk.anchor) closePicker(); }, true);
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('picker').hidden) { ev.preventDefault(); ev.stopPropagation(); closePicker(); } }, true);
+})();
+$('dlgColors').addEventListener('close', closePicker);
+
+$('bColors').onclick = () => openColors();
+$('srows').addEventListener('click', ev => { const b = ev.target.closest('button[data-col]'); if (b) openColors(+b.dataset.col); });
+const setSw = (b, v) => { b.dataset.value = v; b.style.background = v; };
+// A colour chosen for a row: null = no colour.
+function rowColor(r, v) {
+  if (v === null) r.dataset.cs = 'none';
+  else { setSw(r.querySelector('[data-k=color]'), v); r.querySelector('.hex').value = v; r.dataset.cs = v === r.dataset.old ? 'keep' : 'new'; }
+  colRowShow(r); colPreview();
+}
+$('colList').addEventListener('click', ev => {
+  const sw = ev.target.closest('.sw');
+  if (sw) {
+    const r = sw.closest('.crow');
+    if (sw.dataset.k === 'line') openPicker(sw, sw.dataset.value, v => { setSw(sw, v); colPreview(); });
+    else openPicker(sw, r.dataset.cs === 'none' ? null : sw.dataset.value, v => rowColor(r, v), true);
+    return;
+  }
+  const b = ev.target.closest('.nocol'); if (!b) return;
+  const r = b.closest('.crow');
+  r.dataset.cs = r.dataset.cs === 'none' ? (r.querySelector('[data-k=color]').dataset.value !== r.dataset.old ? 'new' : 'keep') : 'none';
+  colRowShow(r); colPreview();
+});
+$('colScope').onchange = colRows;
+$('pvState').onchange = colPreview;
+$('colList').addEventListener('input', ev => {
+  const r = ev.target.closest('.crow'); if (!r) return;
+  // Picking a colour on a row that keeps or drops its colour means: this colour.
+  const t = ev.target, hex = r.querySelector('.hex');
+  if (t === hex) {
+    const v = parseHex(hex.value); if (!v) return;
+    setSw(r.querySelector('[data-k=color]'), v); r.dataset.cs = v === r.dataset.old ? 'keep' : 'new';
+  }
+  colRowShow(r); colPreview();
+});
+$('colList').addEventListener('change', ev => { const r = ev.target.closest('.crow'); if (r) { colRowShow(r); colPreview(); } });
+document.querySelectorAll('.col-fx input').forEach(i => i.oninput = () => { fxLabels(); colPreview(); });
+$('colReset').onclick = () => { resetFx(); colRows(); };
+$('colCancel').onclick = () => $('dlgColors').close();
+$('colApply').onclick = () => {
+  const rules = colRules(), fx = colFx(), idx = scopeIdx();
+  $('dlgColors').close();
+  if (!Object.keys(rules).length && !fxChanged(fx)) return;
+  const uid = 'q' + Date.now().toString(36);
+  change(() => idx.forEach(i => { const s = G().states[i]; s.image = MODE.restyle(s.image, rules, fx, uid); }));
+  toast(`${idx.length === 1 ? `“${G().states[idx[0]].label}”` : `${idx.length} states`} restyled – Ctrl+Z undoes it`);
+};
+const condText = w => w.op === 'eq' ? `= ${w.value}` : w.op === 'range' ? `${w.min <= -1e8 ? '…' : w.min} – ${w.max >= 1e8 ? '…' : Math.round(w.max * 10) / 10}` : w.op === 'bit' ? `bit ${w.bit}` : 'else';
+function renderLib() {
+  const q = $('libSearch').value.trim().toLowerCase();
+  $('libCats').innerHTML = LIB.map((c, i) => `<button data-c="${i}" class="${!q && i === libCat ? 'on' : ''}">${esc(c.cat)}<span>${c.items.length}</span></button>`).join('');
+  const list = q ? LIB.flatMap((c, ci) => c.items.map((it, ii) => [ci, ii, it, c.cat])).filter(([, , it, cat]) => (it.name + ' ' + cat).toLowerCase().includes(q))
+    : LIB[libCat].items.map((it, ii) => [libCat, ii, it, LIB[libCat].cat]);
+  $('libInfo').textContent = q ? `${list.length} found` : `${LIB[libCat].cat}: ${list.length}`;
+  $('libItems').innerHTML = list.map(([ci, ii, it]) => {
+    const ss = libStates(it), shown = ss.length > 10 ? ss.filter((_, k) => k % Math.ceil(ss.length / 6) === 0) : ss;
+    return `<div class="litem"><b>${esc(it.name)}</b><div class="lstrip">${shown.map(s => `<figure><img src="${s.image}" class="${s.blink ? 'blink' : ''}" alt=""><figcaption title="${esc(s.label)} – ${esc(condText(s.when))}">${esc(s.label)}</figcaption></figure>`).join('')}</div>` +
+      `<div class="meta">${ss.length} states · ${it.w}×${it.h}${ss.length > shown.length ? ' · some shown' : ''}</div>` +
+      `<div class="lacts"><button class="primary" data-use="${ci}:${ii}" title="Replace the states of the selected graphic">Use in “${esc(G()?.name || 'new graphic')}”</button><button data-new="${ci}:${ii}" title="Add it as a new graphic">+ New graphic</button></div></div>`;
+  }).join('') || '<div class="hint">Nothing found.</div>';
+}
+$('bLib').onclick = () => { renderModeColors(); renderLib(); $('dlgLib').showModal(); $('libSearch').focus(); };
+$('libClose').onclick = () => $('dlgLib').close();
+$('libSearch').oninput = renderLib;
+$('libCats').onclick = ev => { const b = ev.target.closest('[data-c]'); if (b) { libCat = +b.dataset.c; $('libSearch').value = ''; renderLib(); } };
+$('libItems').onclick = ev => {
+  const b = ev.target.closest('[data-use],[data-new]'); if (!b) return;
+  const [ci, ii] = (b.dataset.use || b.dataset.new).split(':').map(Number), it = LIB[ci].items[ii];
+  if (b.dataset.use && G() && G().states.length && !confirm(`Replace the ${G().states.length} states of “${G().name}” with “${it.name}”?`)) return;
+  change(() => {
+    if (b.dataset.new || !G()) addGraphic(it.name.split('–')[0].trim());
+    Object.assign(G(), { states: libStates(it), width: it.w, height: it.h });
+  });
+  $('dlgLib').close();
+  toast(`${it.name}: ${G().states.length} states – set the tag, then try it`);
+};
+
+// ---- menus, keys, autosave ----
+function closeMenus() { document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open')); }
+document.querySelectorAll('[data-menu]').forEach(b => b.onclick = ev => { ev.stopPropagation(); const m = b.closest('.menu'), o = m.classList.contains('open'); closeMenus(); m.classList.toggle('open', !o); });
+document.addEventListener('click', ev => { if (!ev.target.closest('.menu')) closeMenus(); });
+document.addEventListener('keydown', ev => {
+  const c = ev.ctrlKey || ev.metaKey, k = ev.key.toLowerCase();
+  if (c && k === 's') { ev.preventDefault(); save(ev.shiftKey); }
+  else if (c && k === 'o') { ev.preventDefault(); openSet(); }
+  else if (c && k === 'z' && !ev.target.matches('input')) { ev.preventDefault(); const s = undo.pop(); if (s) { doc = JSON.parse(s); sel = Math.min(sel, Math.max(0, doc.graphics.length - 1)); dirty = true; renderAll(); autosaveSoon(); } }
+  else if (ev.key === 'Escape') closeMenus();
+});
+// The work in progress is kept by PLC Monitor (it survives closing the window).
+let asTimer = 0;
+function autosaveSoon() {
+  clearTimeout(asTimer);
+  asTimer = setTimeout(async () => {
+    let ok = false;
+    try { ok = (await fetch('api/stategfx/autosave', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ set: doc }) })).ok; } catch (e) {}
+    $('autosave').textContent = ok ? 'work kept ' + new Date().toLocaleTimeString() : '';
+  }, 800);
+}
+
+(async () => {
+  await loadTags();
+  try { const a = await (await fetch('api/stategfx/autosave', { cache: 'no-store' })).json(); if (a.set && a.set.graphics) { doc = a.set; dirty = true; } } catch (e) {}
+  $('simMode').onchange();
+  simRange(); renderAll(); await pollLive();
+  setInterval(() => { if (!document.hidden) pollLive(); }, 500);
+  setInterval(loadTags, 15000);
+})();
+setInterval(() => { if (window.opener && window.opener.closed) window.close(); }, 2000);
+</script>
+</body>
+</html>

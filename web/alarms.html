@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alarm messages – PLC Monitor</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="themes.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e5e7eb;
+          --good:#15803d; --bad:#b91c1c; --warn:#b45309; --accent:#2563eb; --accent-fg:#fff; --soft:#eef2ff;
+          --fault:#dc2626; --alarm:#ea580c; --warning:#ca8a04; --info:#2563eb; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1218; --card:#171b23; --fg:#e5e7eb; --muted:#9ca3af; --line:#2a303b;
+            --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --accent:#60a5fa; --accent-fg:#0f1218; --soft:#1f2633;
+            --fault:#f87171; --alarm:#fb923c; --warning:#facc15; --info:#60a5fa; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; display:flex; flex-direction:column; }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:5px 10px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  header h1 { font-size:15px; margin:0 6px 0 0; display:flex; align-items:center; gap:7px; white-space:nowrap; }
+  .logo { width:24px; height:24px; border-radius:6px; display:grid; place-items:center; color:#fff; font-weight:800; font-size:13px; background:linear-gradient(135deg, #dc2626, #f59e0b); }
+  #docName { width:190px; font-weight:600; }
+  #fileInfo { color:var(--muted); font-size:12px; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .spacer { flex:1; }
+  button { font:inherit; padding:2px 9px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; white-space:nowrap; }
+  button:hover:not(:disabled) { border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); font-weight:600; }
+  button.on { background:color-mix(in srgb, var(--accent) 16%, var(--card)); border-color:var(--accent); }
+  button.icon { padding:1px 6px; border-color:transparent; background:none; color:var(--muted); }
+  button.icon:hover { color:var(--fg); border-color:var(--line); }
+  input, select { font:inherit; padding:2px 6px; border:1px solid var(--line); border-radius:5px; background:var(--card); color:var(--fg); }
+  input:focus, select:focus { outline:2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color:var(--accent); }
+  label { display:inline-flex; align-items:center; gap:4px; color:var(--muted); }
+  .menu { position:relative; }
+  .menu-list { display:none; position:absolute; right:0; top:calc(100% + 3px); background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.15); padding:4px; z-index:30; min-width:250px; }
+  .menu.open .menu-list { display:block; }
+  .menu-list button { display:block; width:100%; text-align:left; border:0; border-radius:5px; padding:5px 9px; }
+  .menu-list button:hover { background:var(--soft); }
+  .menu-list small { color:var(--muted); }
+  .menu-list hr { border:0; border-top:1px solid var(--line); margin:4px; }
+  /* banner: the newest alarm that is waiting */
+  #banner { display:flex; align-items:center; gap:10px; padding:5px 12px; font-weight:600; color:#fff; background:var(--good); min-height:32px; }
+  #banner.fault { background:var(--fault); } #banner.alarm { background:var(--alarm); } #banner.warning { background:var(--warning); color:#1d2330; } #banner.info { background:var(--info); }
+  #banner .txt { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #banner .cnt { font-size:12px; opacity:.9; font-weight:500; }
+  #banner button { background:rgba(255,255,255,.18); border-color:rgba(255,255,255,.5); color:inherit; }
+  #banner .bell { width:16px; text-align:center; }
+  #banner.blink .bell { animation:blink 1s steps(2, start) infinite; }
+  @keyframes blink { to { visibility:hidden; } }
+  main { flex:1; min-height:0; display:grid; grid-template-columns:minmax(560px, 1fr) minmax(300px, 380px); grid-template-rows:minmax(160px, 1fr) minmax(170px, .8fr); gap:8px; padding:8px; }
+  #defPanel { grid-row:1; grid-column:1; } #sigPanel { grid-row:1 / 3; grid-column:2; } #runPanel { grid-row:2; grid-column:1; }
+  @media (max-width:950px) { main { grid-template-columns:1fr; grid-template-rows:auto; overflow:auto; } #defPanel, #sigPanel, #runPanel { grid-column:1; grid-row:auto; min-height:260px; } }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:9px; display:flex; flex-direction:column; min-height:0; }
+  .ph { display:flex; align-items:center; gap:6px; padding:5px 8px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .ph b { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  .scroll { flex:1; min-height:0; overflow:auto; }
+  .meta { color:var(--muted); font-size:12px; }
+  .hint { color:var(--muted); font-size:12px; padding:14px; text-align:center; }
+  .drop-over { outline:2px dashed var(--accent); outline-offset:-3px; background:color-mix(in srgb, var(--accent) 6%, transparent); }
+  table { border-collapse:collapse; width:100%; }
+  th { position:sticky; top:0; background:var(--card); text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); font-weight:600; padding:4px 5px; border-bottom:1px solid var(--line); z-index:1; white-space:nowrap; }
+  td { padding:2px 5px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  #defs input.id { width:52px; } #defs input.grp { width:80px; } #defs input.tag { width:170px; font-family:ui-monospace, Consolas, monospace; font-size:12px; }
+  #defs input.txt { width:100%; min-width:180px; } #defs input.dly { width:52px; }
+  #defs select.cls { width:82px; }
+  .cond { display:flex; gap:3px; align-items:center; }
+  .cond select { width:78px; } .cond input { width:60px; }
+  td.st { width:1%; white-space:nowrap; } td.acts { width:1%; white-space:nowrap; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--line); vertical-align:middle; }
+  .dot.on { background:var(--bad); box-shadow:0 0 6px var(--bad); }
+  .dot.wait { background:var(--warn); }
+  .cls-fault { color:var(--fault); } .cls-alarm { color:var(--alarm); } .cls-warning { color:var(--warning); } .cls-info { color:var(--info); }
+  .chip { display:inline-block; padding:0 6px; border-radius:9px; font-size:11px; font-weight:700; text-transform:uppercase; color:#fff; }
+  .chip.fault { background:var(--fault); } .chip.alarm { background:var(--alarm); } .chip.warning { background:var(--warning); color:#1d2330; } .chip.info { background:var(--info); }
+  /* signals */
+  .sig { border-bottom:1px solid var(--line); padding:6px 8px; display:flex; flex-direction:column; gap:4px; }
+  .sig .top { display:flex; align-items:center; gap:6px; }
+  .sig .nm { flex:1; min-width:0; font:600 12px ui-monospace, Consolas, monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sig .ty { color:var(--muted); font-size:11px; }
+  .sig .val { font:600 13px ui-monospace, Consolas, monospace; min-width:60px; text-align:right; }
+  .sig .row { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+  .sig input[type=range] { flex:1; min-width:100px; padding:0; }
+  .sig input.num { width:80px; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .seg button { border:0; border-radius:0; padding:1px 7px; font-size:12px; }
+  .seg button.on { background:var(--accent); color:var(--accent-fg); }
+  .bits { display:flex; gap:2px; flex-wrap:wrap; }
+  .bits button { width:26px; padding:1px 0; font:11px ui-monospace, Consolas, monospace; }
+  .bits button.on { background:var(--bad); border-color:var(--bad); color:#fff; }
+  .bits button.used { border-color:var(--accent); }
+  .tog { min-width:64px; font-weight:700; }
+  .tog.on { background:var(--good); border-color:var(--good); color:#fff; }
+  /* runtime */
+  .tabs button.on { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
+  #act tr.unack td { font-weight:600; }
+  #act tr.went td { opacity:.65; }
+  #act tr td:first-child { box-shadow:inset 3px 0 0 var(--c, transparent); }
+  #hist td { font-size:12px; }
+  .ev { font:700 11px ui-monospace, Consolas, monospace; }
+  .ev.c { color:var(--bad); } .ev.g { color:var(--good); } .ev.a { color:var(--accent); }
+  footer { padding:4px 10px; border-top:1px solid var(--line); background:var(--card); font-size:12px; display:flex; gap:10px; }
+  #toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:7px 14px; border-radius:8px; z-index:50; max-width:80vw; }
+  #toast.err { background:var(--bad); color:#fff; }
+  dialog { border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--fg); padding:14px 16px; max-width:640px; }
+  dialog::backdrop { background:rgba(0,0,0,.35); }
+  dialog code { background:var(--soft); padding:0 4px; border-radius:4px; }
+  dialog li { margin:3px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="logo">!</span>Alarm messages</h1>
+  <input id="docName" title="Name of this alarm set">
+  <span id="fileInfo"></span>
+  <span class="spacer"></span>
+  <button id="bNew" title="A new, empty alarm set">New</button>
+  <button id="bOpen" title="Open a .plcalarm file or an alarm list (CSV / Excel) – Ctrl+O">Open…</button>
+  <button id="bSave" class="primary" title="Save – Ctrl+S">Save</button>
+  <button id="bSaveAs" title="Save as – Ctrl+Shift+S">Save as…</button>
+  <div class="menu"><button data-menu>Import / Export ▾</button>
+    <div class="menu-list">
+      <button id="iList">Import alarm list… <small>.plcalarm, .csv, .xlsx, .xls – added to this set</small></button>
+      <hr>
+      <button data-export="csv">Export CSV <small>for the HMI / Excel</small></button>
+      <button data-export="xlsx">Export Excel (.xlsx)</button>
+      <button data-export="plcalarm">Export .plcalarm</button>
+    </div>
+  </div>
+  <button id="bSamples" title="Add sample alarms for each kind of tag">Samples</button>
+  <button id="bHelp" class="icon" title="How it works">?</button>
+  <input type="file" id="fList" accept=".plcalarm,.json,.csv,.tsv,.txt,.xlsx,.xls" hidden>
+</header>
+<div id="banner"><span class="bell">●</span><span class="txt">No alarms</span><span class="cnt"></span><button id="bAckAllTop" hidden>Ack all</button></div>
+<main>
+  <section class="panel" id="defPanel">
+    <div class="ph"><b>Alarms</b><span class="meta" id="defInfo"></span><span class="spacer"></span>
+      <button id="bAdd" title="Add an alarm (Insert)">+ Alarm</button>
+      <span class="meta">or drag tags from PLC Monitor here</span></div>
+    <div class="scroll" id="defWrap"><table id="defs"><thead><tr><th>No.</th><th>Class</th><th>Group</th><th>Tag</th><th>Condition</th><th title="The condition must hold this long (seconds)">Delay s</th><th title="Must be acknowledged">Ack</th><th>Text <small style="text-transform:none">{value} {tag} {limit}</small></th><th></th><th></th></tr></thead><tbody></tbody></table>
+      <div class="hint" id="defEmpty">No alarms yet. <b>+ Alarm</b>, drag tags here from the tag list, <b>Samples</b>, or <b>Open…</b> an alarm list.</div></div>
+  </section>
+  <section class="panel" id="sigPanel">
+    <div class="ph"><b>Signals</b><span class="spacer"></span>
+      <span class="seg"><button data-allsrc="sim" title="Simulate every tag">All simulated</button><button data-allsrc="live" title="Read every tag from the PLC">All live</button></span></div>
+    <div class="ph"><label>Period <input type="number" id="per" value="4" min="0.2" step="0.5" style="width:56px"> s</label><span class="meta">for ramp / sine / toggle</span></div>
+    <div class="scroll" id="sigs"></div>
+  </section>
+  <section class="panel" id="runPanel">
+    <div class="ph"><span class="seg tabs"><button data-tab="act" class="on">Active <span id="nAct">0</span></button><button data-tab="hist">History <span id="nHist">0</span></button></span>
+      <span class="spacer"></span>
+      <button id="bAck" title="Acknowledge the selected alarm">Ack</button><button id="bAckAll" title="Acknowledge all">Ack all</button>
+      <button id="bClearHist" title="Clear the history">Clear history</button>
+      <button id="bReset" title="Forget every alarm state (start again)">Reset</button></div>
+    <div class="scroll"><table id="act"><thead><tr><th>No.</th><th>Class</th><th>Came</th><th>Went</th><th>State</th><th>Text</th><th>Group</th></tr></thead><tbody></tbody></table>
+      <table id="hist" hidden><thead><tr><th>Time</th><th>Event</th><th>No.</th><th>Class</th><th>Text</th><th>Value</th></tr></thead><tbody></tbody></table>
+      <div class="hint" id="runEmpty">No active alarms.</div></div>
+  </section>
+</main>
+<footer><span id="status"></span><span class="spacer"></span><span id="autosave" class="meta"></span></footer>
+<datalist id="tagList"></datalist>
+<div id="toast" hidden></div>
+<dialog id="dlgHelp">
+  <h3 style="margin-top:0">Alarm messages</h3>
+  <ul>
+    <li>Each alarm watches one <b>tag</b>. It <b>comes</b> while its condition holds (after the delay) and <b>goes</b> when it stops.</li>
+    <li>Conditions: <code>TRUE</code> / <code>FALSE</code> for a Bool, <code>bit n</code> of a Byte / Word / DWord (alarm words), <code>&gt; &gt;= &lt; &lt;= = &lt;&gt;</code> a value, <code>outside</code> / <code>inside</code> a range.</li>
+    <li>Classes: <span class="chip fault">fault</span> <span class="chip alarm">alarm</span> <span class="chip warning">warning</span> <span class="chip info">info</span>. With <b>Ack</b> the alarm stays in the list until it is acknowledged.</li>
+    <li>Text placeholders: <code>{value}</code> the tag value when it came, <code>{tag}</code>, <code>{limit}</code>, <code>{min}</code>, <code>{max}</code>, <code>{id}</code>.</li>
+    <li><b>Signals</b>: each tag runs <b>simulated</b> (toggle, bits, slider, ramp, sine, random) or <b>live</b> from the PLC.</li>
+    <li>Drag tags from the PLC Monitor tag list onto the alarms: a Bool gets <code>TRUE</code>, a Word / Byte / DWord gets <code>bit 0</code>, a number gets <code>&gt; 80</code>.</li>
+    <li>Export CSV / Excel for the HMI; Import reads the same columns (ID, Class, Group, Tag, Condition, Delay ms, Ack, Text) and lists from other tools (Bit, Limit, Message …).</li>
+  </ul>
+  <div style="text-align:right"><button onclick="this.closest('dialog').close()">Close</button></div>
+</dialog>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const num = v => v === true ? 1 : v === false ? 0 : v === null || v === undefined || v === '' ? NaN : Number(v);
+const CLASSES = ['fault', 'alarm', 'warning', 'info'];
+const RANK = { fault: 0, alarm: 1, warning: 2, info: 3 };
+const TRIG = [['true', 'TRUE'], ['false', 'FALSE'], ['bit', 'bit'], ['gt', '>'], ['ge', '>='], ['lt', '<'], ['le', '<='], ['eq', '='], ['ne', '<>'], ['outside', 'outside'], ['inside', 'inside']];
+const newDoc = () => ({ format: 'plcmonitor-alarms', version: 1, name: 'New alarms', alarms: [] });
+let doc = newDoc(), filePath = '', dirty = false;
+const undo = [];
+let tags = [], live = new Map();          // tag name → {value, good, type}
+const sig = new Map();                    // tag → {src: 'sim'|'live', mode, value, t0}
+const rt = new Map();                     // alarm id → {cond, since, active, came, went, ack, value}
+let hist = [], selAct = 0, tab = 'act';
+
+function toast(msg, err) {
+  const t = $('toast'); t.textContent = msg; t.className = err ? 'err' : ''; t.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, err ? 6000 : 3000);
+}
+function status(msg, bad) { $('status').textContent = msg; $('status').className = bad ? 'bad' : ''; }
+function title() {
+  $('fileInfo').textContent = (filePath || 'not saved') + (dirty ? ' •' : ''); $('fileInfo').title = filePath;
+  document.title = `${dirty ? '• ' : ''}${doc.name} – Alarm messages – PLC Monitor`;
+}
+function change(fn, rerender = true) {
+  undo.push(JSON.stringify(doc)); if (undo.length > 100) undo.shift();
+  fn(); dirty = true; title(); autosaveSoon();
+  if (rerender) { renderDefs(); renderSigs(); }
+}
+const nextId = () => doc.alarms.reduce((m, a) => Math.max(m, a.id || 0), 0) + 1;
+const tagType = name => (tags.find(t => t.name === name)?.type || live.get(name)?.type || '').toString();
+const isBool = ty => /^bool$/i.test(ty);
+const isBits = ty => /^(byte|word|dword|lword|usint|uint|udint|sint|int|dint)$/i.test(ty);
+const fmtNum = v => { const x = num(v); return Number.isNaN(x) ? '–' : Math.round(x * 1000) / 1000; };
+const fmtVal = (v, ty) => v === undefined ? '–' : isBool(ty) || typeof v === 'boolean' ? (num(v) ? 'TRUE' : 'FALSE') : String(fmtNum(v));
+const condText = t => ({ true: 'TRUE', false: 'FALSE', bit: `bit ${t.bit || 0}`, outside: `outside ${t.min || 0}..${t.max || 0}`, inside: `inside ${t.min || 0}..${t.max || 0}` }[t.type] ?? `${(TRIG.find(x => x[0] === t.type) || [, t.type])[1]} ${t.value || 0}`);
+
+// A new alarm for a tag of a type.
+function alarmFor(name, ty) {
+  const short = name.split('.').pop();
+  const a = { id: nextId(), class: 'alarm', group: '', tag: name, trigger: { type: 'true' }, text: `${short} fault`, ack: true };
+  if (isBool(ty)) { a.class = 'fault'; }
+  else if (isBits(ty) && /word|byte|status|alarm|fault/i.test(ty + short)) { a.trigger = { type: 'bit', bit: 0 }; a.text = `${short} bit 0`; }
+  else if (ty) { a.class = 'warning'; a.trigger = { type: 'gt', value: 80 }; a.text = `${short} high: {value} (limit {limit})`; }
+  return a;
+}
+
+// ---- definitions table ----
+function condCell(a) {
+  const t = a.trigger;
+  const opts = TRIG.map(([v, l]) => `<option value="${v}" ${t.type === v ? 'selected' : ''}>${l}</option>`).join('');
+  let extra = '';
+  if (t.type === 'bit') extra = `<input type="number" data-f="bit" min="0" max="63" value="${t.bit || 0}" title="Bit number">`;
+  else if (t.type === 'outside' || t.type === 'inside') extra = `<input type="number" data-f="min" value="${t.min || 0}" title="Min"><input type="number" data-f="max" value="${t.max || 0}" title="Max">`;
+  else if (!['true', 'false'].includes(t.type)) extra = `<input type="number" data-f="value" value="${t.value || 0}" step="any" title="Limit">`;
+  return `<div class="cond"><select data-f="type">${opts}</select>${extra}</div>`;
+}
+function renderDefs() {
+  const tb = $('defs').tBodies[0];
+  tb.innerHTML = doc.alarms.map((a, i) => `<tr data-i="${i}">
+    <td><input class="id" type="number" min="1" data-f="id" value="${a.id}"></td>
+    <td><select class="cls cls-${a.class}" data-f="class">${CLASSES.map(c => `<option ${c === a.class ? 'selected' : ''}>${c}</option>`).join('')}</select></td>
+    <td><input class="grp" data-f="group" value="${esc(a.group)}"></td>
+    <td><input class="tag" data-f="tag" list="tagList" value="${esc(a.tag)}" title="${esc(tagType(a.tag))}"></td>
+    <td>${condCell(a)}</td>
+    <td><input class="dly" type="number" min="0" step="0.5" data-f="delay" value="${(a.trigger.delay_ms || 0) / 1000}"></td>
+    <td><input type="checkbox" data-f="ack" ${a.ack ? 'checked' : ''}></td>
+    <td><input class="txt" data-f="text" value="${esc(a.text)}"></td>
+    <td class="st"><span class="dot" data-dot="${a.id}"></span></td>
+    <td class="acts"><button class="icon" data-dup title="Duplicate (next bit / number)">⧉</button><button class="icon" data-del title="Delete">✕</button></td></tr>`).join('');
+  $('defEmpty').hidden = doc.alarms.length > 0;
+  $('defInfo').textContent = doc.alarms.length ? `${doc.alarms.length} alarm${doc.alarms.length === 1 ? '' : 's'}` : '';
+  paintDots();
+}
+$('defs').addEventListener('change', ev => {
+  const el = ev.target, tr = el.closest('tr[data-i]'); if (!tr) return;
+  const a = doc.alarms[+tr.dataset.i], f = el.dataset.f;
+  const structural = f === 'type' || f === 'tag' || f === 'id';
+  if (f === 'id') {
+    const v = Math.max(1, Math.round(+el.value || 0));
+    if (doc.alarms.some(b => b !== a && b.id === v)) { toast(`Number ${v} is already used`, true); el.value = a.id; return; }
+  }
+  change(() => {
+    if (f === 'id') { rt.delete(a.id); a.id = Math.max(1, Math.round(+el.value || 0)); }
+    else if (f === 'class') a.class = el.value;
+    else if (f === 'group') a.group = el.value;
+    else if (f === 'tag') a.tag = el.value.trim();
+    else if (f === 'text') a.text = el.value;
+    else if (f === 'ack') a.ack = el.checked;
+    else if (f === 'delay') a.trigger.delay_ms = Math.max(0, Math.round((+el.value || 0) * 1000));
+    else if (f === 'type') {
+      const t = a.trigger; t.type = el.value;
+      if (t.type === 'bit') t.bit = t.bit || 0;
+      if ((t.type === 'outside' || t.type === 'inside') && !t.max) { t.min = 0; t.max = 100; }
+    } else if (['bit', 'value', 'min', 'max'].includes(f)) a.trigger[f] = f === 'bit' ? Math.max(0, Math.min(63, Math.round(+el.value || 0))) : +el.value || 0;
+  }, structural);
+  if (f === 'class') el.className = 'cls cls-' + a.class;
+  if (!structural && ['bit', 'value', 'min', 'max'].includes(f)) renderSigs();
+});
+$('defs').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-dup],[data-del]'); if (!b) return;
+  const i = +b.closest('tr').dataset.i, a = doc.alarms[i];
+  if (b.dataset.del !== undefined) { change(() => { doc.alarms.splice(i, 1); rt.delete(a.id); }); return; }
+  change(() => {
+    const c = JSON.parse(JSON.stringify(a)); c.id = nextId();
+    if (c.trigger.type === 'bit') { c.trigger.bit = Math.min(63, (c.trigger.bit || 0) + 1); c.text = c.text.replace(/bit \d+/i, 'bit ' + c.trigger.bit); }
+    doc.alarms.splice(i + 1, 0, c);
+  });
+});
+$('bAdd').onclick = () => change(() => doc.alarms.push({ id: nextId(), class: 'alarm', group: '', tag: '', trigger: { type: 'true' }, text: 'New alarm', ack: true }));
+
+// ---- tags: dropped from the tag list, read live ----
+async function loadTags() {
+  try { const c = await (await fetch('api/config', { cache: 'no-store' })).json(); tags = c.tags || []; } catch (e) {}
+  $('tagList').innerHTML = tags.map(t => `<option value="${esc(t.name)}">${esc(t.type)}</option>`).join('');
+}
+async function droppedTags(dt) {
+  try { const j = dt.getData('application/x-plcm-tags'); if (j) return JSON.parse(j); } catch (e) {}
+  const names = (dt.getData('text/plain') || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if (!names.length) return [];
+  await loadTags();
+  return names.map(n => tags.find(t => t.name === n) || { name: n, type: '' });
+}
+const dw = $('defWrap');
+dw.addEventListener('dragover', ev => { const ty = [...ev.dataTransfer.types]; if (ty.includes('application/x-plcm-tags') || ty.includes('text/plain') || ty.includes('Files')) { ev.preventDefault(); dw.classList.add('drop-over'); } });
+dw.addEventListener('dragleave', ev => { if (!dw.contains(ev.relatedTarget)) dw.classList.remove('drop-over'); });
+dw.addEventListener('drop', async ev => {
+  ev.preventDefault(); dw.classList.remove('drop-over');
+  if (ev.dataTransfer.files.length) { importFile(ev.dataTransfer.files[0], true); return; }
+  const ts = await droppedTags(ev.dataTransfer); if (!ts.length) return;
+  const tr = ev.target.closest('tr[data-i]');
+  if (tr && ts.length === 1) { change(() => doc.alarms[+tr.dataset.i].tag = ts[0].name); return; }
+  change(() => ts.forEach(t => doc.alarms.push(alarmFor(t.name, t.type))));
+  toast(`${ts.length} alarm${ts.length === 1 ? '' : 's'} added – check the conditions and texts`);
+});
+async function pollLive() {
+  try {
+    const j = await (await fetch('api/state', { cache: 'no-store' })).json();
+    live = new Map((j.tags || []).map(t => [t.name, { value: t.good ? t.value : undefined, good: t.good, type: t.type }]));
+  } catch (e) {}
+}
+
+// ---- signals: one per tag, simulated or live ----
+function sigOf(tag) {
+  let s = sig.get(tag);
+  if (!s) { s = { src: 'sim', mode: 'manual', value: 0, t0: performance.now() }; sig.set(tag, s); }
+  return s;
+}
+const usedTags = () => [...new Set(doc.alarms.map(a => a.tag).filter(Boolean))];
+function sigRange(tag) {
+  // Around the alarm limits of the tag, so a wave crosses them.
+  const vs = [];
+  for (const a of doc.alarms.filter(a => a.tag === tag)) {
+    const t = a.trigger;
+    if (['outside', 'inside'].includes(t.type)) vs.push(t.min || 0, t.max || 0);
+    else if (!['true', 'false', 'bit'].includes(t.type)) vs.push(t.value || 0);
+  }
+  if (!vs.length) return [0, 100];
+  if (doc.alarms.every(a => a.tag !== tag || ['eq', 'ne', 'true', 'false', 'bit'].includes(a.trigger.type))) // mode numbers
+    return [Math.min(0, Math.floor(Math.min(...vs)) - 2), Math.ceil(Math.max(...vs)) + 2];
+  let lo = Math.min(...vs), hi = Math.max(...vs);
+  const span = Math.max(hi - lo, Math.abs(hi) * .5, 1), pos = lo >= 0;
+  lo -= span * .3; hi += span * .3;
+  if (pos && lo < 0) lo = 0;
+  const r = span < 20 ? 10 : 1;
+  return [Math.floor(lo * r) / r, Math.ceil(hi * r) / r];
+}
+function sigKind(tag) {
+  const ty = tagType(tag), trig = doc.alarms.filter(a => a.tag === tag).map(a => a.trigger.type);
+  if (isBool(ty) || (!ty && trig.length && trig.every(t => t === 'true' || t === 'false'))) return 'bool';
+  if (trig.includes('bit') || /^(byte|word|dword)$/i.test(ty)) return 'bits';
+  return 'num';
+}
+function sigValue(tag) {
+  const s = sigOf(tag);
+  if (s.src === 'live') return live.get(tag)?.value;
+  return s.value;
+}
+function renderSigs() {
+  const ts = usedTags();
+  $('sigs').innerHTML = ts.map(tag => {
+    const s = sigOf(tag), k = sigKind(tag), ty = tagType(tag) || '?';
+    let ctl = '';
+    if (s.src === 'live') ctl = `<div class="meta">${live.has(tag) ? (live.get(tag).good ? 'read from the PLC' : 'no good value from the PLC') : 'not in the tag list / not polled'}</div>`;
+    else {
+      const modes = k === 'bool' ? ['manual', 'toggle', 'random'] : ['manual', 'ramp', 'sine', 'random'];
+      const mode = `<select data-mode>${modes.map(m => `<option ${m === s.mode ? 'selected' : ''}>${m}</option>`).join('')}</select>`;
+      if (k === 'bool') ctl = `<div class="row"><button class="tog ${num(s.value) ? 'on' : ''}" data-tog>${num(s.value) ? 'TRUE' : 'FALSE'}</button>${mode}</div>`;
+      else if (k === 'bits') {
+        const used = new Set(doc.alarms.filter(a => a.tag === tag && a.trigger.type === 'bit').map(a => a.trigger.bit || 0));
+        const n = /dword|dint|udint/i.test(ty) || [...used].some(b => b > 15) ? 32 : /byte|sint/i.test(ty) ? 8 : 16;
+        let bits = ''; for (let b = n - 1; b >= 0; b--) bits += `<button data-bit="${b}" class="${(Math.trunc(num(s.value) || 0) / 2 ** b) % 2 >= 1 ? 'on' : ''} ${used.has(b) ? 'used' : ''}" title="bit ${b}${used.has(b) ? ' – has an alarm' : ''}">${b}</button>`;
+        ctl = `<div class="bits">${bits}</div><div class="row"><input class="num" type="number" data-num value="${Math.trunc(num(s.value) || 0)}"><button data-zero>0</button>${mode}</div>`;
+      } else {
+        const [lo, hi] = sigRange(tag);
+        ctl = `<div class="row"><input type="range" data-slider min="${lo}" max="${hi}" step="any" value="${num(s.value) || 0}"><input class="num" type="number" step="any" data-num value="${fmtNum(s.value)}"></div><div class="row">${mode}<span class="meta">${lo} … ${hi}</span></div>`;
+      }
+    }
+    return `<div class="sig" data-tag="${esc(tag)}"><div class="top"><span class="nm" title="${esc(tag)}">${esc(tag)}</span><span class="ty">${esc(ty)}</span><span class="val" data-val></span>
+      <span class="seg"><button data-src="sim" class="${s.src === 'sim' ? 'on' : ''}" title="Simulated value">Sim</button><button data-src="live" class="${s.src === 'live' ? 'on' : ''}" title="Value from the PLC">Live</button></span></div>${ctl}</div>`;
+  }).join('') || '<div class="hint">The tags of the alarms appear here, to simulate them or read them live.</div>';
+  paintSigs();
+}
+function paintSigs() {
+  document.querySelectorAll('#sigs .sig').forEach(el => {
+    const tag = el.dataset.tag, s = sigOf(tag), v = sigValue(tag), k = sigKind(tag);
+    el.querySelector('[data-val]').textContent = fmtVal(v, k === 'bool' ? 'Bool' : '');
+    if (s.src !== 'sim' || s.mode === 'manual') return;
+    const tog = el.querySelector('[data-tog]'); if (tog) { tog.classList.toggle('on', !!num(v)); tog.textContent = num(v) ? 'TRUE' : 'FALSE'; }
+    const sl = el.querySelector('[data-slider]'); if (sl && document.activeElement !== sl) sl.value = num(v) || 0;
+    const nm = el.querySelector('[data-num]'); if (nm && document.activeElement !== nm) nm.value = fmtNum(v);
+    el.querySelectorAll('[data-bit]').forEach(b => b.classList.toggle('on', (Math.trunc(num(v) || 0) / 2 ** +b.dataset.bit) % 2 >= 1));
+  });
+}
+function setSim(tag, v) { const s = sigOf(tag); s.value = v; s.mode = 'manual'; }
+$('sigs').addEventListener('click', ev => {
+  const el = ev.target.closest('.sig'); if (!el) return;
+  const tag = el.dataset.tag, s = sigOf(tag), b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.src) { s.src = b.dataset.src; renderSigs(); evaluate(); return; }
+  if (b.dataset.tog !== undefined) setSim(tag, num(s.value) ? false : true);
+  else if (b.dataset.bit !== undefined) { const v = Math.trunc(num(s.value) || 0), m = 2 ** +b.dataset.bit; setSim(tag, (v / m) % 2 >= 1 ? v - m : v + m); }
+  else if (b.dataset.zero !== undefined) setSim(tag, 0);
+  else return;
+  renderSigs(); evaluate();
+});
+$('sigs').addEventListener('input', ev => {
+  const el = ev.target.closest('.sig'); if (!el) return;
+  const tag = el.dataset.tag, t = ev.target;
+  if (t.dataset.slider !== undefined) { setSim(tag, Math.round(+t.value * 100) / 100); el.querySelector('[data-num]').value = fmtNum(sigOf(tag).value); }
+  else if (t.dataset.num !== undefined) { setSim(tag, +t.value || 0); const sl = el.querySelector('[data-slider]'); if (sl) sl.value = +t.value || 0; else el.querySelectorAll('[data-bit]').forEach(b => b.classList.toggle('on', (Math.trunc(+t.value || 0) / 2 ** +b.dataset.bit) % 2 >= 1)); }
+  else return;
+  el.querySelector('[data-mode]').value = 'manual';
+  el.querySelector('[data-val]').textContent = fmtVal(sigValue(tag), sigKind(tag) === 'bool' ? 'Bool' : '');
+  evaluate();
+});
+$('sigs').addEventListener('change', ev => {
+  if (ev.target.dataset.mode === undefined) return;
+  const s = sigOf(ev.target.closest('.sig').dataset.tag); s.mode = ev.target.value; s.t0 = performance.now();
+});
+document.querySelectorAll('[data-allsrc]').forEach(b => b.onclick = () => { for (const t of usedTags()) sigOf(t).src = b.dataset.allsrc; renderSigs(); evaluate(); });
+function stepWaves() {
+  const per = Math.max(200, (+$('per').value || 4) * 1000), now = performance.now();
+  for (const tag of usedTags()) {
+    const s = sigOf(tag); if (s.src !== 'sim' || s.mode === 'manual') continue;
+    const k = sigKind(tag), [lo, hi] = sigRange(tag), ph = (now - s.t0) % per / per;
+    if (s.mode === 'toggle') s.value = ph < .5;
+    else if (s.mode === 'ramp') s.value = Math.round((lo + (hi - lo) * ph) * 100) / 100;
+    else if (s.mode === 'sine') s.value = Math.round((lo + (hi - lo) * (.5 - .5 * Math.cos(2 * Math.PI * ph))) * 100) / 100;
+    else if (s.mode === 'random' && now - (s.last || 0) > per / 2) {
+      s.last = now;
+      if (k === 'bool') s.value = Math.random() < .5;
+      else if (k === 'bits') { const used = doc.alarms.filter(a => a.tag === tag && a.trigger.type === 'bit').map(a => a.trigger.bit || 0); s.value = used.reduce((v, b) => Math.random() < .3 ? v + 2 ** b : v, 0); }
+      else s.value = Math.round((lo + (hi - lo) * Math.random()) * 100) / 100;
+    }
+  }
+}
+
+// ---- runtime: conditions → came / went / ack ----
+function holds(a, v) {
+  const x = num(v), t = a.trigger;
+  if (Number.isNaN(x)) return false;
+  switch (t.type) {
+    case 'true': return x !== 0;
+    case 'false': return x === 0;
+    case 'bit': return Math.floor(Math.trunc(x) / 2 ** (t.bit || 0)) % 2 !== 0;
+    case 'gt': return x > (t.value || 0);
+    case 'ge': return x >= (t.value || 0);
+    case 'lt': return x < (t.value || 0);
+    case 'le': return x <= (t.value || 0);
+    case 'eq': return Math.abs(x - (t.value || 0)) < 1e-9;
+    case 'ne': return Math.abs(x - (t.value || 0)) >= 1e-9;
+    case 'outside': return x < (t.min || 0) || x > (t.max || 0);
+    case 'inside': return x >= (t.min || 0) && x <= (t.max || 0);
+  }
+  return false;
+}
+function textOf(a, v) {
+  const t = a.trigger, lim = t.type === 'bit' ? t.bit : t.value;
+  return (a.text || '').replace(/\{(value|tag|limit|min|max|id)\}/g, (_, k) =>
+    k === 'value' ? fmtVal(v, sigKind(a.tag) === 'bool' ? 'Bool' : '') : k === 'tag' ? a.tag : k === 'limit' ? String(lim ?? '') : k === 'id' ? String(a.id) : String(t[k] ?? ''));
+}
+function log(ev, a, r) {
+  hist.unshift({ time: Date.now(), ev, id: a.id, class: a.class, text: textOf(a, r.value), value: fmtVal(r.value, sigKind(a.tag) === 'bool' ? 'Bool' : '') });
+  if (hist.length > 1000) hist.length = 1000;
+}
+function evaluate() {
+  const now = Date.now();
+  for (const a of doc.alarms) {
+    let r = rt.get(a.id);
+    if (!r) { r = { cond: false, since: 0, active: false, came: 0, went: 0, ack: true, value: undefined }; rt.set(a.id, r); }
+    const v = a.tag ? sigValue(a.tag) : undefined, c = holds(a, v);
+    if (c && !r.cond) r.since = now;
+    r.cond = c;
+    if (c && !r.active && now - r.since >= (a.trigger.delay_ms || 0)) {
+      Object.assign(r, { active: true, came: now, went: 0, ack: !a.ack, value: v }); log('came', a, r);
+    } else if (!c && r.active) { r.active = false; r.went = now; log('went', a, r); }
+    if (r.active) r.value = v;
+  }
+  for (const id of [...rt.keys()]) if (!doc.alarms.some(a => a.id === id)) rt.delete(id);
+  paintRun(); paintDots();
+}
+const shown = () => doc.alarms.map(a => [a, rt.get(a.id)]).filter(([, r]) => r && (r.active || !r.ack))
+  .sort(([a, r], [b, s]) => RANK[a.class] - RANK[b.class] || s.came - r.came);
+function ack(ids) {
+  let n = 0;
+  for (const a of doc.alarms) { const r = rt.get(a.id); if (r && !r.ack && ids.includes(a.id)) { r.ack = true; n++; log('ack', a, r); } }
+  if (n) paintRun();
+}
+const tm = ms => ms ? new Date(ms).toLocaleTimeString() : '';
+function paintDots() {
+  document.querySelectorAll('[data-dot]').forEach(d => {
+    const r = rt.get(+d.dataset.dot);
+    d.className = 'dot' + (r?.active ? ' on' : r?.cond ? ' wait' : '');
+    d.title = r?.active ? 'active' : r?.cond ? 'condition holds – waiting for the delay' : 'not active';
+  });
+}
+function paintRun() {
+  const list = shown();
+  $('nAct').textContent = list.length; $('nHist').textContent = hist.length;
+  if (!list.some(([a]) => a.id === selAct)) selAct = list[0]?.[0].id || 0;
+  $('act').tBodies[0].innerHTML = list.map(([a, r]) => `<tr data-id="${a.id}" class="${r.ack ? '' : 'unack'} ${r.active ? '' : 'went'}" style="--c:var(--${a.class});${a.id === selAct ? 'background:var(--soft)' : ''}">
+    <td>${a.id}</td><td><span class="chip ${a.class}">${a.class}</span></td><td>${tm(r.came)}</td><td>${tm(r.went)}</td>
+    <td>${r.active ? (r.ack ? 'came, acked' : '<b>came</b>') : 'went, <b>not acked</b>'}</td><td>${esc(textOf(a, r.value))}</td><td>${esc(a.group)}</td></tr>`).join('');
+  $('hist').tBodies[0].innerHTML = hist.slice(0, 300).map(h => `<tr><td>${new Date(h.time).toLocaleTimeString()}</td><td class="ev ${h.ev[0]}">${{ came: 'CAME', went: 'WENT', ack: 'ACK' }[h.ev]}</td><td>${h.id}</td><td><span class="chip ${h.class}">${h.class}</span></td><td>${esc(h.text)}</td><td>${esc(h.value)}</td></tr>`).join('');
+  $('runEmpty').hidden = tab === 'act' ? list.length > 0 : hist.length > 0;
+  $('runEmpty').textContent = tab === 'act' ? 'No active alarms.' : 'Nothing has happened yet.';
+  const unack = list.filter(([, r]) => !r.ack), top = (unack.length ? unack : list.filter(([, r]) => r.active))[0];
+  const bn = $('banner');
+  bn.className = top ? top[0].class + (unack.length ? ' blink' : '') : '';
+  bn.querySelector('.txt').textContent = top ? `${top[0].id}  ${textOf(top[0], top[1].value)}` : 'No alarms';
+  const act = list.filter(([, r]) => r.active).length;
+  bn.querySelector('.cnt').textContent = list.length ? `${act} active · ${unack.length} to acknowledge` : '';
+  $('bAckAllTop').hidden = !unack.length;
+  $('bAck').disabled = !list.some(([a, r]) => a.id === selAct && !r.ack); $('bAckAll').disabled = !unack.length;
+}
+$('act').addEventListener('click', ev => { const tr = ev.target.closest('tr[data-id]'); if (tr) { selAct = +tr.dataset.id; paintRun(); } });
+$('act').addEventListener('dblclick', ev => { const tr = ev.target.closest('tr[data-id]'); if (tr) ack([+tr.dataset.id]); });
+$('bAck').onclick = () => ack([selAct]);
+$('bAckAll').onclick = $('bAckAllTop').onclick = () => ack(doc.alarms.map(a => a.id));
+$('bClearHist').onclick = () => { hist = []; paintRun(); };
+$('bReset').onclick = () => { rt.clear(); hist = []; evaluate(); };
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+  tab = b.dataset.tab; document.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b));
+  $('act').hidden = tab !== 'act'; $('hist').hidden = tab !== 'hist'; paintRun();
+});
+
+// ---- samples: one of each kind ----
+$('bSamples').onclick = () => {
+  const n = nextId();
+  const S = [
+    { class: 'fault', group: 'Motors', tag: 'Motor1_Overload', trigger: { type: 'true' }, text: 'Motor 1 overload tripped' },
+    { class: 'fault', group: 'Safety', tag: 'EStop_OK', trigger: { type: 'false' }, text: 'Emergency stop pressed' },
+    { class: 'alarm', group: 'Pumps', tag: 'Pump_Alarms', trigger: { type: 'bit', bit: 0 }, text: 'Pump 1 dry run' },
+    { class: 'alarm', group: 'Pumps', tag: 'Pump_Alarms', trigger: { type: 'bit', bit: 1 }, text: 'Pump 1 seal leak' },
+    { class: 'warning', group: 'Pumps', tag: 'Pump_Alarms', trigger: { type: 'bit', bit: 4 }, text: 'Pump 1 service due' },
+    { class: 'alarm', group: 'Tank', tag: 'Tank_Level', trigger: { type: 'ge', value: 95, delay_ms: 2000 }, text: 'Tank level very high: {value} % (limit {limit} %)' },
+    { class: 'warning', group: 'Tank', tag: 'Tank_Level', trigger: { type: 'gt', value: 85 }, text: 'Tank level high: {value} %' },
+    { class: 'warning', group: 'Tank', tag: 'Tank_Level', trigger: { type: 'lt', value: 10 }, text: 'Tank level low: {value} %' },
+    { class: 'alarm', group: 'Air', tag: 'Air_Pressure', trigger: { type: 'outside', min: 4, max: 8 }, text: 'Air pressure out of range: {value} bar ({min}…{max})' },
+    { class: 'info', group: 'Line', tag: 'Line_Mode', trigger: { type: 'eq', value: 2 }, text: 'Line in manual mode' },
+  ].map((a, k) => ({ id: n + k, ack: a.class !== 'info', ...a }));
+  change(() => doc.alarms.push(...S));
+  for (const t of ['Tank_Level', 'Air_Pressure']) { const s = sigOf(t); if (s.mode === 'manual' && !s.value) { s.mode = 'sine'; s.t0 = performance.now(); } }
+  sigOf('EStop_OK').value = true; sigOf('Air_Pressure').value = 6;
+  renderSigs();
+  toast(`${S.length} sample alarms: Bool TRUE / FALSE, bits of an alarm word, limits with delay, a range, a mode value`);
+};
+
+// ---- file: new, open, save, import, export ----
+async function post(path, body) {
+  const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  return { ok: r.ok, status: r.status, j };
+}
+function loadDoc(d, path) { doc = d; doc.alarms = doc.alarms || []; filePath = path || ''; dirty = false; undo.length = 0; rt.clear(); hist = []; $('docName').value = doc.name; renderDefs(); renderSigs(); title(); evaluate(); autosaveSoon(); }
+$('docName').onchange = () => change(() => doc.name = $('docName').value.trim() || 'Alarms', false);
+$('bNew').onclick = () => { if (dirty && doc.alarms.length && !confirm('Start a new alarm set? Unsaved changes go.')) return; loadDoc(newDoc(), ''); };
+$('bOpen').onclick = openSet;
+async function openSet() {
+  if (dirty && doc.alarms.length && !confirm('Open another alarm set? Unsaved changes go.')) return;
+  const { ok, status: st, j } = await post('api/alarmtool/open', {});
+  if (st === 501 || st === 403) { $('fList').dataset.mode = 'open'; $('fList').click(); return; } // a browser: its own file picker
+  if (!ok) { toast(j.error || 'Open failed', true); return; }
+  if (j.cancelled) return;
+  loadDoc(j.set, j.path); toast(`Opened ${j.set.name} – ${j.set.alarms.length} alarms`);
+}
+$('iList').onclick = () => { closeMenus(); $('fList').dataset.mode = 'import'; $('fList').click(); };
+$('fList').onchange = () => { const f = $('fList').files[0]; $('fList').value = ''; if (f) importFile(f, $('fList').dataset.mode !== 'open'); };
+const b64of = async blob => { const b = new Uint8Array(await blob.arrayBuffer()); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
+async function importFile(f, add) {
+  const { ok, j } = await post('api/alarmtool/import', { name: f.name, data: await b64of(f) });
+  if (!ok) { toast(`${f.name}: ${j.error}`, true); return; }
+  if (!add || !doc.alarms.length) { loadDoc(j.set, ''); dirty = true; title(); toast(`${f.name}: ${j.set.alarms.length} alarms`); return; }
+  let moved = 0;
+  change(() => { for (const a of j.set.alarms) { if (doc.alarms.some(b => b.id === a.id)) { a.id = nextId(); moved++; } doc.alarms.push(a); } });
+  toast(`${j.set.alarms.length} alarms added from ${f.name}${moved ? ` – ${moved} got new numbers` : ''}`);
+}
+async function save(as) {
+  const { ok, status: st, j } = await post('api/alarmtool/save', { set: doc, path: filePath, as });
+  if (st === 501) { download(new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' }), safe(doc.name) + '.plcalarm'); dirty = false; title(); return; }
+  if (!ok) { toast(j.error || 'Not saved', true); return; }
+  if (j.cancelled) return;
+  filePath = j.path; dirty = false; title(); toast('Saved ' + j.path);
+}
+$('bSave').onclick = () => save(false);
+$('bSaveAs').onclick = () => save(true);
+const safe = s => (s || 'alarms').replace(/[^\p{L}\p{N}_\-]+/gu, '_');
+function download(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+}
+document.querySelectorAll('[data-export]').forEach(b => b.onclick = async () => {
+  closeMenus();
+  const { ok, j } = await post('api/alarmtool/export', { set: doc, format: b.dataset.export });
+  if (!ok) { toast(j.error, true); return; }
+  const bin = atob(j.data), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const r = await post('api/save-file', { name: j.name, data: j.data });
+  if (r.ok) { if (!r.j.cancelled) toast('Saved ' + r.j.path); return; }
+  if (r.status === 501 || r.status === 403) { download(new Blob([bytes]), j.name); toast(j.name + ' in Downloads'); return; }
+  toast('Not saved: ' + (r.j.error || r.status), true);
+});
+$('bHelp').onclick = () => $('dlgHelp').showModal();
+
+// ---- menus, keys, autosave ----
+function closeMenus() { document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open')); }
+document.querySelectorAll('[data-menu]').forEach(b => b.onclick = ev => { ev.stopPropagation(); const m = b.closest('.menu'), o = m.classList.contains('open'); closeMenus(); m.classList.toggle('open', !o); });
+document.addEventListener('click', ev => { if (!ev.target.closest('.menu')) closeMenus(); });
+document.addEventListener('keydown', ev => {
+  const c = ev.ctrlKey || ev.metaKey, k = ev.key.toLowerCase();
+  if (c && k === 's') { ev.preventDefault(); save(ev.shiftKey); }
+  else if (c && k === 'o') { ev.preventDefault(); openSet(); }
+  else if (c && k === 'z' && !ev.target.matches('input')) { ev.preventDefault(); const s = undo.pop(); if (s) { doc = JSON.parse(s); dirty = true; renderDefs(); renderSigs(); title(); autosaveSoon(); } }
+  else if (ev.key === 'Insert' && !ev.target.matches('input')) $('bAdd').click();
+  else if (ev.key === 'Escape') closeMenus();
+});
+let asTimer = 0;
+function autosaveSoon() {
+  clearTimeout(asTimer);
+  asTimer = setTimeout(async () => {
+    let ok = false;
+    try { ok = (await fetch('api/alarmtool/autosave', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ set: doc }) })).ok; } catch (e) {}
+    $('autosave').textContent = ok ? 'work kept ' + new Date().toLocaleTimeString() : '';
+  }, 800);
+}
+
+(async () => {
+  await loadTags();
+  try { const a = await (await fetch('api/alarmtool/autosave', { cache: 'no-store' })).json(); if (a.set && a.set.alarms) { doc = a.set; dirty = true; } } catch (e) {}
+  $('docName').value = doc.name; title(); renderDefs();
+  await pollLive(); renderSigs(); evaluate();
+  setInterval(() => { stepWaves(); evaluate(); paintSigs(); }, 200);
+  setInterval(() => { if (!document.hidden && usedTags().some(t => sigOf(t).src === 'live')) pollLive(); }, 500);
+  setInterval(loadTags, 15000);
+  status('Simulate the tags on the right, or switch them to Live');
+})();
+setInterval(() => { if (window.opener && window.opener.closed) window.close(); }, 2000);
+</script>
+</body>
+</html>
